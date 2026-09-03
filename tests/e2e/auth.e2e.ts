@@ -63,6 +63,7 @@ test("local account lifecycle, HttpOnly cookies, MFA and live staff authorizatio
   const email = mailbox + "@example.invalid";
   const password = "Local-" + randomUUID();
   const newPassword = "New-" + randomUUID();
+  let inventoryReference: string | null = null;
   if (!/^moda-e2e-[a-f0-9]{32}@example\.invalid$/.test(email))
     throw new Error("Unsafe fixture identity");
   const sql = (statement: string) =>
@@ -83,6 +84,11 @@ test("local account lifecycle, HttpOnly cookies, MFA and live staff authorizatio
       ],
       { encoding: "utf8" },
     ).trim();
+  const originalOnHand = Number(
+    sql(
+      "select on_hand from private.inventory_levels where variant_id='30000000-0000-4000-8000-000000000001' and location_id='40000000-0000-4000-8000-000000000001'",
+    ),
+  );
   try {
     await page.goto("/compte");
     await expect(page).toHaveURL(/\/auth\/entrar$/);
@@ -175,13 +181,34 @@ test("local account lifecycle, HttpOnly cookies, MFA and live staff authorizatio
     ).toBeVisible();
 
     sql(
-      "insert into private.staff_permissions(user_id,permission) select id,'catalog.manage' from auth.users where email='" +
+      "insert into private.staff_permissions(user_id,permission) select id,permission from auth.users cross join (values ('catalog.manage'),('inventory.manage')) p(permission) where email='" +
         email +
         "'",
     );
     await page.reload();
     await expect(
       page.getByText("catalog.manage", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("inventory.manage", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Inventari" }),
+    ).toBeVisible();
+    inventoryReference = await page
+      .locator('input[name="idempotencyKey"]')
+      .getAttribute("value");
+    expect(inventoryReference).toMatch(/^[0-9a-f-]{36}$/);
+    await page.getByLabel("Variació d’estoc").fill("1");
+    await page.getByLabel("Motiu").fill("Ajust E2E reversible");
+    await page.getByRole("button", { name: "Registrar ajust" }).click();
+    await expect(
+      page.getByText("Estoc actualitzat i moviment registrat."),
+    ).toBeVisible();
+    await expect(
+      page.getByText(
+        `Ubicació fictícia: ${originalOnHand + 1} disponibles físicament, 0 reservats.`,
+      ),
     ).toBeVisible();
     sql(
       "delete from private.staff_permissions where user_id=(select id from auth.users where email='" +
@@ -193,6 +220,18 @@ test("local account lifecycle, HttpOnly cookies, MFA and live staff authorizatio
       page.getByText("Aquest compte no té permisos d’administració."),
     ).toBeVisible();
   } finally {
+    if (inventoryReference) {
+      sql(
+        "delete from private.stock_movements where reference_key='" +
+          inventoryReference +
+          "'",
+      );
+      sql(
+        "update private.inventory_levels set on_hand=" +
+          originalOnHand +
+          " where variant_id='30000000-0000-4000-8000-000000000001' and location_id='40000000-0000-4000-8000-000000000001'",
+      );
+    }
     // Only this generated fixture account; cascade removes its sessions and factors.
     sql("delete from auth.users where email='" + email + "'");
     await context.clearCookies();

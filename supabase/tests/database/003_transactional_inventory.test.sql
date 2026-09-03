@@ -16,14 +16,17 @@ values ('56000000-0000-4000-8000-000000000001','54000000-0000-4000-8000-00000000
 select ok(not has_function_privilege('anon','public.adjust_inventory(uuid,uuid,integer,text,text)','EXECUTE'), 'Anon cannot adjust inventory');
 select ok(not has_function_privilege('service_role','public.adjust_inventory(uuid,uuid,integer,text,text)','EXECUTE'), 'Service role has no universal inventory writer');
 select ok(not has_function_privilege('anon','private.adjust_inventory(uuid,uuid,integer,text,text)','EXECUTE'), 'Anon cannot bypass the public inventory RPC');
+select ok(not has_function_privilege('anon','public.staff_inventory()','EXECUTE'), 'Anon cannot list staff inventory');
 
 set local role authenticated;
 select set_config('request.jwt.claims','{"sub":"54000000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal2"}',true);
 select throws_ok($$select public.adjust_inventory('30000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000001',5,'Entrada','test-denied')$$,'42501',null,'Customer cannot adjust stock');
+select throws_ok('select * from public.staff_inventory()','42501',null,'Customer cannot list staff inventory');
 select set_config('request.jwt.claims','{"sub":"54000000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal1","session_id":"56000000-0000-4000-8000-000000000001"}',true);
 select throws_ok($$select public.adjust_inventory('30000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000001',5,'Entrada','test-aal1')$$,'42501',null,'AAL1 staff cannot adjust stock');
 select set_config('request.jwt.claims','{"sub":"54000000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2","session_id":"56000000-0000-4000-8000-000000000001"}',true);
 select is(public.adjust_inventory('30000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000001',5,'Entrada de prova','test-adjust-1'),5,'Authorized adjustment returns new stock');
+select is((select count(*) from public.staff_inventory()),1::bigint,'Authorized staff can list inventory');
 select is(public.adjust_inventory('30000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000001',5,'Entrada de prova','test-adjust-1'),5,'Repeated key is idempotent');
 reset role;
 select is((select count(*) from private.stock_movements where reference_key='test-adjust-1'),1::bigint,'Idempotent adjustment creates one audit row');

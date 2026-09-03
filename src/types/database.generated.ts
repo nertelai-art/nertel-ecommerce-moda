@@ -210,7 +210,31 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      adjust_inventory: {
+        Args: {
+          idempotency_key: string;
+          movement_reason: string;
+          quantity_change: number;
+          target_location: string;
+          target_variant: string;
+        };
+        Returns: number;
+      };
       current_staff_permissions: { Args: never; Returns: string[] };
+      staff_inventory: {
+        Args: never;
+        Returns: {
+          color: string;
+          location_id: string;
+          location_name: string;
+          on_hand: number;
+          product_name: string;
+          reserved: number;
+          size: string;
+          sku: string;
+          variant_id: string;
+        }[];
+      };
     };
     Enums: {
       [_ in never]: never;
