@@ -4,6 +4,7 @@ set search_path=public,extensions;
 select no_plan();
 insert into auth.users(id,email) values ('58000000-0000-4000-8000-000000000001','catalog-staff@example.invalid');
 insert into private.staff_permissions(user_id,permission) values ('58000000-0000-4000-8000-000000000001','catalog.manage');
+insert into private.staff_permissions(user_id,permission) values ('58000000-0000-4000-8000-000000000001','inventory.manage');
 insert into auth.mfa_factors(id,user_id,factor_type,status,created_at,updated_at) values ('59000000-0000-4000-8000-000000000001','58000000-0000-4000-8000-000000000001','totp','verified',now(),now());
 insert into auth.sessions(id,user_id,factor_id,aal) values ('5a000000-0000-4000-8000-000000000001','58000000-0000-4000-8000-000000000001','59000000-0000-4000-8000-000000000001','aal2');
 select ok(not has_function_privilege('anon','public.staff_catalog()','EXECUTE'),'Anon cannot list staff catalog');
@@ -13,7 +14,9 @@ select throws_ok('select * from public.staff_catalog()','42501',null,'AAL1 canno
 select set_config('request.jwt.claims','{"sub":"58000000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2","session_id":"5a000000-0000-4000-8000-000000000001"}',true);
 select is((select count(*) from public.staff_catalog()),3::bigint,'Catalog manager sees every product state');
 select lives_ok($$select public.update_catalog_product('20000000-0000-4000-8000-000000000002','demo-esborrany','Nom actualitzat','Text','archived')$$,'Catalog manager updates a product');
+select lives_ok($$select public.create_catalog_product('producte-nou','Producte nou','','PRODUCTE-NOU-M','M','blau',2590,'40000000-0000-4000-8000-000000000001')$$,'Manager creates product, variant and inventory atomically');
 reset role;
 select is((select status from public.products where id='20000000-0000-4000-8000-000000000002'),'archived','Status update persisted inside transaction');
+select is((select count(*) from public.product_variants v join private.inventory_levels i on i.variant_id=v.id where v.sku='PRODUCTE-NOU-M'),1::bigint,'New variant has an inventory level');
 select * from finish();
 rollback;

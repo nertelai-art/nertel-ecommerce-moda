@@ -6,7 +6,10 @@ import {
   catalogPageSchema,
 } from "../../src/features/catalog/product";
 import { publicCatalogConfig } from "../../src/server/integrations/supabase/public-config";
-import { catalogEditSchema } from "../../src/features/catalog/admin";
+import {
+  catalogCreateSchema,
+  catalogEditSchema,
+} from "../../src/features/catalog/admin";
 
 const row = {
   id: "20000000-0000-4000-8000-000000000001",
@@ -96,5 +99,21 @@ describe("public catalog trust boundary", () => {
         SUPABASE_PUBLISHABLE_KEY: jwt("anon"),
       }).url,
     ).toBe("http://127.0.0.1:55321");
+  });
+  it("validates a new product and its first variant", () => {
+    const input = {
+      slug: "nou-producte",
+      name: "Nou",
+      description: "",
+      sku: "NOU-M-BLAU",
+      size: "M",
+      color: "blau",
+      priceMinor: "2590",
+      locationId: "40000000-0000-4000-8000-000000000001",
+    };
+    expect(catalogCreateSchema.safeParse(input).success).toBe(true);
+    expect(
+      catalogCreateSchema.safeParse({ ...input, sku: "unsafe sku" }).success,
+    ).toBe(false);
   });
 });

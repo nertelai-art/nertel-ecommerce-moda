@@ -5,6 +5,7 @@ import { staffInventory } from "@/server/inventory/repository";
 import { InventoryForm } from "@/components/admin/inventory-form";
 import { CatalogForm } from "@/components/admin/catalog-form";
 import { staffCatalog } from "@/server/catalog/admin";
+import { CatalogCreateForm } from "@/components/admin/catalog-create-form";
 
 export const metadata = { title: "Accés del personal" };
 export default async function AdminPage() {
@@ -73,6 +74,10 @@ export default async function AdminPage() {
               <h2 id="catalog-title" className="font-serif text-3xl">
                 Catàleg
               </h2>
+              {access.permissions.includes("inventory.manage") &&
+              inventory[0] ? (
+                <CatalogCreateForm locationId={inventory[0].location_id} />
+              ) : null}
               <div className="mt-5 grid gap-6">
                 {products.map((product) => (
                   <CatalogForm key={product.id} product={product} />
