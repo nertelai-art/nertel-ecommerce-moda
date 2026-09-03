@@ -3,6 +3,8 @@ import { randomUUID } from "node:crypto";
 import { staffAccess } from "@/server/permissions/staff";
 import { staffInventory } from "@/server/inventory/repository";
 import { InventoryForm } from "@/components/admin/inventory-form";
+import { CatalogForm } from "@/components/admin/catalog-form";
+import { staffCatalog } from "@/server/catalog/admin";
 
 export const metadata = { title: "Accés del personal" };
 export default async function AdminPage() {
@@ -11,6 +13,10 @@ export default async function AdminPage() {
     access.status === "allowed" &&
     access.permissions.includes("inventory.manage")
       ? await staffInventory()
+      : [];
+  const products =
+    access.status === "allowed" && access.permissions.includes("catalog.manage")
+      ? await staffCatalog()
       : [];
   return (
     <main id="main" className="mx-auto w-full max-w-3xl px-6 py-14">
@@ -58,6 +64,18 @@ export default async function AdminPage() {
                     </p>
                     <InventoryForm row={row} requestKey={randomUUID()} />
                   </article>
+                ))}
+              </div>
+            </section>
+          ) : null}
+          {access.permissions.includes("catalog.manage") ? (
+            <section className="mt-10" aria-labelledby="catalog-title">
+              <h2 id="catalog-title" className="font-serif text-3xl">
+                Catàleg
+              </h2>
+              <div className="mt-5 grid gap-6">
+                {products.map((product) => (
+                  <CatalogForm key={product.id} product={product} />
                 ))}
               </div>
             </section>

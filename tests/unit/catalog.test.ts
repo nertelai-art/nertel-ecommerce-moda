@@ -6,6 +6,7 @@ import {
   catalogPageSchema,
 } from "../../src/features/catalog/product";
 import { publicCatalogConfig } from "../../src/server/integrations/supabase/public-config";
+import { catalogEditSchema } from "../../src/features/catalog/admin";
 
 const row = {
   id: "20000000-0000-4000-8000-000000000001",
@@ -25,6 +26,14 @@ const row = {
   internal_note: "PRIVATE",
 };
 describe("public catalog trust boundary", () => {
+  it("validates staff catalog edits", () => {
+    expect(
+      catalogEditSchema.safeParse({ ...row, status: "published" }).success,
+    ).toBe(true);
+    expect(
+      catalogEditSchema.safeParse({ ...row, status: "deleted" }).success,
+    ).toBe(false);
+  });
   it("strips fields outside the public DTO", () => {
     const product = catalogProductSchema.parse(row);
     expect(JSON.stringify(product)).not.toContain("PRIVATE");

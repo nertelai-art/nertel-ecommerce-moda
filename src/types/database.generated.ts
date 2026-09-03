@@ -221,6 +221,26 @@ export type Database = {
         Returns: number;
       };
       current_staff_permissions: { Args: never; Returns: string[] };
+      staff_catalog: {
+        Args: never;
+        Returns: {
+          id: string;
+          slug: string;
+          name: string;
+          description: string;
+          status: string;
+        }[];
+      };
+      update_catalog_product: {
+        Args: {
+          target_id: string;
+          new_slug: string;
+          new_name: string;
+          new_description: string;
+          new_status: string;
+        };
+        Returns: undefined;
+      };
       staff_inventory: {
         Args: never;
         Returns: {

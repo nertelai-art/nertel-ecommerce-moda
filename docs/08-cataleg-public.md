@@ -34,6 +34,6 @@ db:env crea .env.local amb URL i clau anon de la pila local, sense imprimir cred
 
 ## Pendent
 
-Autenticació SSR, recuperació de compte, MFA i permisos del personal; filtres/cerca, fotografies i catàleg real; inventari transaccional, carret i checkout. La web continua sent una previsualització local amb compres desactivades. No s'ha publicat a Vercel ni creat infraestructura de producció.
+Autenticació SSR, recuperació de compte, MFA i permisos del personal; edició protegida de nom, slug, descripció i estat dels productes; i ajustos transaccionals d'inventari estan implementats. Falten alta de productes i variants, categories, filtres/cerca, fotografies, carret i checkout. La web continua sent una previsualització local amb compres desactivades. No s'ha publicat a Vercel ni creat infraestructura de producció.
 
 Referències: [Next.js: dades al servidor](https://nextjs.org/docs/app/getting-started/fetching-data), [Supabase: seguretat de la Data API](https://supabase.com/docs/guides/api/securing-your-api).
