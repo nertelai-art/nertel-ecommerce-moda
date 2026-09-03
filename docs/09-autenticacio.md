@@ -50,3 +50,11 @@ moda-auth-templates és un nginx fixat per digest que serveix només dos HTML a 
 - Perfils editables, eines de gestió, inventari transaccional i compres pendents.
 
 Referències: [SSR](https://supabase.com/docs/guides/auth/server-side/creating-a-client?framework=nextjs), [TOTP](https://supabase.com/docs/guides/auth/auth-mfa/totp), [plantilles locals](https://supabase.com/docs/guides/local-development/customizing-email-templates).
+
+## Flux d'accés simplificat
+
+L'entrada només mostra el formulari, «He oblidat la contrasenya» i «Crea un compte». El registre ofereix el retorn a l'entrada. Confirmació i validació de recuperació apareixen automàticament després del pas corresponent, sense menú de rutes internes ni necessitat de repetir el correu.
+
+Una cookie temporal HttpOnly de deu minuts conserva només correu i tipus de pas, sense dades a la URL. És context de navegació no fiable, validat al servidor; no acredita identitat ni substitueix el codi verificat per Supabase. Els enllaços directes de verificació sense context retornen al primer pas.
+
+Formulari compacte, botó de mostrar/amagar contrasenya i textos contextuals. La prova de navegador recorre els enllaços visibles i les transicions automàtiques.

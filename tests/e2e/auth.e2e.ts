@@ -86,16 +86,23 @@ test("local account lifecycle, HttpOnly cookies, MFA and live staff authorizatio
   try {
     await page.goto("/compte");
     await expect(page).toHaveURL(/\/auth\/entrar$/);
-    await page.goto("/auth/registre");
+    await page
+      .getByRole("link", { name: "Crea un compte", exact: true })
+      .click();
+    await expect(
+      page.getByRole("heading", { name: "Crea el teu compte", exact: true }),
+    ).toBeVisible();
+    await expect(page.getByRole("heading")).toHaveCount(1);
     await page.getByLabel("Correu electrònic").fill(email);
-    await page.getByLabel("Contrasenya", { exact: false }).fill(password);
+    await page.getByLabel("Contrasenya", { exact: true }).fill(password);
     await page
       .getByRole("button", { name: "Crear compte", exact: true })
       .click();
-    await expect(page.getByRole("status")).toContainText("rebràs un codi");
+    await expect(
+      page.getByRole("heading", { name: "Revisa el teu correu" }),
+    ).toBeVisible();
     const confirmation = await mailboxCode(request, mailbox);
-    await page.goto("/auth/confirmar");
-    await page.getByLabel("Correu electrònic").fill(email);
+
     await page.getByLabel("Codi del correu").fill(confirmation);
     await page
       .getByRole("button", { name: "Confirmar correu", exact: true })
@@ -122,27 +129,30 @@ test("local account lifecycle, HttpOnly cookies, MFA and live staff authorizatio
     await expect(page).toHaveURL(/\/auth\/entrar$/);
     await page.goto("/compte");
     await expect(page).toHaveURL(/\/auth\/entrar$/);
-    await page.goto("/auth/recuperar");
+    await page.getByRole("link", { name: "He oblidat la contrasenya" }).click();
+    await expect(page.getByRole("heading")).toHaveCount(1);
     await page.getByLabel("Correu electrònic").fill(email);
     await page.getByRole("button", { name: "Enviar codi" }).click();
-    await expect(page.getByRole("status")).toContainText("rebràs un codi");
+    await expect(
+      page.getByRole("heading", { name: "Revisa el teu correu" }),
+    ).toBeVisible();
     const recovery = await mailboxCode(request, mailbox, true);
-    await page.goto("/auth/validar-recuperacio");
-    await page.getByLabel("Correu electrònic").fill(email);
+
     await page.getByLabel("Codi del correu").fill(recovery);
     await page
       .getByRole("button", { name: "Validar codi", exact: true })
       .click();
     await expect(page).toHaveURL(/\/compte\/contrasenya$/);
     await page
-      .getByLabel("Nova contrasenya", { exact: false })
+      .getByLabel("Nova contrasenya", { exact: true })
       .fill(newPassword);
     await page
       .getByRole("button", { name: "Canviar contrasenya", exact: true })
       .click();
     await expect(page).toHaveURL(/\/auth\/entrar$/);
+    await expect(page.getByRole("heading")).toHaveCount(1);
     await page.getByLabel("Correu electrònic").fill(email);
-    await page.getByLabel("Contrasenya", { exact: false }).fill(newPassword);
+    await page.getByLabel("Contrasenya", { exact: true }).fill(newPassword);
     await page.getByRole("button", { name: "Entrar", exact: true }).click();
     await expect(page).toHaveURL(/\/compte$/);
     await page.goto("/admin");

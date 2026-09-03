@@ -12,7 +12,10 @@ export const authModeSchema = z.enum([
   "password",
 ]);
 export type AuthMode = z.infer<typeof authModeSchema>;
-export type AuthState = { message: string; ok: boolean };
+export type AuthState = {
+  message: string;
+  ok: boolean;
+};
 export type MfaState = AuthState & { secret?: string; factorId?: string };
 
 export const permissionSchema = z.enum([

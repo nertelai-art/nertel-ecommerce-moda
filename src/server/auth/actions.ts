@@ -1,6 +1,6 @@
 "use server";
 
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -57,18 +57,36 @@ export async function submitAuth(
       destination = "/compte";
     } else if (mode === "register" && email.success && password.success) {
       await client.auth.signUp({ email: email.data, password: password.data });
-      return {
-        ok: true,
-        message:
-          "Si podem registrar aquest correu, hi rebràs un codi. Continua a «Confirmar correu».",
-      };
+      (await cookies()).set(
+        "moda-auth-flow",
+        Buffer.from(
+          JSON.stringify({ email: email.data, mode: "confirm" }),
+        ).toString("base64url"),
+        {
+          httpOnly: true,
+          sameSite: "lax",
+          secure: trustedOrigin(process.env.APP_ORIGIN).startsWith("https:"),
+          path: "/auth",
+          maxAge: 600,
+        },
+      );
+      destination = "/auth/confirmar";
     } else if (mode === "recover" && email.success) {
       await client.auth.resetPasswordForEmail(email.data);
-      return {
-        ok: true,
-        message:
-          "Si el compte existeix, hi rebràs un codi. Continua a «Validar codi de recuperació».",
-      };
+      (await cookies()).set(
+        "moda-auth-flow",
+        Buffer.from(
+          JSON.stringify({ email: email.data, mode: "verify-recovery" }),
+        ).toString("base64url"),
+        {
+          httpOnly: true,
+          sameSite: "lax",
+          secure: trustedOrigin(process.env.APP_ORIGIN).startsWith("https:"),
+          path: "/auth",
+          maxAge: 600,
+        },
+      );
+      destination = "/auth/validar-recuperacio";
     } else if (
       ["confirm", "verify-recovery"].includes(mode) &&
       email.success &&
