@@ -45,3 +45,32 @@ export function trustedOrigin(value: string | undefined) {
     throw new Error("Invalid application origin");
   return url.origin;
 }
+
+const loopbackHosts = new Set(["127.0.0.1", "localhost", "[::1]"]);
+
+export function isAllowedRequestOrigin(
+  requestOrigin: string | null,
+  applicationOrigin: string | undefined,
+  environment = process.env.NODE_ENV,
+) {
+  if (!requestOrigin) return false;
+
+  let configured: URL;
+  let requested: URL;
+  try {
+    configured = new URL(trustedOrigin(applicationOrigin));
+    requested = new URL(trustedOrigin(requestOrigin));
+  } catch {
+    return false;
+  }
+
+  if (requested.origin === configured.origin) return true;
+  if (environment !== "development") return false;
+
+  return (
+    loopbackHosts.has(configured.hostname) &&
+    loopbackHosts.has(requested.hostname) &&
+    requested.protocol === configured.protocol &&
+    requested.port === configured.port
+  );
+}

@@ -8,7 +8,7 @@ Rutes: /auth/registre, /auth/confirmar, /auth/entrar, /auth/recuperar, /auth/val
 
 El proxy renova amb getClaims i propaga cookies al servidor i al navegador. Pàgines privades i accions sensibles comproven l'usuari amb getUser. El catàleg conserva la consulta pública independent de sessió.
 
-Les accions POST comproven Origin contra APP_ORIGIN i limiten el cos a 16 KiB. Contrasenyes de 12–128 caràcters i codis de sis dígits validats al servidor. Errors genèrics. Log d'arguments de Server Functions desactivat. La clau TOTP només es mostra al titular, sense captures/traces de prova.
+Les accions POST comproven Origin contra APP_ORIGIN i limiten el cos a 16 KiB. La coincidència és estricta en producció; en desenvolupament, localhost, 127.0.0.1 i [::1] són equivalents només si APP_ORIGIN també és local i el protocol i el port coincideixen. Contrasenyes de 12–128 caràcters i codis de sis dígits validats al servidor. Errors genèrics. Log d'arguments de Server Functions desactivat. La clau TOTP només es mostra al titular, sense captures/traces de prova.
 
 ## Permisos i migració
 

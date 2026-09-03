@@ -14,7 +14,7 @@ npm run db:env
 npm run dev -- --hostname 127.0.0.1 --port 3100
 ```
 
-db:env només cal si no existeix .env.local. No el sobreescriu. La web és a http://127.0.0.1:3100 i APP_ORIGIN ha de coincidir exactament amb aquest origen.
+db:env només cal si no existeix .env.local. No el sobreescriu. La web és a http://127.0.0.1:3100. En producció, APP_ORIGIN ha de coincidir exactament amb l'origen de la petició; en desenvolupament, els hosts de loopback localhost, 127.0.0.1 i [::1] són equivalents quan protocol i port coincideixen.
 
 Windows ha bloquejat l'executable de compatibilitat de db:start a la nova carpeta. La pila existent funciona amb ports de loopback; no aturar-la per provar una arrencada nova fins a resoldre aquesta limitació amb un flux admès. No desactivar el Control d'aplicacions. Vegeu [operació local](docs/09-autenticacio.md).
 

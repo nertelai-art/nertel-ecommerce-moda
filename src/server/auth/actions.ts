@@ -10,13 +10,19 @@ import {
   emailSchema,
   otpSchema,
   passwordSchema,
+  isAllowedRequestOrigin,
   trustedOrigin,
   type AuthState,
   type MfaState,
 } from "@/features/auth/validation";
 
 async function assertOrigin() {
-  if ((await headers()).get("origin") !== trustedOrigin(process.env.APP_ORIGIN))
+  if (
+    !isAllowedRequestOrigin(
+      (await headers()).get("origin"),
+      process.env.APP_ORIGIN,
+    )
+  )
     throw new Error("Request origin rejected");
 }
 

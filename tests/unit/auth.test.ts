@@ -5,6 +5,7 @@ import {
   otpSchema,
   authModeSchema,
   permissionSchema,
+  isAllowedRequestOrigin,
   trustedOrigin,
 } from "../../src/features/auth/validation";
 
@@ -41,5 +42,58 @@ describe("auth input boundaries", () => {
     expect(trustedOrigin("http://127.0.0.1:3100")).toBe(
       "http://127.0.0.1:3100",
     );
+  });
+  it("accepts equivalent loopback origins only during development", () => {
+    for (const origin of [
+      "http://localhost:3100",
+      "http://127.0.0.1:3100",
+      "http://[::1]:3100",
+    ])
+      expect(
+        isAllowedRequestOrigin(origin, "http://127.0.0.1:3100", "development"),
+      ).toBe(true);
+
+    expect(
+      isAllowedRequestOrigin(
+        "http://localhost:3100",
+        "http://127.0.0.1:3100",
+        "production",
+      ),
+    ).toBe(false);
+    expect(
+      isAllowedRequestOrigin(
+        "http://localhost:3100",
+        "http://127.0.0.1:3100",
+        "test",
+      ),
+    ).toBe(false);
+    expect(
+      isAllowedRequestOrigin(
+        "http://127.0.0.1:3100",
+        "http://127.0.0.1:3100",
+        "production",
+      ),
+    ).toBe(true);
+  });
+  it("rejects missing, opaque, external and mismatched local origins", () => {
+    for (const origin of [
+      null,
+      "null",
+      "http://example.com:3100",
+      "https://localhost:3100",
+      "http://localhost:3101",
+      "http://localhost:3100/path",
+    ])
+      expect(
+        isAllowedRequestOrigin(origin, "http://127.0.0.1:3100", "development"),
+      ).toBe(false);
+
+    expect(
+      isAllowedRequestOrigin(
+        "https://localhost:3100",
+        "https://shop.example.com",
+        "development",
+      ),
+    ).toBe(false);
   });
 });
