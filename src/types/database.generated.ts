@@ -210,7 +210,7 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      current_staff_permissions: { Args: never; Returns: string[] };
     };
     Enums: {
       [_ in never]: never;

@@ -1,6 +1,7 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { type NextRequest } from "next/server";
+import { refreshAuth } from "@/server/auth/refresh";
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const development = process.env.NODE_ENV === "development";
   const csp = [
@@ -19,7 +20,7 @@ export function proxy(request: NextRequest) {
   const headers = new Headers(request.headers);
   headers.set("x-nonce", nonce);
   headers.set("Content-Security-Policy", csp);
-  const response = NextResponse.next({ request: { headers } });
+  const response = await refreshAuth(request, headers);
   response.headers.set("Content-Security-Policy", csp);
   response.headers.set("Cache-Control", "private, no-store");
   return response;

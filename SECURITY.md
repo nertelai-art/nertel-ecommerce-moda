@@ -4,7 +4,7 @@ No publiqueu credencials ni dades personals en incidències. Si detecteu una vul
 
 ## Controls presents
 
-- Base SQL local amb RLS a totes les taules d'aplicació, permisos explícits per columna i 44 proves SQL d'accés i integritat. Inventari i permisos de personal en esquema privat, sense escriptures d'aplicació habilitades.
+- Base SQL local amb RLS a totes les taules d'aplicació, permisos explícits per columna i 56 proves SQL d'accés i integritat. Inventari i permisos de personal en esquema privat, sense escriptures d'aplicació habilitades.
 - Arrencada Docker amb comprovació dels ports: si no estan limitats a loopback, la pila s'atura conservant dades. Incidència detectada en aquesta màquina documentada a `docs/06-base-dades-local.md`.
 
 - Entrades del carret amb esquema estricte: sense preus, estat de pagament ni camps addicionals; variants duplicades rebutjades.
@@ -24,3 +24,9 @@ HTTPS i HSTS s'han de verificar al desplegament. Les capçaleres no substitueixe
 No hi ha service worker ni caché offline: s'afegiran després amb llista permesa de recursos públics i proves de canvi d'usuari. No activar pagaments fins a verificar reserves atòmiques, signatures de webhook, idempotència i reconciliació.
 
 Abans de llançar, complir les proves i condicions de `docs/02-stack-arquitectura-seguretat.md`. Un audit de dependències sense incidències no certifica absència de vulnerabilitats.
+
+## Autenticació actual
+
+SSR amb cookies HttpOnly, validació d'origen, TOTP i permisos comprovats contra sessions actives. Encara no hi ha escriptures comercials. Els límits anteriors descriuen la base inicial; l'estat actual i els controls pendents abans de producció són a docs/09-autenticacio.md.
+
+Windows bloqueja l'adaptador d'arrencada a la nova carpeta. La pila existent continua activa; no desactivar el Control d'aplicacions.

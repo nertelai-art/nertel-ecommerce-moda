@@ -44,7 +44,9 @@ function cliEnvironment() {
     windowsHide: true,
   });
   if (checked.status !== 0)
-    throw new Error("Docker port adapter self-tests failed.");
+    throw new Error(
+      "Docker port adapter cannot run or failed its checks. Windows Application Control may block the generated executable; do not disable the policy. See docs/09-autenticacio.md.",
+    );
   const environment = { ...process.env, MODA_REAL_DOCKER: realDocker };
   // Windows environment keys are case-insensitive; do not create duplicate PATH entries.
   const pathKey =
@@ -138,8 +140,9 @@ try {
     ) {
       throw new Error("Local network must bind published ports to 127.0.0.1.");
     }
+    const environment = cliEnvironment();
     try {
-      supabase(["start", "--network-id", network], cliEnvironment());
+      supabase(["start", "--network-id", network], environment);
     } catch (error) {
       supabase(["stop", "--project-id", project]);
       throw error;
@@ -147,6 +150,32 @@ try {
     verifyBindings();
     console.log(
       "Supabase ready. Studio: http://127.0.0.1:55323 | API: http://127.0.0.1:55321",
+    );
+  } else if (action === "pull") {
+    const name = process.argv[3];
+    if (!name || !/^[a-z][a-z0-9_]{0,60}$/.test(name))
+      throw new Error("Provide a migration name.");
+    verifyBindings();
+    try {
+      supabase(
+        [
+          "db",
+          "pull",
+          name,
+          "--local",
+          "--schema",
+          "public,private",
+          "--network-id",
+          network,
+          "--yes",
+        ],
+        cliEnvironment(),
+      );
+    } finally {
+      verifyBindings();
+    }
+    console.log(
+      "Local schema migration generated. Review supabase/migrations.",
     );
   } else if (action === "env") {
     verifyBindings();
@@ -159,7 +188,7 @@ try {
       throw new Error("Unexpected local Supabase configuration.");
     writeFileSync(
       path.join(root, ".env.local"),
-      `SUPABASE_URL=${status.API_URL}\nSUPABASE_PUBLISHABLE_KEY=${status.ANON_KEY}\n`,
+      `SUPABASE_URL=${status.API_URL}\nSUPABASE_PUBLISHABLE_KEY=${status.ANON_KEY}\nAPP_ORIGIN=http://127.0.0.1:3100\n`,
       { flag: "wx", mode: 0o600 },
     );
     console.log(
@@ -174,7 +203,7 @@ try {
   } else {
     if (action !== "reset")
       throw new Error(
-        "Supported actions: start, stop, verify-network, reset, env",
+        "Supported actions: start, stop, verify-network, reset, env, pull",
       );
     if (process.argv[3] !== "--confirm-local-reset")
       throw new Error(

@@ -1,5 +1,7 @@
 # Base de dades local de la botiga
 
+> Aquest document descriu la base inicial. L'estat actual de permisos, MFA i la limitació d'arrencada a Windows són a [Autenticació](09-autenticacio.md).
+
 ## Abast implementat
 
 Supabase CLI 2.116.0, PostgreSQL 17 i serveis locals a Docker. Projecte `nertel-ecommerce-moda`, xarxa `nertel-ecommerce-moda-local` i ports 55320–55324. No s'ha enllaçat cap projecte allotjat ni utilitzat credencials de producció. L'entorn `nertel-platform` preexistent queda separat.

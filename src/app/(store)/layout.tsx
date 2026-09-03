@@ -29,6 +29,12 @@ export default function StoreLayout({
             >
               Col·lecció
             </Link>
+            <Link
+              className="inline-flex min-h-11 items-center hover:underline"
+              href="/compte"
+            >
+              Compte
+            </Link>
           </nav>
         </div>
       </header>

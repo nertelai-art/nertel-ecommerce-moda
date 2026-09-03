@@ -1,53 +1,50 @@
 # E-Commerce PWA Moda
 
-Base inicial d'una botiga modular amb Next.js App Router, TypeScript estricte i Tailwind CSS. Encara no és una botiga operativa.
+Botiga modular en desenvolupament: Next.js, TypeScript, Tailwind i Supabase local. Compres desactivades i dades de demostració.
+
+Carpeta de treball: C:\Users\nerte\pwa-ecommerce-moda.
 
 ## Desenvolupament
 
-Utilitzeu **Node.js 24 LTS** i npm. El Node 20 global detectat durant la preparació no compleix el rang fixat pel projecte.
+Node 24 LTS i Docker Desktop. Amb la pila local activa:
 
 ```sh
 npm ci
-npm run dev
+npm run db:env
+npm run dev -- --hostname 127.0.0.1 --port 3100
 ```
 
-Obriu http://localhost:3000. No calen credencials per executar aquesta base.
+db:env només cal si no existeix .env.local. No el sobreescriu. La web és a http://127.0.0.1:3100 i APP_ORIGIN ha de coincidir exactament amb aquest origen.
+
+Windows ha bloquejat l'executable de compatibilitat de db:start a la nova carpeta. La pila existent funciona amb ports de loopback; no aturar-la per provar una arrencada nova fins a resoldre aquesta limitació amb un flux admès. No desactivar el Control d'aplicacions. Vegeu [operació local](docs/09-autenticacio.md).
+
+## Verificació
 
 ```sh
 npm run check
 npm run build
-npm audit --audit-level=high
+npm run db:test
+npm run db:advisors
 ```
 
-`npm run format` aplica el format. Les dependències directes tenen versions exactes i `package-lock.json` fixa l'arbre complet.
+Prova completa d'autenticació amb web i Docker actius (PowerShell):
 
-## Estructura
-
-```text
-src/app/                 Rutes, layouts i coordinació de la interfície
-src/features/            Models i validacions de domini sense React
-src/lib/                 Primitives compartides petites (imports monetaris)
-src/server/              Contracte de la futura capa exclusiva del servidor
-src/proxy.ts             CSP amb nonce i política de caché
-tests/unit/              Proves d'entrada no fiable i imports
-docs/                    Requisits, arquitectura i estat de la implementació
-.github/workflows/       Controls automàtics per al futur repositori
+```powershell
+$env:LOCAL_AUTH_E2E = '1'
+npm run test:e2e
 ```
 
-Les carpetes de serveis, repositoris, integracions, components compartits i migracions s'afegiran amb la primera implementació concreta. Evitem directoris buits i abstraccions sense ús.
+Crea un compte fictici local, prova confirmació, recuperació, MFA i permisos, i elimina només aquest compte. No envia correus externs ni grava captures/traces amb secrets.
 
-## Estat i següents passos
+## Implementat
 
-Llegiu [l'estat de la base](docs/03-base-implementada.md), [la guia de producte](docs/01-guia-producte-pwa.md) i [l'arquitectura acordada](docs/02-stack-arquitectura-seguretat.md).
+Catàleg i fitxes amb RLS; registre, confirmació, entrada, recuperació, canvi de contrasenya i logout; cookies HttpOnly i MFA TOTP; barrera d'administració amb permisos actuals i sessió activa. Cap administrador permanent creat. Migracions i proves versionades.
 
-La [base de dades local](docs/06-base-dades-local.md) ja inclou catàleg, variants, perfils, adreces, bases d'inventari i permisos RLS, amb migracions i proves. `npm run db:start` arrenca la pila amb ports limitats a localhost, incloent un adaptador de compatibilitat per a Windows.
+Pendent: eines comercials d'administració, inventari transaccional, carret, checkout, comandes, devolucions, PWA i desplegament de producció.
 
-Pendent: connectar el catàleg a la web, autenticació, operacions de personal amb MFA, inventari transaccional, carret persistent, checkout, comandes, devolucions i PWA. La pantalla actual és provisional i no fixa la marca.
+## Documentació
 
-Repositori: [nertelai-art/nertel-ecommerce-moda](https://github.com/nertelai-art/nertel-ecommerce-moda).
-
-Pagaments: contracte independent del proveïdor i selector d'operacions històriques a `src/features/payments`. Llegiu [la guia de Stripe i pagaments](docs/04-pagaments-i-stripe.md) per començar amb un sandbox. Encara no hi ha cap proveïdor connectat ni desplegament.
-
-## Catàleg local
-
-Catàleg i fitxes connectats a Supabase. Preparació i verificació: [Catàleg públic](docs/08-cataleg-public.md). Carpeta de treball: C:\Users\nerte\pwa-ecommerce-moda.
+- [Producte](docs/01-guia-producte-pwa.md) i [arquitectura](docs/02-stack-arquitectura-seguretat.md).
+- [Base SQL](docs/06-base-dades-local.md), [catàleg](docs/08-cataleg-public.md) i [autenticació](docs/09-autenticacio.md).
+- [Pagaments](docs/04-pagaments-i-stripe.md), [direcció visual](docs/05-direccio-visual.md) i [VPS](docs/07-opcio-vps.md).
+- [GitHub](https://github.com/nertelai-art/nertel-ecommerce-moda).

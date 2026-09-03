@@ -13,7 +13,7 @@ insert into public.addresses (id, customer_id, recipient, line1, city, postal_co
   ('60000000-0000-4000-8000-000000000002', '50000000-0000-4000-8000-000000000002', 'B', 'Test 2', 'Test', '00000', 'ES');
 
 select is((select count(*) from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname in ('public', 'private') and c.relkind = 'r' and not c.relrowsecurity), 0::bigint, 'Every application table has RLS');
-select ok(not has_schema_privilege('authenticated', 'private', 'USAGE'), 'Private schema inaccessible to customers');
+select ok(not has_table_privilege('authenticated', 'private.staff_permissions', 'SELECT'), 'Private permission table inaccessible to customers');
 select ok(not has_schema_privilege('service_role', 'private', 'USAGE'), 'No universal service-role access to operational data');
 select ok(not has_table_privilege('anon', 'public.products', 'TRUNCATE'), 'Anon cannot bypass RLS via truncate');
 select ok(not has_table_privilege('authenticated', 'public.products', 'INSERT'), 'Customer cannot insert catalog entries');

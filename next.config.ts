@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  logging: { serverFunctions: false },
+  experimental: { serverActions: { bodySizeLimit: "16kb" } },
   async headers() {
     return [
       {
