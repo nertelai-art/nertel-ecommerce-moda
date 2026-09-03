@@ -1,0 +1,6 @@
+node_modules
+.next
+package-lock.json
+next-env.d.ts
+docs/01-guia-producte-pwa.md
+docs/02-stack-arquitectura-seguretat.md
