@@ -98,15 +98,6 @@ test("local account lifecycle, HttpOnly cookies, MFA and live staff authorizatio
     await page
       .getByRole("button", { name: "Crear compte", exact: true })
       .click();
-    await expect(
-      page.getByRole("heading", { name: "Revisa el teu correu" }),
-    ).toBeVisible();
-    const confirmation = await mailboxCode(request, mailbox);
-
-    await page.getByLabel("Codi del correu").fill(confirmation);
-    await page
-      .getByRole("button", { name: "Confirmar correu", exact: true })
-      .click();
     await expect(page).toHaveURL(/\/compte$/);
     await expect(page.getByText(email, { exact: true })).toBeVisible();
     const sessionCookies = (await context.cookies()).filter((cookie) =>
@@ -130,6 +121,12 @@ test("local account lifecycle, HttpOnly cookies, MFA and live staff authorizatio
     await page.goto("/compte");
     await expect(page).toHaveURL(/\/auth\/entrar$/);
     await page.getByRole("link", { name: "He oblidat la contrasenya" }).click();
+    await expect(
+      page.getByRole("heading", {
+        name: "Has oblidat la contrasenya?",
+        exact: true,
+      }),
+    ).toBeVisible();
     await expect(page.getByRole("heading")).toHaveCount(1);
     await page.getByLabel("Correu electrònic").fill(email);
     await page.getByRole("button", { name: "Enviar codi" }).click();

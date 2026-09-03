@@ -56,21 +56,39 @@ export async function submitAuth(
         };
       destination = "/compte";
     } else if (mode === "register" && email.success && password.success) {
-      await client.auth.signUp({ email: email.data, password: password.data });
-      (await cookies()).set(
-        "moda-auth-flow",
-        Buffer.from(
-          JSON.stringify({ email: email.data, mode: "confirm" }),
-        ).toString("base64url"),
-        {
-          httpOnly: true,
-          sameSite: "lax",
-          secure: trustedOrigin(process.env.APP_ORIGIN).startsWith("https:"),
+      const { data, error } = await client.auth.signUp({
+        email: email.data,
+        password: password.data,
+      });
+      if (error)
+        return {
+          ok: false,
+          message:
+            "No hem pogut crear el compte. Torna-ho a provar o entra si ja en tens un.",
+        };
+      if (data.session) {
+        // Auth decides whether email confirmation is required in this environment.
+        (await cookies()).set("moda-auth-flow", "", {
           path: "/auth",
-          maxAge: 600,
-        },
-      );
-      destination = "/auth/confirmar";
+          maxAge: 0,
+        });
+        destination = "/compte";
+      } else {
+        (await cookies()).set(
+          "moda-auth-flow",
+          Buffer.from(
+            JSON.stringify({ email: email.data, mode: "confirm" }),
+          ).toString("base64url"),
+          {
+            httpOnly: true,
+            sameSite: "lax",
+            secure: trustedOrigin(process.env.APP_ORIGIN).startsWith("https:"),
+            path: "/auth",
+            maxAge: 600,
+          },
+        );
+        destination = "/auth/confirmar";
+      }
     } else if (mode === "recover" && email.success) {
       await client.auth.resetPasswordForEmail(email.data);
       (await cookies()).set(

@@ -58,3 +58,9 @@ L'entrada només mostra el formulari, «He oblidat la contrasenya» i «Crea un 
 Una cookie temporal HttpOnly de deu minuts conserva només correu i tipus de pas, sense dades a la URL. És context de navegació no fiable, validat al servidor; no acredita identitat ni substitueix el codi verificat per Supabase. Els enllaços directes de verificació sense context retornen al primer pas.
 
 Formulari compacte, botó de mostrar/amagar contrasenya i textos contextuals. La prova de navegador recorre els enllaços visibles i les transicions automàtiques.
+
+## Registre local sense confirmació temporal
+
+Per desenvolupar sense SMTP extern, config.toml desactiva enable_confirmations i db:auth aplica GOTRUE_MAILER_AUTOCONFIRM=true només al contenidor Auth local del projecte. El registre entra directament a /compte quan Supabase retorna sessió. Si el proveïdor exigeix confirmació, es conserva el flux amb codi.
+
+Aquesta configuració no modifica cap servei allotjat. Abans de producció cal activar la confirmació de correu i configurar SMTP. La recuperació de contrasenya continua verificant el codi enviat a Mailpit local. La prova Playwright comprova registre directe sense codi, cookies HttpOnly, recuperació i permisos amb MFA.

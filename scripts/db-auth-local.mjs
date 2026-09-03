@@ -69,6 +69,7 @@ try {
   );
   values.set("GOTRUE_SITE_URL", "http://127.0.0.1:3100");
   values.set("GOTRUE_URI_ALLOW_LIST", "");
+  values.set("GOTRUE_MAILER_AUTOCONFIRM", "true");
   for (const type of ["confirmation", "recovery"])
     values.set(
       "GOTRUE_MAILER_TEMPLATES_" + type.toUpperCase(),
