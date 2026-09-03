@@ -40,7 +40,9 @@ Les carpetes de serveis, repositoris, integracions, components compartits i migr
 
 Llegiu [l'estat de la base](docs/03-base-implementada.md), [la guia de producte](docs/01-guia-producte-pwa.md) i [l'arquitectura acordada](docs/02-stack-arquitectura-seguretat.md).
 
-Pendent: catàleg persistent i RLS, autenticació, permisos i MFA, inventari, carret persistent, checkout, comandes, devolucions i PWA. La pantalla actual és provisional i no fixa la marca.
+La [base de dades local](docs/06-base-dades-local.md) ja inclou catàleg, variants, perfils, adreces, bases d'inventari i permisos RLS, amb migracions i proves. `npm run db:start` arrenca la pila amb ports limitats a localhost, incloent un adaptador de compatibilitat per a Windows.
+
+Pendent: connectar el catàleg a la web, autenticació, operacions de personal amb MFA, inventari transaccional, carret persistent, checkout, comandes, devolucions i PWA. La pantalla actual és provisional i no fixa la marca.
 
 Repositori: [nertelai-art/nertel-ecommerce-moda](https://github.com/nertelai-art/nertel-ecommerce-moda).
 

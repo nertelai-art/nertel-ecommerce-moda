@@ -7,6 +7,12 @@
   },
   "scripts": {
     "dev": "next dev",
+    "db:start": "node scripts/db-local.mjs start",
+    "db:stop": "node scripts/db-local.mjs stop",
+    "db:verify-network": "node scripts/db-local.mjs verify-network",
+    "db:reset": "node scripts/db-local.mjs reset",
+    "db:test": "supabase test db --local --network-id nertel-ecommerce-moda-local",
+    "db:advisors": "supabase db advisors --local --type all --level warn --fail-on error",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
@@ -31,6 +37,7 @@
     "eslint": "9.39.5",
     "eslint-config-next": "16.3.4",
     "prettier": "3.9.6",
+    "supabase": "2.116.0",
     "tailwindcss": "4.3.3",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

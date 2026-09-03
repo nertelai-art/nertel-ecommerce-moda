@@ -1,0 +1,36 @@
+name: Database
+on:
+  push:
+    paths:
+      - "supabase/**"
+      - "scripts/**"
+      - "package*.json"
+      - ".github/workflows/database.yml"
+  pull_request:
+    paths:
+      - "supabase/**"
+      - "scripts/**"
+      - "package*.json"
+      - ".github/workflows/database.yml"
+permissions:
+  contents: read
+jobs:
+  schema-and-permissions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - name: Build a fresh local database from migrations
+        run: npm run db:start
+      - run: npm run db:test
+      - run: npm run db:advisors
+      - name: Stop this project only
+        if: always()
+        run: npm run db:stop

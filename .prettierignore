@@ -1,4 +1,6 @@
 node_modules
+supabase/.temp
+supabase/.branches
 .next
 package-lock.json
 next-env.d.ts

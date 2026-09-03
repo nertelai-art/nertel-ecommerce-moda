@@ -4,6 +4,9 @@ No publiqueu credencials ni dades personals en incidències. Si detecteu una vul
 
 ## Controls presents
 
+- Base SQL local amb RLS a totes les taules d'aplicació, permisos explícits per columna i 44 proves SQL d'accés i integritat. Inventari i permisos de personal en esquema privat, sense escriptures d'aplicació habilitades.
+- Arrencada Docker amb comprovació dels ports: si no estan limitats a loopback, la pila s'atura conservant dades. Incidència detectada en aquesta màquina documentada a `docs/06-base-dades-local.md`.
+
 - Entrades del carret amb esquema estricte: sense preus, estat de pagament ni camps addicionals; variants duplicades rebutjades.
 - Imports en enters segurs, amb comprovació de desbordament.
 - CSP amb nonce nou per resposta HTML, sense `unsafe-inline` per a scripts; `unsafe-eval` només en desenvolupament.
