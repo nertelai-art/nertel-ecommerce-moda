@@ -16,12 +16,12 @@ La seguretat és un requisit transversal amb proves i manteniment. Cap document 
 
 ## 2. Perfils i permisos
 
-| Perfil | Accions permeses |
-|---|---|
-| Visitant | Consultar catàleg, gestionar el seu carret i comprar com a convidat |
-| Client | Accions de visitant, perfil, adreces i accés a les seves comandes i devolucions |
-| Personal | Preparar comandes i consultar les dades necessàries; estoc o catàleg només amb permís explícit |
-| Administrador | Gestionar catàleg, permisos, configuració i operacions autoritzades de reemborsament |
+| Perfil        | Accions permeses                                                                               |
+| ------------- | ---------------------------------------------------------------------------------------------- |
+| Visitant      | Consultar catàleg, gestionar el seu carret i comprar com a convidat                            |
+| Client        | Accions de visitant, perfil, adreces i accés a les seves comandes i devolucions                |
+| Personal      | Preparar comandes i consultar les dades necessàries; estoc o catàleg només amb permís explícit |
+| Administrador | Gestionar catàleg, permisos, configuració i operacions autoritzades de reemborsament           |
 
 Els permisos es comproven en cada operació al servidor i a les dades. Amagar un botó no és un control de seguretat. Cap client pot assignar-se permisos de personal. L'administrador de la botiga no necessita accés tècnic a Supabase o Vercel.
 
@@ -151,14 +151,14 @@ Referència d'implementació: [Next.js — PWA](https://nextjs.org/docs/app/guid
 
 ## 7. Fases
 
-| Fase | Resultat esperat |
-|---|---|
-| 0. Definició | Marca, mercats, moneda, logística, permisos i regles comercials confirmats |
-| 1. Base | Disseny, catàleg, variants, autenticació, inventari i panell inicial |
-| 2. Compra | Carret, reserves, Stripe, comandes i correus transaccionals |
-| 3. Operativa | Preparació, devolucions, reemborsaments i dashboard |
+| Fase          | Resultat esperat                                                                |
+| ------------- | ------------------------------------------------------------------------------- |
+| 0. Definició  | Marca, mercats, moneda, logística, permisos i regles comercials confirmats      |
+| 1. Base       | Disseny, catàleg, variants, autenticació, inventari i panell inicial            |
+| 2. Compra     | Carret, reserves, Stripe, comandes i correus transaccionals                     |
+| 3. Operativa  | Preparació, devolucions, reemborsaments i dashboard                             |
 | 4. Llançament | PWA, accessibilitat, proves de seguretat, restauració i validació amb la botiga |
-| Posterior | Favorits, reposició, fidelització, push, idiomes addicionals i integració TPV |
+| Posterior     | Favorits, reposició, fidelització, push, idiomes addicionals i integració TPV   |
 
 Les fases 1–4 formen la primera versió comercial. No posar-la en producció només perquè la pantalla de pagament funcioni.
 

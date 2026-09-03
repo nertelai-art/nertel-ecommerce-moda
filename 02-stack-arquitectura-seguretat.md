@@ -6,17 +6,17 @@ Document de producte: [Guia funcional de la PWA](01-guia-producte-pwa.md).
 
 ## 1. Decisions base
 
-| Peça | Elecció | Responsabilitat |
-|---|---|---|
-| Aplicació | Next.js App Router | Web pública, administrador i endpoints de servidor |
-| Llenguatge | TypeScript estricte | Contractes, models i validacions de tipus |
-| Estils | Tailwind CSS | Sistema visual adaptable i consistent |
-| Dades | PostgreSQL a Supabase | Catàleg, estoc, comandes i auditoria |
-| Identitat | Supabase Auth | Accés, verificació i recuperació de comptes |
-| Fitxers | Supabase Storage | Fotografies i documents amb permisos diferenciats |
-| Desplegament | Vercel | Execució de Next.js i distribució de recursos |
-| Pagament proposat | Stripe Checkout allotjat | Recollida del pagament i notificacions al servidor |
-| Correu | Proveïdor transaccional per escollir | Confirmacions, recuperació i seguiment |
+| Peça              | Elecció                              | Responsabilitat                                    |
+| ----------------- | ------------------------------------ | -------------------------------------------------- |
+| Aplicació         | Next.js App Router                   | Web pública, administrador i endpoints de servidor |
+| Llenguatge        | TypeScript estricte                  | Contractes, models i validacions de tipus          |
+| Estils            | Tailwind CSS                         | Sistema visual adaptable i consistent              |
+| Dades             | PostgreSQL a Supabase                | Catàleg, estoc, comandes i auditoria               |
+| Identitat         | Supabase Auth                        | Accés, verificació i recuperació de comptes        |
+| Fitxers           | Supabase Storage                     | Fotografies i documents amb permisos diferenciats  |
+| Desplegament      | Vercel                               | Execució de Next.js i distribució de recursos      |
+| Pagament proposat | Stripe Checkout allotjat             | Recollida del pagament i notificacions al servidor |
+| Correu            | Proveïdor transaccional per escollir | Confirmacions, recuperació i seguiment             |
 
 Versions estables compatibles verificades en iniciar la implementació, fixades al projecte amb lockfile. No deixar dependències crítiques a versions flotants ni assumir que les API no canvien.
 
@@ -88,24 +88,24 @@ Pàgines i endpoints coordinen operacions; els serveis contenen regles comercial
 
 ## 3. Models de dades
 
-| Entitat | Regles principals |
-|---|---|
-| profiles, addresses | Vinculació a Auth; accés del propietari i personal autoritzat |
-| staff_permissions | Administració només per vies privilegiades; no editable pel client |
-| products, categories | Publicació explícita; esborranys privats |
-| product_variants | SKU únic i estable; talla, color, preu i moneda |
-| inventory_levels | Unitats físiques i reservades per variant i ubicació |
-| stock_movements | Entrades, vendes, ajustos i devolucions amb motiu i referència única |
-| carts, cart_items | Propietari o sessió opaca de convidat; el carret no reserva estoc |
-| orders, order_items | Instantània d'articles, imports i adreça en comprar |
-| stock_reservations | Variant, quantitat, intent, caducitat i estat |
-| payment_attempts | Intent intern, identificadors Stripe únics i estat verificat |
-| shipments | Estat logístic i seguiment independents del pagament |
-| returns, return_items | Quantitats retornades limitades a les comprades elegibles |
-| refunds | Imports i identificadors únics; estat del proveïdor |
-| webhook_events, outbox_jobs | Deducció de duplicats, reintents i processament durable |
-| audit_events | Autor, acció, objecte, data i canvis sensibles depurats |
-| external_mappings | Proveïdor, tipus i identificador extern per futures integracions |
+| Entitat                     | Regles principals                                                    |
+| --------------------------- | -------------------------------------------------------------------- |
+| profiles, addresses         | Vinculació a Auth; accés del propietari i personal autoritzat        |
+| staff_permissions           | Administració només per vies privilegiades; no editable pel client   |
+| products, categories        | Publicació explícita; esborranys privats                             |
+| product_variants            | SKU únic i estable; talla, color, preu i moneda                      |
+| inventory_levels            | Unitats físiques i reservades per variant i ubicació                 |
+| stock_movements             | Entrades, vendes, ajustos i devolucions amb motiu i referència única |
+| carts, cart_items           | Propietari o sessió opaca de convidat; el carret no reserva estoc    |
+| orders, order_items         | Instantània d'articles, imports i adreça en comprar                  |
+| stock_reservations          | Variant, quantitat, intent, caducitat i estat                        |
+| payment_attempts            | Intent intern, identificadors Stripe únics i estat verificat         |
+| shipments                   | Estat logístic i seguiment independents del pagament                 |
+| returns, return_items       | Quantitats retornades limitades a les comprades elegibles            |
+| refunds                     | Imports i identificadors únics; estat del proveïdor                  |
+| webhook_events, outbox_jobs | Deducció de duplicats, reintents i processament durable              |
+| audit_events                | Autor, acció, objecte, data i canvis sensibles depurats              |
+| external_mappings           | Proveïdor, tipus i identificador extern per futures integracions     |
 
 - Diners en unitats menors enteres, amb moneda explícita; cap càlcul monetari amb floats.
 - Dates persistides en UTC i presentades segons la zona del negoci.
@@ -185,13 +185,13 @@ Referències: [Next.js — seguretat de dades](https://nextjs.org/docs/app/guide
 
 ## 6. Memòria cau i PWA
 
-| Contingut | Política proposada |
-|---|---|
-| Recursos estàtics versionats | Memòria cau llarga amb canvi de versió |
-| Catàleg públic | Memòria cau controlada i invalidació en editar |
-| Estoc al moment de comprar | Validació transaccional contra la base de dades |
+| Contingut                        | Política proposada                                      |
+| -------------------------------- | ------------------------------------------------------- |
+| Recursos estàtics versionats     | Memòria cau llarga amb canvi de versió                  |
+| Catàleg públic                   | Memòria cau controlada i invalidació en editar          |
+| Estoc al moment de comprar       | Validació transaccional contra la base de dades         |
 | Compte, comandes i administrador | Sense memòria cau compartida; resposta privada/no-store |
-| Checkout, auth i webhooks | Sense memòria cau al service worker |
+| Checkout, auth i webhooks        | Sense memòria cau al service worker                     |
 
 Separar resposta pública de qualsevol dada personalitzada. No emmagatzemar dades de clients a CDN ni incloure-les en generació estàtica. Fer servir una llista explícita de recursos cachejables al service worker, purgar versions antigues i retirar dades locals de sessió en sortir. El carret de convidat només conté referències i quantitats.
 
@@ -252,19 +252,19 @@ La separació facilita integrar serveis, però no garanteix compatibilitat amb q
 
 ## 10. Proves obligatòries i evidència
 
-| Risc | Prova exigida |
-|---|---|
-| Accés entre clients | Client A no llegeix ni modifica comandes, adreces o fitxers de B via UI o API |
-| Escalada de privilegis | Un client no pot alterar rols ni invocar operacions de personal |
-| Sobreventa | Dos checkouts sobre una unitat; només una reserva vàlida |
-| Manipulació | Quantitats negatives, preus falsos i camps extra rebutjats |
-| Webhooks | Signatura invàlida, duplicats, ordre alterat i reintent després de fallada |
-| Caiguda parcial | Stripe respon però falla el guardat local; reconciliació sense doble cobrament |
-| Caducitat | Expiració i pagament simultanis sense alliberament incorrecte |
-| Devolucions | Reemborsament parcial repetit i reposició repetida no dupliquen efectes |
-| Fuita per caché | Canvi d'usuari i offline sense dades del compte anterior |
-| Secrets | Inspecció del bundle, repositori i logs sense credencials privilegiades |
-| Recuperació | Restauració de dades i fitxers amb reconciliació de comandes |
+| Risc                   | Prova exigida                                                                  |
+| ---------------------- | ------------------------------------------------------------------------------ |
+| Accés entre clients    | Client A no llegeix ni modifica comandes, adreces o fitxers de B via UI o API  |
+| Escalada de privilegis | Un client no pot alterar rols ni invocar operacions de personal                |
+| Sobreventa             | Dos checkouts sobre una unitat; només una reserva vàlida                       |
+| Manipulació            | Quantitats negatives, preus falsos i camps extra rebutjats                     |
+| Webhooks               | Signatura invàlida, duplicats, ordre alterat i reintent després de fallada     |
+| Caiguda parcial        | Stripe respon però falla el guardat local; reconciliació sense doble cobrament |
+| Caducitat              | Expiració i pagament simultanis sense alliberament incorrecte                  |
+| Devolucions            | Reemborsament parcial repetit i reposició repetida no dupliquen efectes        |
+| Fuita per caché        | Canvi d'usuari i offline sense dades del compte anterior                       |
+| Secrets                | Inspecció del bundle, repositori i logs sense credencials privilegiades        |
+| Recuperació            | Restauració de dades i fitxers amb reconciliació de comandes                   |
 
 Guardar evidència del resultat i versió provada. Les eines automàtiques complementen la revisió manual; passar un escàner no certifica absència de vulnerabilitats.
 
