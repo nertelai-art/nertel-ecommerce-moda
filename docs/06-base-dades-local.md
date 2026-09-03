@@ -16,7 +16,7 @@ RLS activada a les 10 taules. No hi ha funcions `security definer`, vistes ni pe
 
 Imports en unitats menors enteres i compatibles amb enters segurs de JavaScript. SKU únic; claus foranes i índexs per les relacions; inventari no negatiu i reserves limitades a l'estoc físic. Els codis de país i moneda tenen validació de format; el servei haurà d'aplicar les llistes admeses pel negoci. Quantitats fraccionàries i imports d'entrada s'han de rebutjar al servidor abans de qualsevol conversió SQL.
 
-El catàleg local és fictici, sense fotografies comercials, comptes, contrasenyes o estoc disponible. L'esquema d'inventari és una base: encara no hi ha operacions que actualitzin saldo i registre en una transacció. Les escriptures comercials es mantenen tancades fins a implementar-les amb les seves proves.
+El catàleg local és fictici, sense fotografies comercials, comptes, contrasenyes o estoc disponible. L'inventari disposa d'ajustos de saldo atòmics i idempotents amb registre del motiu i l'actor. L'operació exigeix una sessió AAL2 viva i el permís `inventory.manage`, bloqueja la fila de saldo i impedeix estoc negatiu. Les reserves de compra i la interfície comercial encara estan pendents.
 
 ## Execució habitual
 

@@ -38,9 +38,9 @@ Crea un compte fictici local, prova confirmació, recuperació, MFA i permisos, 
 
 ## Implementat
 
-Catàleg i fitxes amb RLS; registre, confirmació, entrada, recuperació, canvi de contrasenya i logout; cookies HttpOnly i MFA TOTP; barrera d'administració amb permisos actuals i sessió activa. Cap administrador permanent creat. Migracions i proves versionades.
+Catàleg i fitxes amb RLS; registre, confirmació, entrada, recuperació, canvi de contrasenya i logout; cookies HttpOnly i MFA TOTP; barrera d'administració amb permisos actuals i sessió activa; ajustos d'estoc atòmics i idempotents amb auditoria. Cap administrador permanent creat. Migracions i proves versionades.
 
-Pendent: eines comercials d'administració, inventari transaccional, carret, checkout, comandes, devolucions, PWA i desplegament de producció.
+Pendent: interfície comercial d'administració, reserves d'inventari, carret, checkout, comandes, devolucions, PWA i desplegament de producció.
 
 ## Documentació
 
