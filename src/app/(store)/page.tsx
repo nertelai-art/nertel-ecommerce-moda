@@ -1,33 +1,36 @@
+import Link from "next/link";
+
 export default function StorePage() {
   return (
     <main
       id="main"
-      className="mx-auto flex min-h-dvh max-w-5xl flex-col px-6 py-10 sm:px-12"
+      className="mx-auto w-full max-w-7xl px-6 py-16 sm:px-12 sm:py-28"
     >
-      <header className="border-b border-line pb-6 text-sm font-semibold tracking-widest uppercase">
-        Botiga de moda
-      </header>
-      <section
-        className="flex flex-1 flex-col justify-center py-20"
-        aria-labelledby="welcome-title"
-      >
-        <p className="mb-5 text-sm tracking-widest uppercase text-muted">
-          Properament
+      <section className="max-w-3xl" aria-labelledby="welcome-title">
+        <p className="mb-6 text-xs tracking-[0.2em] uppercase text-muted">
+          Una nova història, properament
         </p>
         <h1
           id="welcome-title"
-          className="max-w-3xl text-5xl leading-tight font-medium tracking-tight sm:text-7xl"
+          className="font-serif text-5xl leading-tight sm:text-7xl"
         >
           Un nou espai per trobar el teu estil.
         </h1>
         <p className="mt-8 max-w-xl text-lg leading-relaxed text-muted">
-          Estem preparant la botiga i les primeres col·leccions. Torna aviat per
-          descobrir-les.
+          Estem donant forma a la nostra botiga. Un espai tranquil per descobrir
+          peces i trobar les que van amb tu.
         </p>
+        <Link className="action mt-10" href="/cataleg">
+          Descobreix la col·lecció{" "}
+          <span aria-hidden="true" className="ml-5">
+            →
+          </span>
+        </Link>
       </section>
-      <footer className="border-t border-line pt-6 text-sm text-muted">
-        Botiga en preparació. Les compres encara no estan disponibles.
-      </footer>
+      <p className="mt-20 border-t border-line pt-6 text-sm text-muted">
+        Primera versió de la botiga. El catàleg local conté articles de
+        demostració.
+      </p>
     </main>
   );
 }

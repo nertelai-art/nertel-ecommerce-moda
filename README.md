@@ -47,3 +47,7 @@ Pendent: connectar el catàleg a la web, autenticació, operacions de personal a
 Repositori: [nertelai-art/nertel-ecommerce-moda](https://github.com/nertelai-art/nertel-ecommerce-moda).
 
 Pagaments: contracte independent del proveïdor i selector d'operacions històriques a `src/features/payments`. Llegiu [la guia de Stripe i pagaments](docs/04-pagaments-i-stripe.md) per començar amb un sandbox. Encara no hi ha cap proveïdor connectat ni desplegament.
+
+## Catàleg local
+
+Catàleg i fitxes connectats a Supabase. Preparació i verificació: [Catàleg públic](docs/08-cataleg-public.md). Carpeta de treball: C:\Users\nerte\pwa-ecommerce-moda.

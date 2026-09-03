@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import "./globals.css";
+import { brand } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: { default: "Botiga de moda", template: "%s · Botiga de moda" },
+  title: { default: brand.name, template: `%s · ${brand.name}` },
   description: "La nostra botiga de moda, properament.",
   robots: { index: false, follow: false },
 };

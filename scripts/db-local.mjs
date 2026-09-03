@@ -148,6 +148,23 @@ try {
     console.log(
       "Supabase ready. Studio: http://127.0.0.1:55323 | API: http://127.0.0.1:55321",
     );
+  } else if (action === "env") {
+    verifyBindings();
+    const status = JSON.parse(supabase(["status", "--output", "json"]));
+    if (
+      status.API_URL !== "http://127.0.0.1:55321" ||
+      typeof status.ANON_KEY !== "string" ||
+      !/^[A-Za-z0-9_.-]+$/.test(status.ANON_KEY)
+    )
+      throw new Error("Unexpected local Supabase configuration.");
+    writeFileSync(
+      path.join(root, ".env.local"),
+      `SUPABASE_URL=${status.API_URL}\nSUPABASE_PUBLISHABLE_KEY=${status.ANON_KEY}\n`,
+      { flag: "wx", mode: 0o600 },
+    );
+    console.log(
+      "Created .env.local with the local public key. Existing files are never overwritten.",
+    );
   } else if (action === "stop") {
     supabase(["stop", "--project-id", project]);
     console.log("Local project stopped. Data preserved.");
@@ -156,7 +173,9 @@ try {
     console.log("Published ports are restricted to loopback.");
   } else {
     if (action !== "reset")
-      throw new Error("Supported actions: start, stop, verify-network, reset");
+      throw new Error(
+        "Supported actions: start, stop, verify-network, reset, env",
+      );
     if (process.argv[3] !== "--confirm-local-reset")
       throw new Error(
         "Reset deletes this project's local data. Pass --confirm-local-reset to rebuild it from migrations and seed.",
