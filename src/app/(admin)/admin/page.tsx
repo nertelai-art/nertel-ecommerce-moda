@@ -3,6 +3,7 @@ import { staffCatalog } from "@/server/catalog/admin";
 import { staffInventory } from "@/server/inventory/repository";
 import { staffOrders } from "@/server/orders/admin";
 import { staffCustomers } from "@/server/customers/admin";
+import { staffSuppliers } from "@/server/suppliers/repository";
 import { staffAccess } from "@/server/permissions/staff";
 
 export default async function AdminDashboardPage() {
@@ -20,12 +21,18 @@ export default async function AdminDashboardPage() {
   const mayReadCustomers =
     access.status === "allowed" &&
     access.permissions.includes("customers.read");
-  const [products, inventory, orders, customers] = await Promise.all([
-    mayManageCatalog ? staffCatalog() : Promise.resolve([]),
-    mayManageInventory ? staffInventory() : Promise.resolve([]),
-    mayReadOrders ? staffOrders() : Promise.resolve([]),
-    mayReadCustomers ? staffCustomers() : Promise.resolve([]),
-  ]);
+  const mayManageSuppliers =
+    access.status === "allowed" &&
+    access.permissions.includes("suppliers.manage");
+  const [products, inventory, orders, customers, suppliers] = await Promise.all(
+    [
+      mayManageCatalog ? staffCatalog() : Promise.resolve([]),
+      mayManageInventory ? staffInventory() : Promise.resolve([]),
+      mayReadOrders ? staffOrders() : Promise.resolve([]),
+      mayReadCustomers ? staffCustomers() : Promise.resolve([]),
+      mayManageSuppliers ? staffSuppliers() : Promise.resolve([]),
+    ],
+  );
   const published = products.filter(
     ({ status }) => status === "published",
   ).length;
@@ -52,7 +59,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       <section
-        className="mt-9 grid gap-4 sm:grid-cols-2 xl:grid-cols-6"
+        className="mt-9 grid gap-4 sm:grid-cols-2 xl:grid-cols-7"
         aria-label="Indicadors principals"
       >
         <Metric label="Productes publicats" value={published} />
@@ -65,6 +72,7 @@ export default async function AdminDashboardPage() {
         />
         <Metric label="Comandes" value={orders.length} />
         <Metric label="Clients" value={customers.length} />
+        <Metric label="Proveïdors" value={suppliers.length} />
       </section>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
@@ -96,6 +104,11 @@ export default async function AdminDashboardPage() {
                 Consulta activitat, recurrència, valor i adreces d’entrega.
               </AdminLink>
             ) : null}
+            {mayManageSuppliers ? (
+              <AdminLink href="/admin/proveidors" title="Proveïdors">
+                Gestiona contactes, terminis, costos i productes vinculats.
+              </AdminLink>
+            ) : null}
           </div>
         </section>
         <section
@@ -106,7 +119,7 @@ export default async function AdminDashboardPage() {
             Següent increment
           </p>
           <h2 id="next-title" className="mt-2 font-serif text-2xl">
-            Proveïdors i enviaments
+            Enviaments i economia
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-muted">
             El següent increment prepararà proveïdors i el model d’enviaments
