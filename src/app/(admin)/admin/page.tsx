@@ -4,6 +4,7 @@ import { staffInventory } from "@/server/inventory/repository";
 import { staffOrders } from "@/server/orders/admin";
 import { staffCustomers } from "@/server/customers/admin";
 import { staffSuppliers } from "@/server/suppliers/repository";
+import { staffFulfillmentQueue } from "@/server/fulfillment/repository";
 import { staffAccess } from "@/server/permissions/staff";
 
 export default async function AdminDashboardPage() {
@@ -24,15 +25,18 @@ export default async function AdminDashboardPage() {
   const mayManageSuppliers =
     access.status === "allowed" &&
     access.permissions.includes("suppliers.manage");
-  const [products, inventory, orders, customers, suppliers] = await Promise.all(
-    [
+  const mayFulfill =
+    access.status === "allowed" &&
+    access.permissions.includes("orders.fulfill");
+  const [products, inventory, orders, customers, suppliers, fulfillment] =
+    await Promise.all([
       mayManageCatalog ? staffCatalog() : Promise.resolve([]),
       mayManageInventory ? staffInventory() : Promise.resolve([]),
       mayReadOrders ? staffOrders() : Promise.resolve([]),
       mayReadCustomers ? staffCustomers() : Promise.resolve([]),
       mayManageSuppliers ? staffSuppliers() : Promise.resolve([]),
-    ],
-  );
+      mayFulfill ? staffFulfillmentQueue() : Promise.resolve([]),
+    ]);
   const published = products.filter(
     ({ status }) => status === "published",
   ).length;
@@ -59,7 +63,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       <section
-        className="mt-9 grid gap-4 sm:grid-cols-2 xl:grid-cols-7"
+        className="mt-9 grid gap-4 sm:grid-cols-2 xl:grid-cols-8"
         aria-label="Indicadors principals"
       >
         <Metric label="Productes publicats" value={published} />
@@ -73,6 +77,10 @@ export default async function AdminDashboardPage() {
         <Metric label="Comandes" value={orders.length} />
         <Metric label="Clients" value={customers.length} />
         <Metric label="Proveïdors" value={suppliers.length} />
+        <Metric
+          label="Per preparar"
+          value={fulfillment.filter((row) => !row.shipment_id).length}
+        />
       </section>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
@@ -109,6 +117,11 @@ export default async function AdminDashboardPage() {
                 Gestiona contactes, terminis, costos i productes vinculats.
               </AdminLink>
             ) : null}
+            {mayFulfill ? (
+              <AdminLink href="/admin/enviaments" title="Enviaments">
+                Prepara comandes i registra transport, seguiment i entrega.
+              </AdminLink>
+            ) : null}
           </div>
         </section>
         <section
@@ -119,11 +132,11 @@ export default async function AdminDashboardPage() {
             Següent increment
           </p>
           <h2 id="next-title" className="mt-2 font-serif text-2xl">
-            Enviaments i economia
+            Economia i contingut
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-muted">
-            El següent increment prepararà proveïdors i el model d’enviaments
-            sense avançar-se a la integració de Stripe.
+            El següent increment prepararà la visió econòmica amb dades reals,
+            sense estimar ingressos que encara no estiguin confirmats.
           </p>
         </section>
       </div>

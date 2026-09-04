@@ -1,0 +1,10 @@
+begin; create extension if not exists pgtap with schema extensions; set search_path=public,extensions; select no_plan();
+update private.security_settings set require_staff_mfa=true where singleton;
+insert into auth.users(id,email) values('ad000000-0000-4000-8000-000000000001','fulfiller@example.invalid'); insert into private.staff_permissions(user_id,permission) values('ad000000-0000-4000-8000-000000000001','orders.fulfill');
+insert into auth.mfa_factors(id,user_id,factor_type,status,created_at,updated_at) values('ae000000-0000-4000-8000-000000000001','ad000000-0000-4000-8000-000000000001','totp','verified',now(),now()); insert into auth.sessions(id,user_id,factor_id,aal) values('af000000-0000-4000-8000-000000000001','ad000000-0000-4000-8000-000000000001','ae000000-0000-4000-8000-000000000001','aal2');
+select ok(not has_table_privilege('authenticated','private.shipments','SELECT'),'Shipment table is private'); select ok(not has_function_privilege('anon','public.staff_fulfillment_queue()','EXECUTE'),'Anon cannot view fulfillment');
+set local role authenticated; select set_config('request.jwt.claims','{"sub":"ad000000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2","session_id":"af000000-0000-4000-8000-000000000001"}',true);
+select throws_ok($$select public.create_shipment('93000000-0000-4000-8000-000000000001','')$$,'55000',null,'Pending orders cannot be fulfilled');
+select lives_ok($$select public.create_shipment('93000000-0000-4000-8000-000000000002','Prova')$$,'Paid order creates shipment');
+select throws_ok($$select public.advance_shipment((select shipment_id from public.staff_fulfillment_queue() where order_id='93000000-0000-4000-8000-000000000002'),'shipped','','','')$$,'55000',null,'Shipment cannot skip workflow states');
+select * from finish(); rollback;

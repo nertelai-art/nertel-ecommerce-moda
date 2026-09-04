@@ -34,6 +34,11 @@ const sections = {
     title: "Proveïdors",
     description: "Contactes, terminis, costos i productes vinculats.",
   },
+  "/admin/enviaments": {
+    eyebrow: "Logística",
+    title: "Enviaments",
+    description: "Preparació, transport, seguiment i entrega.",
+  },
 } as const;
 
 export function AdminTopbar() {

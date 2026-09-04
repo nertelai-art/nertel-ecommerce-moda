@@ -9,6 +9,7 @@ const navigation = [
   { href: "/admin/comandes", label: "Comandes" },
   { href: "/admin/clients", label: "Clients" },
   { href: "/admin/proveidors", label: "Proveïdors" },
+  { href: "/admin/enviaments", label: "Enviaments" },
 ] as const;
 
 const upcoming = ["Economia", "Contingut"];
