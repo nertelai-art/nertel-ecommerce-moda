@@ -13,6 +13,25 @@ const pageSize = 12;
 const projection =
   "id,slug,name,description,product_variants(id,size,color,price_minor,currency),product_categories(categories(id,slug,name)),product_images(id,alt_text,sort_order)";
 const facetRowSchema = z.object({ size: z.string(), color: z.string() });
+const catalogRequestTimeoutMs = 10_000;
+
+async function fetchCatalogResource(url: string, key: string) {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const response = await fetch(url, {
+        headers: { apikey: key },
+        cache: "no-store",
+        signal: AbortSignal.timeout(catalogRequestTimeoutMs),
+        redirect: "error",
+      });
+      const retryable = response.status === 429 || response.status >= 500;
+      if (!retryable || attempt === 1) return response;
+    } catch (error) {
+      if (attempt === 1) throw error;
+    }
+  }
+  throw new Error("Catalog request unavailable");
+}
 
 async function readProducts(filters: Record<string, string>) {
   try {
@@ -28,12 +47,10 @@ async function readProducts(filters: Record<string, string>) {
       order: "name.asc,id.asc",
       ...filters,
     });
-    const response = await fetch(`${config.url}/rest/v1/products?${query}`, {
-      headers: { apikey: config.key },
-      cache: "no-store",
-      signal: AbortSignal.timeout(5000),
-      redirect: "error",
-    });
+    const response = await fetchCatalogResource(
+      `${config.url}/rest/v1/products?${query}`,
+      config.key,
+    );
     if (!response.ok) throw new Error("Catalog request failed");
     return z
       .array(catalogProductSchema)
@@ -104,14 +121,9 @@ export async function listCatalogFacets() {
       order: "size.asc,color.asc",
       limit: "500",
     });
-    const response = await fetch(
+    const response = await fetchCatalogResource(
       `${config.url}/rest/v1/product_variants?${query}`,
-      {
-        headers: { apikey: config.key },
-        cache: "no-store",
-        signal: AbortSignal.timeout(5000),
-        redirect: "error",
-      },
+      config.key,
     );
     if (!response.ok) throw new Error("Catalog facets request failed");
     const rows = z
@@ -136,12 +148,10 @@ export async function listCatalogCategories() {
       order: "name.asc,id.asc",
       limit: "200",
     });
-    const response = await fetch(`${config.url}/rest/v1/categories?${query}`, {
-      headers: { apikey: config.key },
-      cache: "no-store",
-      signal: AbortSignal.timeout(5000),
-      redirect: "error",
-    });
+    const response = await fetchCatalogResource(
+      `${config.url}/rest/v1/categories?${query}`,
+      config.key,
+    );
     if (!response.ok) throw new Error("Category request failed");
     return z
       .array(publicCategorySchema)
