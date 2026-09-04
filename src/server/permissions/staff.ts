@@ -9,18 +9,29 @@ import { requireUser } from "@/server/auth/session";
 
 export const staffAccess = cache(async function staffAccess() {
   const { client, user } = await requireUser();
-  const { data: level, error: levelError } =
-    await client.auth.mfa.getAuthenticatorAssuranceLevel();
-  if (levelError) throw new Error("Unable to verify staff access");
-  if (level.currentLevel !== "aal2")
-    return { status: "mfa-required" as const, permissions: [] };
-  const { data, error } = await client.rpc("current_staff_permissions");
-  if (error) throw new Error("Unable to verify staff access");
+  const [assurance, permissionResult] = await Promise.all([
+    client.auth.mfa.getAuthenticatorAssuranceLevel(),
+    client.rpc("current_staff_permissions"),
+  ]);
+  if (assurance.error || permissionResult.error)
+    throw new Error("Unable to verify staff access");
+  const data = permissionResult.data;
   const permissions = z.array(permissionSchema).parse(data);
+  if (
+    permissions.length === 0 &&
+    process.env.NODE_ENV === "production" &&
+    assurance.data.currentLevel !== "aal2"
+  )
+    return {
+      status: "mfa-required" as const,
+      permissions: [],
+      mfaRequired: true,
+    };
   return {
     status: permissions.length ? ("allowed" as const) : ("denied" as const),
     permissions,
     userId: user.id,
+    mfaRequired: assurance.data.currentLevel === "aal2",
   };
 });
 

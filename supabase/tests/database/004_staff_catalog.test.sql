@@ -2,6 +2,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path=public,extensions;
 select no_plan();
+update private.security_settings set require_staff_mfa = true where singleton;
 insert into auth.users(id,email) values ('58000000-0000-4000-8000-000000000001','catalog-staff@example.invalid');
 insert into private.staff_permissions(user_id,permission) values ('58000000-0000-4000-8000-000000000001','catalog.manage');
 insert into private.staff_permissions(user_id,permission) values ('58000000-0000-4000-8000-000000000001','inventory.manage');

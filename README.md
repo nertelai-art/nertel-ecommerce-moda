@@ -34,7 +34,7 @@ $env:LOCAL_AUTH_E2E = '1'
 npm run test:e2e
 ```
 
-Crea un compte fictici local, prova confirmació, recuperació, MFA i permisos, i elimina només aquest compte. No envia correus externs ni grava captures/traces amb secrets.
+Crea un compte fictici local, prova confirmació, recuperació, MFA i permisos, i elimina només aquest compte. L’MFA del personal és opcional només a la base local; les migracions el deixen obligatori per defecte en qualsevol entorn nou. No envia correus externs ni grava captures/traces amb secrets.
 
 ## Implementat
 

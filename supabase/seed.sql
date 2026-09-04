@@ -1,4 +1,8 @@
 -- Synthetic catalog for LOCAL development only. Never seed production.
+update private.security_settings
+set require_staff_mfa = false, updated_at = now()
+where singleton;
+
 insert into public.categories (id, slug, name, is_active) values
   ('10000000-0000-4000-8000-000000000001', 'vestits', 'Vestits', true),
   ('10000000-0000-4000-8000-000000000003', 'camises', 'Camises', true),
