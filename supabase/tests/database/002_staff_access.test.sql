@@ -2,6 +2,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 select no_plan();
+update private.security_settings set require_staff_mfa = true where singleton;
 insert into auth.users(id, email) values ('51000000-0000-4000-8000-000000000001', 'staff-test@example.invalid');
 insert into private.staff_permissions(user_id, permission) values ('51000000-0000-4000-8000-000000000001', 'catalog.manage');
 insert into auth.mfa_factors(id,user_id,factor_type,status,created_at,updated_at)
@@ -14,6 +15,14 @@ select ok(not (select prosecdef from pg_proc where oid = 'public.current_staff_p
 set local role authenticated;
 select set_config('request.jwt.claims','{"sub":"51000000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal1","session_id":"53000000-0000-4000-8000-000000000001","user_metadata":{"role":"admin"}}',true);
 select is(public.current_staff_permissions(),array[]::text[], 'AAL1 denies even with assigned permission and fake metadata');
+select throws_ok('select * from private.security_settings','42501',null,'Staff cannot read the protected security policy table');
+reset role;
+update private.security_settings set require_staff_mfa = false where singleton;
+set local role authenticated;
+select is(public.current_staff_permissions(),array['catalog.manage'],'Explicit local policy permits assigned staff at AAL1');
+reset role;
+update private.security_settings set require_staff_mfa = true where singleton;
+set local role authenticated;
 select set_config('request.jwt.claims','{"sub":"51000000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2","session_id":"53000000-0000-4000-8000-000000000001"}',true);
 select is(public.current_staff_permissions(),array['catalog.manage'], 'Live verified staff receives only assigned permission');
 select throws_ok('select * from private.staff_permissions','42501',null,'RPC does not open permission table');

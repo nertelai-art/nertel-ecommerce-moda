@@ -40,7 +40,9 @@ export default async function AdminDashboardPage() {
           </p>
         </div>
         <span className="rounded-full bg-[#dce8df] px-3 py-1.5 text-xs text-[#274a38]">
-          Accés protegit amb MFA
+          {access.status === "allowed" && access.mfaRequired
+            ? "Accés protegit amb MFA"
+            : "Entorn local segur"}
         </span>
       </div>
 

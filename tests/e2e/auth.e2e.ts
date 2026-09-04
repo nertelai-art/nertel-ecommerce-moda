@@ -1,5 +1,5 @@
 import { test, expect, type APIRequestContext } from "@playwright/test";
-import { randomUUID, createHmac } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { execFileSync } from "node:child_process";
 
 test.skip(
@@ -37,24 +37,7 @@ async function mailboxCode(
     .toBe(true);
   return code!;
 }
-function totp(secret: string) {
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-  let bits = "";
-  for (const character of secret.replace(/=+$/, ""))
-    bits += alphabet.indexOf(character).toString(2).padStart(5, "0");
-  const bytes = Buffer.from(
-    bits.match(/.{8}/g)!.map((byte) => Number.parseInt(byte, 2)),
-  );
-  const counter = Buffer.alloc(8);
-  counter.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 30000)));
-  const digest = createHmac("sha1", bytes).update(counter).digest();
-  const offset = digest[digest.length - 1]! & 15;
-  return ((digest.readUInt32BE(offset) & 0x7fffffff) % 1000000)
-    .toString()
-    .padStart(6, "0");
-}
-
-test("local account lifecycle, HttpOnly cookies, MFA and live staff authorization", async ({
+test("local account lifecycle, HttpOnly cookies and live staff authorization", async ({
   page,
   request,
   context,
@@ -160,28 +143,8 @@ test("local account lifecycle, HttpOnly cookies, MFA and live staff authorizatio
     await expect(page).toHaveURL(/\/compte$/);
     await page.goto("/admin");
     await expect(
-      page.getByText(
-        "Verifica el segon factor abans d’entrar a l’administració.",
-      ),
-    ).toBeVisible();
-
-    await page.goto("/compte/seguretat");
-    await page.getByRole("button", { name: "Configurar autenticador" }).click();
-    await expect(page.locator("code")).toBeVisible();
-    const secret = await page.locator("code").innerText();
-    await page.getByLabel("Codi de l’autenticador").fill(totp(secret));
-    await page
-      .getByRole("button", { name: "Verificar autenticador", exact: true })
-      .click();
-    await expect(page).toHaveURL(/\/compte$/);
-    await expect(
-      page.getByText("Sessió verificada amb segon factor."),
-    ).toBeVisible();
-    await page.goto("/admin");
-    await expect(
       page.getByText("Aquest compte no té permisos d’administració."),
     ).toBeVisible();
-
     sql(
       "insert into private.staff_permissions(user_id,permission) select id,permission from auth.users cross join (values ('catalog.manage'),('inventory.manage')) p(permission) where email='" +
         email +

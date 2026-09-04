@@ -2,6 +2,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path=public,extensions;
 select plan(16);
+update private.security_settings set require_staff_mfa = true where singleton;
 
 select has_table('public','product_images','Product image metadata table exists');
 select ok((select relrowsecurity from pg_class where oid='public.product_images'::regclass),'RLS is active on product images');
