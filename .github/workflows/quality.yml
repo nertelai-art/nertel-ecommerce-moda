@@ -19,6 +19,7 @@ jobs:
         with:
           node-version-file: .node-version
           cache: npm
-      - run: npm ci --audit-level=high
+      # Dependabot handles advisory monitoring; npm's audit endpoint can hang CI.
+      - run: npm ci --no-audit
       - run: npm run check
       - run: npm run build
