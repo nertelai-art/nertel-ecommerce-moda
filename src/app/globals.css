@@ -67,3 +67,36 @@ body {
   opacity: 0.65;
   cursor: wait;
 }
+
+@keyframes landing-drift {
+  0%,
+  100% {
+    transform: scale(1.015) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: scale(1.055) translate3d(-0.8%, -0.3%, 0);
+  }
+}
+
+@keyframes landing-marquee {
+  to {
+    transform: translateX(calc(-50% - 1.25rem));
+  }
+}
+
+.landing-hero-image {
+  animation: landing-drift 18s ease-in-out infinite;
+  will-change: transform;
+}
+
+.landing-marquee {
+  width: max-content;
+  animation: landing-marquee 24s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-hero-image,
+  .landing-marquee {
+    animation: none;
+  }
+}
