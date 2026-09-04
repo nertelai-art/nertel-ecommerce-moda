@@ -79,18 +79,20 @@ export default async function CatalogPage({
           sizes="100vw"
           src="/editorial/campaign-hero.png"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(25,24,21,.72),rgba(25,24,21,.14)_70%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,18,15,.9)_0%,rgba(17,18,15,.68)_42%,rgba(17,18,15,.2)_78%)]" />
         <div className="relative mx-auto flex min-h-80 max-w-7xl flex-col justify-end px-6 py-12 sm:min-h-[28rem] sm:px-12 sm:py-16">
-          <p className="text-xs tracking-[0.24em] uppercase">
-            Edició 01 · 2026
-          </p>
-          <h1 className="mt-4 max-w-2xl font-serif text-5xl leading-[0.92] tracking-tight sm:text-7xl">
-            La col·lecció mediterrània.
-          </h1>
-          <p className="mt-5 max-w-lg text-sm leading-relaxed text-white/80 sm:text-base">
-            Peces de demostració per explorar una experiència de compra
-            completa. Cap cobrament real està habilitat.
-          </p>
+          <div className="max-w-2xl border-l border-white/70 pl-5 text-shadow-lg sm:pl-8">
+            <p className="text-xs font-semibold tracking-[0.24em] uppercase">
+              Edició 01 · 2026
+            </p>
+            <h1 className="mt-4 font-serif text-5xl leading-[0.92] tracking-tight sm:text-7xl">
+              La col·lecció mediterrània.
+            </h1>
+            <p className="mt-5 max-w-lg text-sm leading-relaxed text-white sm:text-base">
+              Peces de demostració per explorar una experiència de compra
+              completa. Cap cobrament real està habilitat.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -116,85 +118,58 @@ export default async function CatalogPage({
           ))}
         </nav>
 
-        <div className="mt-8 grid items-start gap-10 lg:grid-cols-[17rem_1fr]">
-          <aside
-            className="lg:sticky lg:top-6"
-            aria-label="Filtres de productes"
-          >
-            <details className="border-y border-line py-4 lg:hidden">
-              <summary className="cursor-pointer text-sm font-semibold">
-                Filtrar i ordenar
-              </summary>
-              <Filters filters={filters} facets={facets} compact />
-            </details>
-            <div className="hidden lg:block">
-              <div className="flex items-center justify-between border-b border-line pb-4">
-                <h2 className="font-serif text-2xl">Filtres</h2>
-                {filtered ? (
-                  <Link
-                    className="text-xs underline underline-offset-4"
-                    href="/cataleg"
-                  >
-                    Netejar
-                  </Link>
-                ) : null}
-              </div>
-              <Filters filters={filters} facets={facets} />
-            </div>
-          </aside>
-
-          <section aria-labelledby="results-title">
-            <div className="flex items-end justify-between gap-5 border-b border-line pb-5">
-              <div>
-                <p className="text-xs tracking-[0.2em] text-muted uppercase">
-                  Selecció actual
-                </p>
-                <h2 id="results-title" className="mt-2 font-serif text-3xl">
-                  {products.length === 1
-                    ? "1 peça"
-                    : `${products.length} peces`}
-                </h2>
-              </div>
-              <p className="hidden max-w-xs text-right text-xs leading-relaxed text-muted sm:block">
-                La disponibilitat definitiva es confirma quan reserves el
-                carret.
-              </p>
-            </div>
-            {products.length ? (
-              <ProductGrid products={products} />
-            ) : (
-              <EmptyResults />
-            )}
-            <nav
-              aria-label="Paginació"
-              className="mt-14 flex items-center justify-between border-t border-line pt-6"
-            >
-              {filters.page > 1 ? (
-                <Link
-                  className="min-h-11 text-sm underline underline-offset-4"
-                  href={catalogHref(filters, filters.page - 1)}
-                >
-                  ← Anterior
-                </Link>
-              ) : (
-                <span />
-              )}
-              <span className="text-xs tracking-[0.16em] text-muted uppercase">
-                Pàgina {filters.page}
-              </span>
-              {hasNext ? (
-                <Link
-                  className="min-h-11 text-sm underline underline-offset-4"
-                  href={catalogHref(filters, filters.page + 1)}
-                >
-                  Següent →
-                </Link>
-              ) : (
-                <span />
-              )}
-            </nav>
-          </section>
+        <div className="mt-6 border-b border-line pb-6">
+          <Filters filters={filters} facets={facets} filtered={filtered} />
         </div>
+
+        <section className="mt-10" aria-labelledby="results-title">
+          <div className="flex items-end justify-between gap-5 border-b border-line pb-5">
+            <div>
+              <p className="text-xs tracking-[0.2em] text-muted uppercase">
+                Selecció actual
+              </p>
+              <h2 id="results-title" className="mt-2 font-serif text-3xl">
+                {products.length === 1 ? "1 peça" : `${products.length} peces`}
+              </h2>
+            </div>
+            <p className="hidden max-w-xs text-right text-xs leading-relaxed text-muted sm:block">
+              La disponibilitat definitiva es confirma quan reserves el carret.
+            </p>
+          </div>
+          {products.length ? (
+            <ProductGrid products={products} />
+          ) : (
+            <EmptyResults />
+          )}
+          <nav
+            aria-label="Paginació"
+            className="mt-14 flex items-center justify-between border-t border-line pt-6"
+          >
+            {filters.page > 1 ? (
+              <Link
+                className="min-h-11 text-sm underline underline-offset-4"
+                href={catalogHref(filters, filters.page - 1)}
+              >
+                ← Anterior
+              </Link>
+            ) : (
+              <span />
+            )}
+            <span className="text-xs tracking-[0.16em] text-muted uppercase">
+              Pàgina {filters.page}
+            </span>
+            {hasNext ? (
+              <Link
+                className="min-h-11 text-sm underline underline-offset-4"
+                href={catalogHref(filters, filters.page + 1)}
+              >
+                Següent →
+              </Link>
+            ) : (
+              <span />
+            )}
+          </nav>
+        </section>
       </div>
     </main>
   );
@@ -221,7 +196,7 @@ function Category({
 
 function ProductGrid({ products }: { products: CatalogProduct[] }) {
   return (
-    <ul className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 md:gap-x-6 lg:grid-cols-3">
+    <ul className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 md:gap-x-6 lg:grid-cols-3 xl:grid-cols-4">
       {products.map((product, index) => {
         const variant = product.variants[0];
         const colors = [...new Set(product.variants.map(({ color }) => color))];
@@ -233,7 +208,7 @@ function ProductGrid({ products }: { products: CatalogProduct[] }) {
                   fallbackSrc={demoProductImage(product.slug)}
                   image={product.images[0]}
                   priority={index < 3}
-                  sizes="(max-width: 768px) 50vw, (max-width: 1280px) 31vw, 24vw"
+                  sizes="(max-width: 768px) 50vw, (max-width: 1280px) 31vw, 25vw"
                 />
                 <span className="absolute top-3 left-3 bg-background/90 px-2.5 py-1.5 text-[0.6rem] tracking-[0.16em] uppercase backdrop-blur-sm">
                   Prova
@@ -285,17 +260,18 @@ function EmptyResults() {
 function Filters({
   filters,
   facets,
-  compact = false,
+  filtered,
 }: {
   filters: CatalogQuery;
   facets: { sizes: string[]; colors: string[] };
-  compact?: boolean;
+  filtered: boolean;
 }) {
   return (
     <form
       action="/cataleg"
       method="get"
-      className={`grid gap-5 ${compact ? "mt-5 sm:grid-cols-2" : "mt-6"}`}
+      aria-label="Filtres de productes"
+      className="grid items-end gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(11rem,1.45fr)_repeat(4,minmax(7.5rem,1fr))_auto]"
     >
       {filters.category ? (
         <input type="hidden" name="categoria" value={filters.category} />
@@ -356,16 +332,20 @@ function Filters({
           <option value="name-desc">Nom, Z–A</option>
         </select>
       </Field>
-      <div className="flex gap-3 sm:col-span-2 lg:col-span-1">
-        <button className="action flex-1 rounded-none" type="submit">
-          Aplicar filtres
+      <div className="flex gap-2 sm:col-span-2 lg:col-span-1">
+        <button
+          className="action flex-1 whitespace-nowrap rounded-none"
+          type="submit"
+        >
+          Aplicar
         </button>
-        {compact ? (
+        {filtered ? (
           <Link
-            className="inline-flex min-h-11 items-center border border-line px-4 text-sm"
+            aria-label="Netejar tots els filtres"
+            className="inline-flex min-h-11 items-center border border-line px-3 text-sm"
             href="/cataleg"
           >
-            Netejar
+            ×
           </Link>
         ) : null}
       </div>

@@ -11,17 +11,14 @@ export default function StoreLayout({
   return (
     <CartProvider>
       <div className="flex min-h-dvh flex-col">
-        <p className="bg-accent px-4 py-3 text-center text-xs tracking-wide text-white">
-          {brand.previewNotice}
-        </p>
         <header className="border-b border-line">
-          <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-6 sm:px-12">
-            <Link className="font-serif text-2xl sm:text-3xl" href="/">
+          <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-6 py-3 sm:px-12 sm:py-4">
+            <Link className="font-serif text-xl sm:text-2xl" href="/">
               {brand.name}
             </Link>
             <nav
               aria-label="Navegació principal"
-              className="flex gap-6 text-sm"
+              className="flex gap-5 text-xs sm:text-sm"
             >
               <Link
                 className="inline-flex min-h-11 items-center hover:underline"
