@@ -110,6 +110,47 @@ export type Database = {
           },
         ];
       };
+      product_images: {
+        Row: {
+          id: string;
+          product_id: string;
+          object_path: string;
+          alt_text: string;
+          sort_order: number;
+          mime_type: string;
+          byte_size: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          product_id: string;
+          object_path: string;
+          alt_text: string;
+          sort_order?: number;
+          mime_type: string;
+          byte_size: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          product_id?: string;
+          object_path?: string;
+          alt_text?: string;
+          sort_order?: number;
+          mime_type?: string;
+          byte_size?: number;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "product_images_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       product_variants: {
         Row: {
           color: string;
@@ -210,6 +251,22 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      create_pending_order: {
+        Args: {
+          session_token: string;
+          request_key: string;
+          checkout_details: Json;
+        };
+        Returns: Json;
+      };
+      current_pending_order: {
+        Args: { session_token: string };
+        Returns: Json;
+      };
+      cancel_cart_reservation: {
+        Args: { session_token: string };
+        Returns: boolean;
+      };
       adjust_inventory: {
         Args: {
           idempotency_key: string;
@@ -234,6 +291,107 @@ export type Database = {
         };
         Returns: string;
       };
+      create_catalog_variant: {
+        Args: {
+          target_product: string;
+          variant_sku: string;
+          variant_size: string;
+          variant_color: string;
+          variant_price_minor: number;
+          inventory_location: string;
+        };
+        Returns: string;
+      };
+      update_catalog_variant: {
+        Args: {
+          target_id: string;
+          new_sku: string;
+          new_size: string;
+          new_color: string;
+          new_price_minor: number;
+          new_is_active: boolean;
+        };
+        Returns: undefined;
+      };
+      create_catalog_category: {
+        Args: { category_slug: string; category_name: string };
+        Returns: string;
+      };
+      update_catalog_category: {
+        Args: {
+          target_id: string;
+          new_slug: string;
+          new_name: string;
+          new_is_active: boolean;
+        };
+        Returns: undefined;
+      };
+      set_product_categories: {
+        Args: { target_product: string; target_categories: string[] };
+        Returns: undefined;
+      };
+      register_catalog_image: {
+        Args: {
+          target_product: string;
+          new_object_path: string;
+          new_alt_text: string;
+          new_sort_order: number;
+          new_mime_type: string;
+          new_byte_size: number;
+        };
+        Returns: string;
+      };
+      queue_product_image_cleanup: {
+        Args: { object_path: string };
+        Returns: undefined;
+      };
+      update_catalog_image: {
+        Args: {
+          target_id: string;
+          new_alt_text: string;
+          new_sort_order: number;
+        };
+        Returns: undefined;
+      };
+      delete_catalog_image: { Args: { target_id: string }; Returns: string };
+      quote_cart: { Args: { cart: Json }; Returns: Json };
+      reserve_cart: {
+        Args: { cart: Json; request_key: string; session_token: string };
+        Returns: Json;
+      };
+      server_reserve_cart: {
+        Args: {
+          cart: Json;
+          request_key: string;
+          session_token: string;
+          actor_id: string | null;
+          rate_key: string;
+        };
+        Returns: Json;
+      };
+      server_quote_cart: { Args: { cart: Json }; Returns: Json };
+      server_create_pending_order: {
+        Args: {
+          session_token: string;
+          request_key: string;
+          checkout_details: Json;
+          actor_id: string | null;
+          rate_key: string;
+        };
+        Returns: Json;
+      };
+      server_current_pending_order: {
+        Args: { session_token: string; actor_id: string | null };
+        Returns: Json;
+      };
+      server_cancel_cart_reservation: {
+        Args: {
+          session_token: string;
+          actor_id: string | null;
+          rate_key: string;
+        };
+        Returns: boolean;
+      };
       staff_catalog: {
         Args: never;
         Returns: {
@@ -242,6 +400,44 @@ export type Database = {
           name: string;
           description: string;
           status: string;
+        }[];
+      };
+      staff_catalog_variants: {
+        Args: never;
+        Returns: {
+          id: string;
+          product_id: string;
+          sku: string;
+          size: string;
+          color: string;
+          price_minor: number;
+          currency: string;
+          is_active: boolean;
+        }[];
+      };
+      staff_categories: {
+        Args: never;
+        Returns: {
+          id: string;
+          slug: string;
+          name: string;
+          is_active: boolean;
+        }[];
+      };
+      staff_product_categories: {
+        Args: never;
+        Returns: { product_id: string; category_id: string }[];
+      };
+      staff_catalog_images: {
+        Args: never;
+        Returns: {
+          id: string;
+          product_id: string;
+          object_path: string;
+          alt_text: string;
+          sort_order: number;
+          mime_type: string;
+          byte_size: number;
         }[];
       };
       update_catalog_product: {

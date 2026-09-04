@@ -1,0 +1,12 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+set search_path=public,extensions;
+select plan(6);
+select has_table('private','commerce_rate_limits','Rate limits are durable and private');
+select has_table('private','storage_cleanup_queue','Failed storage cleanup is durable');
+select ok(not has_function_privilege('anon','public.server_reserve_cart(jsonb,uuid,uuid,uuid,text)','EXECUTE'),'Anon cannot call the backend reservation function');
+select ok(not has_function_privilege('authenticated','public.server_create_pending_order(uuid,uuid,jsonb,uuid,text)','EXECUTE'),'Authenticated clients cannot bypass the backend checkout');
+select ok(not has_function_privilege('service_role','private.maintenance_commerce()','EXECUTE'),'Maintenance is not exposed through the API role');
+select is((select count(*) from cron.job where jobname='moda-commerce-maintenance'),1::bigint,'Commerce maintenance runs every minute');
+select * from finish();
+rollback;
