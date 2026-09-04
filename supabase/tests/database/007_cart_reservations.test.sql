@@ -34,8 +34,8 @@ select is((select reserved from private.inventory_levels where variant_id='30000
 set local role service_role;
 select lives_ok($$select public.server_reserve_cart('[{"variantId":"30000000-0000-4000-8000-000000000001","quantity":1}]'::jsonb,'81000000-0000-4000-8000-000000000003','82000000-0000-4000-8000-000000000001',null,'cccccccccccccccc')$$,'A cancelled session can reserve again');
 reset role;
-update private.stock_reservations set expires_at=now()-interval '1 minute' where status='active';
-update private.checkout_sessions set expires_at=now()-interval '1 minute' where status='reserved';
+update private.stock_reservations set expires_at=now()-interval '1 minute' where checkout_session_id='82000000-0000-4000-8000-000000000001' and status='active';
+update private.checkout_sessions set expires_at=now()-interval '1 minute' where id='82000000-0000-4000-8000-000000000001' and status='reserved';
 select is(private.release_expired_reservations(100),1,'Expired reservation is released once');
 select is((select reserved from private.inventory_levels where variant_id='30000000-0000-4000-8000-000000000001' and location_id='40000000-0000-4000-8000-000000000001'),0,'Released stock becomes available again');
 

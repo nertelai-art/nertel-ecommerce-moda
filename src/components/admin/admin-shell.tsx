@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { brand } from "@/lib/brand";
+import { AdminTopbar } from "@/components/admin/admin-topbar";
 
 const navigation = [
   { href: "/admin", label: "Resum" },
@@ -55,14 +56,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
       <div className="min-w-0">
-        <header className="flex min-h-16 items-center justify-between border-b border-[#d8d8d0] bg-white px-5 sm:px-8">
-          <p className="text-xs tracking-[0.16em] text-[#657168] uppercase">
-            Espai de gestió
-          </p>
-          <Link className="text-sm underline underline-offset-4" href="/compte">
-            El meu compte
-          </Link>
-        </header>
+        <AdminTopbar />
         {children}
       </div>
     </div>

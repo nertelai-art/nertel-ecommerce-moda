@@ -46,19 +46,19 @@ select lives_ok(
 reset role;
 
 select is((select count(*) from private.orders where checkout_session_id = '84000000-0000-4000-8000-000000000001'), 1::bigint, 'Only one order exists per checkout session');
-select is((select count(*) from private.payment_attempts), 1::bigint, 'Only one initial payment attempt exists');
-select is((select amount_minor from private.payment_attempts limit 1), 8990::bigint, 'Payment attempt uses the reserved price snapshot');
-select is((select count(*) from private.order_items), 1::bigint, 'Reservation becomes one immutable order line');
-select is((select unit_price_minor from private.order_items limit 1), 8990::bigint, 'Order line snapshots the unit price');
-select is((select email from private.orders limit 1), 'client@example.test', 'Email is normalized server-side');
-select is((select shipping_address->>'recipient' from private.orders limit 1), 'Client', 'Address fields are normalized server-side');
+select is((select count(*) from private.payment_attempts p join private.orders o on o.id=p.order_id where o.checkout_session_id='84000000-0000-4000-8000-000000000001'), 1::bigint, 'Only one initial payment attempt exists');
+select is((select p.amount_minor from private.payment_attempts p join private.orders o on o.id=p.order_id where o.checkout_session_id='84000000-0000-4000-8000-000000000001'), 8990::bigint, 'Payment attempt uses the reserved price snapshot');
+select is((select count(*) from private.order_items i join private.orders o on o.id=i.order_id where o.checkout_session_id='84000000-0000-4000-8000-000000000001'), 1::bigint, 'Reservation becomes one immutable order line');
+select is((select i.unit_price_minor from private.order_items i join private.orders o on o.id=i.order_id where o.checkout_session_id='84000000-0000-4000-8000-000000000001'), 8990::bigint, 'Order line snapshots the unit price');
+select is((select email from private.orders where checkout_session_id='84000000-0000-4000-8000-000000000001'), 'client@example.test', 'Email is normalized server-side');
+select is((select shipping_address->>'recipient' from private.orders where checkout_session_id='84000000-0000-4000-8000-000000000001'), 'Client', 'Address fields are normalized server-side');
 select is((select status from private.checkout_sessions where id = '84000000-0000-4000-8000-000000000001'), 'converted', 'Checkout session is marked converted');
 
-update private.stock_reservations set expires_at = now() - interval '1 minute' where status = 'active';
+update private.stock_reservations set expires_at = now() - interval '1 minute' where checkout_session_id = '84000000-0000-4000-8000-000000000001' and status = 'active';
 update private.checkout_sessions set expires_at = now() - interval '1 minute' where id = '84000000-0000-4000-8000-000000000001';
 update private.orders set expires_at = now() - interval '1 minute' where checkout_session_id = '84000000-0000-4000-8000-000000000001';
 select is(private.release_expired_reservations(100), 1, 'Expired order reservation releases stock');
-select is((select status from private.orders limit 1), 'expired', 'Pending order expires with its reservation');
+select is((select status from private.orders where checkout_session_id='84000000-0000-4000-8000-000000000001'), 'expired', 'Pending order expires with its reservation');
 
 select * from finish();
 rollback;

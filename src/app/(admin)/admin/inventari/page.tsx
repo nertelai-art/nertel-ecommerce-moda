@@ -76,22 +76,12 @@ export default async function AdminInventoryPage({
   );
 
   return (
-    <main id="main" className="mx-auto max-w-7xl px-5 py-8 sm:px-8 sm:py-10">
-      <header className="border-b border-line pb-6 lg:flex lg:items-end lg:justify-between lg:gap-10">
-        <div className="shrink-0">
-          <p className="text-xs tracking-[0.18em] text-muted uppercase">
-            Operacions
-          </p>
-          <h1 className="mt-2 font-serif text-4xl sm:text-5xl">Inventari</h1>
-        </div>
-        <p className="mt-3 max-w-2xl text-muted lg:mt-0 lg:pb-1 lg:text-right">
-          Consulta cada talla i color d’un cop d’ull. Els ajustos queden
-          registrats amb quantitat, motiu i persona responsable.
-        </p>
-      </header>
-
+    <main
+      id="main"
+      className="mx-auto max-w-[100rem] px-5 py-5 sm:px-8 sm:py-6"
+    >
       <section
-        className="mt-7 grid grid-cols-2 gap-3 lg:grid-cols-4"
+        className="flex flex-wrap gap-x-7 gap-y-2 border-b border-line pb-4"
         aria-label="Resum d’inventari"
       >
         <OverviewMetric label="Unitats disponibles" value={totals.available} />
@@ -104,7 +94,7 @@ export default async function AdminInventoryPage({
         />
       </section>
 
-      <section className="mt-5 rounded-xl border border-line bg-white p-4 sm:p-5">
+      <section className="mt-4 rounded-xl border border-line bg-white p-3 sm:p-4">
         <InstantFilterForm className="grid gap-3 md:grid-cols-[minmax(15rem,1fr)_12rem_14rem]">
           <FilterLabel label="Cercar">
             <input
@@ -157,7 +147,7 @@ export default async function AdminInventoryPage({
       </div>
 
       <section
-        className="mt-4 grid gap-4 xl:grid-cols-2"
+        className="mt-4 grid gap-4 lg:grid-cols-2 xl:grid-cols-3"
         aria-label="Variants d’inventari"
       >
         {visibleInventory.map((row) => (
@@ -168,7 +158,7 @@ export default async function AdminInventoryPage({
           />
         ))}
         {visibleInventory.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-line bg-white p-10 text-center xl:col-span-2">
+          <div className="rounded-xl border border-dashed border-line bg-white p-10 text-center lg:col-span-2 xl:col-span-3">
             <h2 className="font-serif text-2xl">Cap variant coincideix</h2>
             <p className="mt-2 text-sm text-muted">
               Canvia la cerca o neteja els filtres.
@@ -193,7 +183,7 @@ function InventoryCard({
     : demoProductImage(row.product_slug);
   return (
     <article className="overflow-hidden rounded-xl border border-line bg-white">
-      <div className="grid grid-cols-[5.5rem_1fr] gap-4 p-4 sm:grid-cols-[6.5rem_1fr_auto] sm:p-5">
+      <div className="grid grid-cols-[7rem_1fr] gap-4 p-4">
         <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-sand">
           {source ? (
             <Image
@@ -220,7 +210,7 @@ function InventoryCard({
             <DataPill label="Ubicació" value={row.location_name} />
           </div>
         </div>
-        <div className="col-span-2 grid grid-cols-3 gap-2 sm:col-span-1 sm:self-center">
+        <div className="col-span-2 grid grid-cols-3 gap-2">
           <StockMetric
             alert={available <= 3}
             label="Disponible"
@@ -267,14 +257,12 @@ function OverviewMetric({
   alert?: boolean;
 }) {
   return (
-    <article
-      className={`rounded-xl border p-4 sm:p-5 ${alert ? "border-[#e7b89e] bg-[#fff8f3]" : "border-line bg-white"}`}
-    >
-      <p className="text-xs text-muted uppercase">{label}</p>
-      <p
-        className={`mt-2 font-serif text-3xl ${alert ? "text-[#914724]" : ""}`}
-      >
+    <article className="flex items-baseline gap-2">
+      <p className={`font-serif text-2xl ${alert ? "text-[#914724]" : ""}`}>
         {value}
+      </p>
+      <p className="text-[0.68rem] tracking-wide text-muted uppercase">
+        {label}
       </p>
     </article>
   );
