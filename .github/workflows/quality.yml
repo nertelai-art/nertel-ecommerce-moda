@@ -19,7 +19,6 @@ jobs:
         with:
           node-version-file: .node-version
           cache: npm
-      - run: npm ci
+      - run: npm ci --audit-level=high
       - run: npm run check
       - run: npm run build
-      - run: npm audit --audit-level=high
