@@ -2,6 +2,7 @@ import Link from "next/link";
 import { staffCatalog } from "@/server/catalog/admin";
 import { staffInventory } from "@/server/inventory/repository";
 import { staffOrders } from "@/server/orders/admin";
+import { staffCustomers } from "@/server/customers/admin";
 import { staffAccess } from "@/server/permissions/staff";
 
 export default async function AdminDashboardPage() {
@@ -16,10 +17,14 @@ export default async function AdminDashboardPage() {
     access.status === "allowed" &&
     access.permissions.includes("orders.fulfill") &&
     access.permissions.includes("customers.read");
-  const [products, inventory, orders] = await Promise.all([
+  const mayReadCustomers =
+    access.status === "allowed" &&
+    access.permissions.includes("customers.read");
+  const [products, inventory, orders, customers] = await Promise.all([
     mayManageCatalog ? staffCatalog() : Promise.resolve([]),
     mayManageInventory ? staffInventory() : Promise.resolve([]),
     mayReadOrders ? staffOrders() : Promise.resolve([]),
+    mayReadCustomers ? staffCustomers() : Promise.resolve([]),
   ]);
   const published = products.filter(
     ({ status }) => status === "published",
@@ -47,7 +52,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       <section
-        className="mt-9 grid gap-4 sm:grid-cols-2 xl:grid-cols-5"
+        className="mt-9 grid gap-4 sm:grid-cols-2 xl:grid-cols-6"
         aria-label="Indicadors principals"
       >
         <Metric label="Productes publicats" value={published} />
@@ -59,6 +64,7 @@ export default async function AdminDashboardPage() {
           attention={lowStock > 0}
         />
         <Metric label="Comandes" value={orders.length} />
+        <Metric label="Clients" value={customers.length} />
       </section>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
@@ -85,6 +91,11 @@ export default async function AdminDashboardPage() {
                 Revisa clients, peces, imports, pagaments i adreces d’entrega.
               </AdminLink>
             ) : null}
+            {mayReadCustomers ? (
+              <AdminLink href="/admin/clients" title="Clients">
+                Consulta activitat, recurrència, valor i adreces d’entrega.
+              </AdminLink>
+            ) : null}
           </div>
         </section>
         <section
@@ -95,11 +106,11 @@ export default async function AdminDashboardPage() {
             Següent increment
           </p>
           <h2 id="next-title" className="mt-2 font-serif text-2xl">
-            Clients i enviaments
+            Proveïdors i enviaments
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-muted">
-            El següent increment connectarà la fitxa de client i prepararà el
-            model d’enviaments sense avançar-se a la integració de Stripe.
+            El següent increment prepararà proveïdors i el model d’enviaments
+            sense avançar-se a la integració de Stripe.
           </p>
         </section>
       </div>
