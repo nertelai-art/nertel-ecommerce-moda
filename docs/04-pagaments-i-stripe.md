@@ -2,7 +2,7 @@
 
 ## Estat real
 
-Hi ha un contracte TypeScript de pagaments i un selector de proveïdor amb proves. Encara no hi ha SDK Stripe, compte connectat, endpoint de checkout ni webhook. No es poden fer cobraments. Primer cal implementar comandes persistents, reserves i processament idempotent.
+Hi ha un contracte TypeScript de pagaments i un selector de proveïdor amb proves. Les reserves, les comandes persistents i l'intent intern idempotent ja estan implementats. Encara no hi ha SDK Stripe, compte connectat, sessió de Stripe Checkout ni webhook; per tant, no es poden fer cobraments.
 
 ## Com funciona
 

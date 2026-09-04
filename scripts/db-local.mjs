@@ -1,5 +1,11 @@
 import { spawnSync } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
+import {
+  appendFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
@@ -183,16 +189,28 @@ try {
     if (
       status.API_URL !== "http://127.0.0.1:55321" ||
       typeof status.ANON_KEY !== "string" ||
+      typeof status.SERVICE_ROLE_KEY !== "string" ||
       !/^[A-Za-z0-9_.-]+$/.test(status.ANON_KEY)
     )
       throw new Error("Unexpected local Supabase configuration.");
-    writeFileSync(
-      path.join(root, ".env.local"),
-      `SUPABASE_URL=${status.API_URL}\nSUPABASE_PUBLISHABLE_KEY=${status.ANON_KEY}\nAPP_ORIGIN=http://127.0.0.1:3100\n`,
-      { flag: "wx", mode: 0o600 },
-    );
+    const environmentFile = path.join(root, ".env.local");
+    if (existsSync(environmentFile)) {
+      const existing = readFileSync(environmentFile, "utf8");
+      if (!/^SUPABASE_SECRET_KEY=/m.test(existing))
+        appendFileSync(
+          environmentFile,
+          `\nSUPABASE_SECRET_KEY=${status.SERVICE_ROLE_KEY}\n`,
+          { mode: 0o600 },
+        );
+    } else {
+      writeFileSync(
+        environmentFile,
+        `SUPABASE_URL=${status.API_URL}\nSUPABASE_PUBLISHABLE_KEY=${status.ANON_KEY}\nSUPABASE_SECRET_KEY=${status.SERVICE_ROLE_KEY}\nAPP_ORIGIN=http://127.0.0.1:3100\n`,
+        { flag: "wx", mode: 0o600 },
+      );
+    }
     console.log(
-      "Created .env.local with the local public key. Existing files are never overwritten.",
+      "Local server credentials are configured without replacing existing values.",
     );
   } else if (action === "stop") {
     supabase(["stop", "--project-id", project]);

@@ -7,6 +7,24 @@ export const productSlugSchema = z
   .max(160)
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 export const catalogPageSchema = z.coerce.number().int().min(1).max(1000);
+export const catalogSearchSchema = z
+  .string()
+  .trim()
+  .max(80)
+  .regex(/^[\p{L}\p{N} '\-]*$/u);
+export const catalogSortSchema = z.enum(["name-asc", "name-desc"]);
+export const catalogQuerySchema = z.object({
+  page: catalogPageSchema.default(1),
+  query: catalogSearchSchema.default(""),
+  category: z.union([productSlugSchema, z.literal("")]).default(""),
+  sort: catalogSortSchema.default("name-asc"),
+});
+
+export const publicCategorySchema = z.object({
+  id: z.uuid(),
+  slug: productSlugSchema,
+  name: z.string().min(1).max(120),
+});
 
 export const catalogProductSchema = z
   .object({
@@ -29,19 +47,43 @@ export const catalogProductSchema = z
         }),
       )
       .max(200),
+    product_categories: z
+      .array(
+        z.object({
+          categories: publicCategorySchema,
+        }),
+      )
+      .max(100),
+    product_images: z
+      .array(
+        z.object({
+          id: z.uuid(),
+          alt_text: z.string().min(1).max(240),
+          sort_order: z.number().int().min(0).max(99),
+        }),
+      )
+      .max(20),
   })
-  .transform(({ product_variants, ...product }) => ({
-    ...product,
-    variants: product_variants.map((variant) => ({
-      id: variant.id,
-      size: variant.size,
-      color: variant.color,
-      price: { amountMinor: variant.price_minor, currency: variant.currency },
-    })),
-  }));
+  .transform(
+    ({ product_variants, product_categories, product_images, ...product }) => ({
+      ...product,
+      variants: product_variants.map((variant) => ({
+        id: variant.id,
+        size: variant.size,
+        color: variant.color,
+        price: { amountMinor: variant.price_minor, currency: variant.currency },
+      })),
+      categories: product_categories.map(({ categories }) => categories),
+      images: product_images.map((image) => ({
+        id: image.id,
+        altText: image.alt_text,
+      })),
+    }),
+  );
 
 /** DTO públic validat: sense SKU interns, costos, estoc ni notes. */
 export type CatalogProduct = z.output<typeof catalogProductSchema>;
+export type CatalogQuery = z.output<typeof catalogQuerySchema>;
 
 export function displayPrice(product: CatalogProduct): string {
   if (product.variants.length === 0) return "Preu pendent";

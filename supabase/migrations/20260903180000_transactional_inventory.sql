@@ -37,6 +37,11 @@ begin
   if exists (
     select 1 from private.stock_movements where reference_key = idempotency_key
   ) then
+    if not exists (
+      select 1 from private.stock_movements
+      where reference_key=idempotency_key and variant_id=target_variant and location_id=target_location
+        and quantity_delta=quantity_change and reason=btrim(movement_reason) and actor_id=actor
+    ) then raise exception 'idempotency payload conflict' using errcode='23505'; end if;
     return resulting_on_hand;
   end if;
   if resulting_on_hand + quantity_change < 0 then

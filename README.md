@@ -14,7 +14,7 @@ npm run db:env
 npm run dev -- --hostname 127.0.0.1 --port 3100
 ```
 
-db:env només cal si no existeix .env.local. No el sobreescriu. La web és a http://127.0.0.1:3100. En producció, APP_ORIGIN ha de coincidir exactament amb l'origen de la petició; en desenvolupament, els hosts de loopback localhost, 127.0.0.1 i [::1] són equivalents quan protocol i port coincideixen.
+db:env crea l'entorn local o hi afegeix la credencial secreta si falta, sense substituir els valors existents. Genera la clau publicable i la credencial exclusiva del servidor. `.env.local` està exclòs de Git; la credencial secreta mai no ha de tenir prefix `NEXT_PUBLIC_`. La web és a http://127.0.0.1:3100. En producció, APP_ORIGIN ha de coincidir exactament amb l'origen de la petició; en desenvolupament, els hosts de loopback localhost, 127.0.0.1 i [::1] són equivalents quan protocol i port coincideixen.
 
 Windows ha bloquejat l'executable de compatibilitat de db:start a la nova carpeta. La pila existent funciona amb ports de loopback; no aturar-la per provar una arrencada nova fins a resoldre aquesta limitació amb un flux admès. No desactivar el Control d'aplicacions. Vegeu [operació local](docs/09-autenticacio.md).
 
@@ -38,9 +38,9 @@ Crea un compte fictici local, prova confirmació, recuperació, MFA i permisos, 
 
 ## Implementat
 
-Catàleg i fitxes amb RLS; registre, confirmació, entrada, recuperació, canvi de contrasenya i logout; cookies HttpOnly i MFA TOTP; edició i arxivat de productes; administració d'inventari protegida per permisos i MFA; ajustos d'estoc atòmics i idempotents amb auditoria. Cap administrador permanent creat. Migracions i proves versionades.
+Catàleg i fitxes amb RLS; registre, confirmació, entrada, recuperació, canvi de contrasenya i logout; cookies HttpOnly i MFA TOTP; alta, edició i arxivat de productes; gestió de múltiples variants, categories, assignacions i fotografies; carret local amb cotització autoritativa i reserves d'estoc atòmiques; administració d'inventari protegida per permisos i MFA; ajustos d'estoc idempotents amb auditoria. Cap administrador permanent creat. Migracions i proves versionades.
 
-Pendent: variants addicionals, categories, reserves d'inventari, carret, checkout, comandes, devolucions, PWA i desplegament de producció.
+Pendent: connexió de Stripe, webhook de confirmació, correus, devolucions, PWA i desplegament de producció. La comanda pendent i l'intent intern de pagament ja es creen de manera transaccional, però encara no es cobra res.
 
 ## Documentació
 
