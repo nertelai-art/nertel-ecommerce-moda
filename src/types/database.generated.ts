@@ -457,7 +457,10 @@ export type Database = {
           location_id: string;
           location_name: string;
           on_hand: number;
+          product_id: string;
+          product_image_id: string | null;
           product_name: string;
+          product_slug: string;
           reserved: number;
           size: string;
           sku: string;

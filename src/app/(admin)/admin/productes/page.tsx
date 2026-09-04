@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CatalogCreateForm } from "@/components/admin/catalog-create-form";
 import { CatalogForm } from "@/components/admin/catalog-form";
+import { InstantFilterForm } from "@/components/admin/instant-filter-form";
 import {
   CatalogCategoryCreateForm,
   CatalogCategoryForm,
@@ -77,10 +78,7 @@ export default async function AdminProductsPage({
       </header>
       <MediaStatus value={query.media} />
       <section className="mt-7 grid gap-4 rounded-xl border border-line bg-white p-4 sm:grid-cols-[1fr_auto] sm:p-5">
-        <form
-          className="grid gap-3 sm:grid-cols-[minmax(15rem,1fr)_12rem_auto]"
-          method="get"
-        >
+        <InstantFilterForm className="grid gap-3 sm:grid-cols-[minmax(15rem,1fr)_12rem]">
           <label className="grid gap-1 text-xs font-semibold tracking-wide text-muted uppercase">
             Cercar
             <input
@@ -88,6 +86,7 @@ export default async function AdminProductsPage({
               defaultValue={queryText}
               name="q"
               placeholder="Nom, URL o SKU"
+              type="search"
             />
           </label>
           <label className="grid gap-1 text-xs font-semibold tracking-wide text-muted uppercase">
@@ -103,8 +102,7 @@ export default async function AdminProductsPage({
               <option value="archived">Arxivats</option>
             </select>
           </label>
-          <button className="action self-end">Aplicar</button>
-        </form>
+        </InstantFilterForm>
         <div className="flex items-end gap-2">
           {queryText || status ? (
             <Link
