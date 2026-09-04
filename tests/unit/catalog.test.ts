@@ -115,6 +115,9 @@ describe("public catalog trust boundary", () => {
       page: 2,
       query: "vestit blau",
       category: "vestits",
+      size: "",
+      color: "",
+      price: "",
       sort: "name-desc",
     });
     for (const query of ["x,or(status.eq.draft)", "*", "x".repeat(81)])
@@ -132,6 +135,28 @@ describe("public catalog trust boundary", () => {
         query: "",
         category: "vestits",
         sort: "price-asc",
+      }).success,
+    ).toBe(false);
+    expect(
+      catalogQuerySchema.safeParse({
+        page: 1,
+        query: "",
+        category: "",
+        size: "M",
+        color: "oliva",
+        price: "60-80",
+        sort: "name-asc",
+      }).success,
+    ).toBe(true);
+    expect(
+      catalogQuerySchema.safeParse({
+        page: 1,
+        query: "",
+        category: "",
+        size: "M,or(is_active.eq.false)",
+        color: "",
+        price: "gratis",
+        sort: "name-asc",
       }).success,
     ).toBe(false);
   });

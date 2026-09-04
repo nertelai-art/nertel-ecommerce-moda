@@ -41,8 +41,10 @@ test("cart, reservation, pending order, reload and cancellation", async ({
     sql(
       `update private.inventory_levels set on_hand=1,reserved=0 where variant_id='${variant}' and location_id='${location}'`,
     );
-    await page.goto("/productes/demo-vestit");
-    await page.getByRole("button", { name: /Afegir DEMO/ }).click();
+    await page.goto("/productes/vestit-alba");
+    await page
+      .getByRole("button", { name: "Afegir Vestit Alba, M, sorra al carret" })
+      .click();
     await page.getByRole("link", { name: /Carret/ }).click();
     await page.getByRole("button", { name: "Reservar estoc" }).click();
     await page.getByLabel("Correu electrònic").fill(email);

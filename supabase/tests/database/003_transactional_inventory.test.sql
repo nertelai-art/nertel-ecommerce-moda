@@ -25,16 +25,16 @@ select throws_ok('select * from public.staff_inventory()','42501',null,'Customer
 select set_config('request.jwt.claims','{"sub":"54000000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal1","session_id":"56000000-0000-4000-8000-000000000001"}',true);
 select throws_ok($$select public.adjust_inventory('30000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000001',5,'Entrada','test-aal1')$$,'42501',null,'AAL1 staff cannot adjust stock');
 select set_config('request.jwt.claims','{"sub":"54000000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2","session_id":"56000000-0000-4000-8000-000000000001"}',true);
-select is(public.adjust_inventory('30000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000001',5,'Entrada de prova','test-adjust-1'),5,'Authorized adjustment returns new stock');
-select is((select count(*) from public.staff_inventory()),1::bigint,'Authorized staff can list inventory');
-select is(public.adjust_inventory('30000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000001',5,'Entrada de prova','test-adjust-1'),5,'Repeated key is idempotent');
+select is(public.adjust_inventory('30000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000001',5,'Entrada de prova','test-adjust-1'),13,'Authorized adjustment returns new stock');
+select is((select count(*) from public.staff_inventory()),14::bigint,'Authorized staff can list inventory');
+select is(public.adjust_inventory('30000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000001',5,'Entrada de prova','test-adjust-1'),13,'Repeated key is idempotent');
 reset role;
 select is((select count(*) from private.stock_movements where reference_key='test-adjust-1'),1::bigint,'Idempotent adjustment creates one audit row');
 select is((select actor_id from private.stock_movements where reference_key='test-adjust-1'),'54000000-0000-4000-8000-000000000001'::uuid,'Audit row records the actor');
 set local role authenticated;
-select throws_ok($$select public.adjust_inventory('30000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000001',-6,'Sortida excessiva','test-adjust-2')$$,'22003',null,'Stock cannot become negative');
+select throws_ok($$select public.adjust_inventory('30000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000001',-14,'Sortida excessiva','test-adjust-2')$$,'22003',null,'Stock cannot become negative');
 reset role;
-select is((select on_hand from private.inventory_levels where variant_id='30000000-0000-4000-8000-000000000001' and location_id='40000000-0000-4000-8000-000000000001'),5,'Failed adjustment leaves stock unchanged');
+select is((select on_hand from private.inventory_levels where variant_id='30000000-0000-4000-8000-000000000001' and location_id='40000000-0000-4000-8000-000000000001'),13,'Failed adjustment leaves stock unchanged');
 
 select * from finish();
 rollback;

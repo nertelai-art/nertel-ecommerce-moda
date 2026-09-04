@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { findCatalogProduct } from "@/server/repositories/catalog";
-import { displayPrice } from "@/features/catalog/product";
+import { demoProductImage, displayPrice } from "@/features/catalog/product";
 import { ProductImage } from "@/components/catalog/product-image";
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 
@@ -27,6 +27,7 @@ export default async function ProductPage({
         <div className="grid gap-4">
           <ProductImage
             image={product.images[0]}
+            fallbackSrc={demoProductImage(product.slug)}
             sizes="(max-width: 768px) 100vw, 50vw"
             priority
           />

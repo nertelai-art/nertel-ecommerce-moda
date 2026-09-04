@@ -5,19 +5,22 @@ export type PublicProductImage = { id: string; altText: string };
 
 export function ProductImage({
   image,
+  fallbackSrc,
   sizes,
   priority = false,
 }: {
   image: PublicProductImage | undefined;
+  fallbackSrc?: string | undefined;
   sizes: string;
   priority?: boolean;
 }) {
-  if (!image) return <ProductPlaceholder />;
+  const src = image ? `/media/products/${image.id}` : fallbackSrc;
+  if (!src) return <ProductPlaceholder />;
   return (
     <div className="relative aspect-[3/4] overflow-hidden bg-sand">
       <Image
-        src={`/media/products/${image.id}`}
-        alt={image.altText}
+        src={src}
+        alt={image?.altText ?? "Imatge editorial de demostració de la peça"}
         fill
         sizes={sizes}
         priority={priority}
