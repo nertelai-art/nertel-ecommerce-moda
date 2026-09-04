@@ -584,6 +584,20 @@ export type Database = {
         };
         Returns: undefined;
       };
+      staff_finance_sales: {
+        Args: { report_days?: number | null };
+        Returns: {
+          order_id: string;
+          occurred_at: string;
+          product_id: string;
+          product_name: string;
+          sku: string;
+          quantity: number;
+          revenue_minor: number;
+          estimated_cost_minor: number | null;
+          currency: string;
+        }[];
+      };
     };
     Enums: {
       [_ in never]: never;

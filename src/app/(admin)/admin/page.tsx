@@ -5,6 +5,7 @@ import { staffOrders } from "@/server/orders/admin";
 import { staffCustomers } from "@/server/customers/admin";
 import { staffSuppliers } from "@/server/suppliers/repository";
 import { staffFulfillmentQueue } from "@/server/fulfillment/repository";
+import { staffFinanceSales } from "@/server/finance/repository";
 import { staffAccess } from "@/server/permissions/staff";
 
 export default async function AdminDashboardPage() {
@@ -28,15 +29,25 @@ export default async function AdminDashboardPage() {
   const mayFulfill =
     access.status === "allowed" &&
     access.permissions.includes("orders.fulfill");
-  const [products, inventory, orders, customers, suppliers, fulfillment] =
-    await Promise.all([
-      mayManageCatalog ? staffCatalog() : Promise.resolve([]),
-      mayManageInventory ? staffInventory() : Promise.resolve([]),
-      mayReadOrders ? staffOrders() : Promise.resolve([]),
-      mayReadCustomers ? staffCustomers() : Promise.resolve([]),
-      mayManageSuppliers ? staffSuppliers() : Promise.resolve([]),
-      mayFulfill ? staffFulfillmentQueue() : Promise.resolve([]),
-    ]);
+  const mayReadFinance =
+    access.status === "allowed" && access.permissions.includes("finance.read");
+  const [
+    products,
+    inventory,
+    orders,
+    customers,
+    suppliers,
+    fulfillment,
+    finance,
+  ] = await Promise.all([
+    mayManageCatalog ? staffCatalog() : Promise.resolve([]),
+    mayManageInventory ? staffInventory() : Promise.resolve([]),
+    mayReadOrders ? staffOrders() : Promise.resolve([]),
+    mayReadCustomers ? staffCustomers() : Promise.resolve([]),
+    mayManageSuppliers ? staffSuppliers() : Promise.resolve([]),
+    mayFulfill ? staffFulfillmentQueue() : Promise.resolve([]),
+    mayReadFinance ? staffFinanceSales() : Promise.resolve([]),
+  ]);
   const published = products.filter(
     ({ status }) => status === "published",
   ).length;
@@ -122,6 +133,11 @@ export default async function AdminDashboardPage() {
                 Prepara comandes i registra transport, seguiment i entrega.
               </AdminLink>
             ) : null}
+            {mayReadFinance ? (
+              <AdminLink href="/admin/economia" title="Economia">
+                Consulta ingressos confirmats, costos estimats i marges.
+              </AdminLink>
+            ) : null}
           </div>
         </section>
         <section
@@ -132,12 +148,26 @@ export default async function AdminDashboardPage() {
             Següent increment
           </p>
           <h2 id="next-title" className="mt-2 font-serif text-2xl">
-            Economia i contingut
+            Contingut i aparador
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-muted">
-            El següent increment prepararà la visió econòmica amb dades reals,
-            sense estimar ingressos que encara no estiguin confirmats.
+            El següent increment permetrà editar textos i imatges de la web des
+            del panell.
           </p>
+          {mayReadFinance ? (
+            <p className="mt-4 text-sm">
+              <strong>
+                {new Intl.NumberFormat("ca-ES", {
+                  style: "currency",
+                  currency: "EUR",
+                }).format(
+                  finance.reduce((sum, row) => sum + row.revenue_minor, 0) /
+                    100,
+                )}
+              </strong>{" "}
+              d’ingressos confirmats.
+            </p>
+          ) : null}
         </section>
       </div>
     </main>

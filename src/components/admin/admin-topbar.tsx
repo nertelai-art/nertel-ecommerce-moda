@@ -39,6 +39,11 @@ const sections = {
     title: "Enviaments",
     description: "Preparació, transport, seguiment i entrega.",
   },
+  "/admin/economia": {
+    eyebrow: "Finances",
+    title: "Economia",
+    description: "Ingressos confirmats, costos estimats i rendibilitat.",
+  },
 } as const;
 
 export function AdminTopbar() {
