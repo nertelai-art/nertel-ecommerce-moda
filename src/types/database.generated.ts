@@ -552,6 +552,38 @@ export type Database = {
         };
         Returns: undefined;
       };
+      staff_fulfillment_queue: {
+        Args: never;
+        Returns: {
+          order_id: string;
+          email: string;
+          shipping_address: Json;
+          amount_minor: number;
+          currency: string;
+          created_at: string;
+          items: Json;
+          shipment_id: string | null;
+          shipment_status: string | null;
+          carrier: string | null;
+          tracking_number: string | null;
+          notes: string | null;
+          events: Json;
+        }[];
+      };
+      create_shipment: {
+        Args: { target_order: string; new_notes: string };
+        Returns: string;
+      };
+      advance_shipment: {
+        Args: {
+          target_shipment: string;
+          new_status: string;
+          new_carrier: string;
+          new_tracking_number: string;
+          event_note: string;
+        };
+        Returns: undefined;
+      };
     };
     Enums: {
       [_ in never]: never;
