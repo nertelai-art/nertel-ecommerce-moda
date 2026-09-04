@@ -24,7 +24,7 @@ select throws_ok(
   '22023', null, 'Client-supplied monetary fields are rejected'
 );
 reset role;
-update public.product_variants set price_minor=5990 where id='30000000-0000-4000-8000-000000000001';
+update public.product_variants set price_minor=9990 where id='30000000-0000-4000-8000-000000000001';
 set local role service_role;
 select is(
   (public.server_create_pending_order(
@@ -32,7 +32,7 @@ select is(
     '85000000-0000-4000-8000-000000000001',
     '{"email":"CLIENT@EXAMPLE.TEST","recipient":" Client ","line1":" Carrer 1 ","line2":"","city":" Barcelona ","region":"Barcelona","postalCode":"08001","countryCode":"es"}',null,'eeeeeeeeeeeeeeee'
   )->>'amountMinor')::bigint,
-  4990::bigint,
+  8990::bigint,
   'Order total is calculated from authoritative prices'
 );
 select lives_ok(
@@ -47,9 +47,9 @@ reset role;
 
 select is((select count(*) from private.orders where checkout_session_id = '84000000-0000-4000-8000-000000000001'), 1::bigint, 'Only one order exists per checkout session');
 select is((select count(*) from private.payment_attempts), 1::bigint, 'Only one initial payment attempt exists');
-select is((select amount_minor from private.payment_attempts limit 1), 4990::bigint, 'Payment attempt uses the reserved price snapshot');
+select is((select amount_minor from private.payment_attempts limit 1), 8990::bigint, 'Payment attempt uses the reserved price snapshot');
 select is((select count(*) from private.order_items), 1::bigint, 'Reservation becomes one immutable order line');
-select is((select unit_price_minor from private.order_items limit 1), 4990::bigint, 'Order line snapshots the unit price');
+select is((select unit_price_minor from private.order_items limit 1), 8990::bigint, 'Order line snapshots the unit price');
 select is((select email from private.orders limit 1), 'client@example.test', 'Email is normalized server-side');
 select is((select shipping_address->>'recipient' from private.orders limit 1), 'Client', 'Address fields are normalized server-side');
 select is((select status from private.checkout_sessions where id = '84000000-0000-4000-8000-000000000001'), 'converted', 'Checkout session is marked converted');

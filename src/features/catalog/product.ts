@@ -13,10 +13,19 @@ export const catalogSearchSchema = z
   .max(80)
   .regex(/^[\p{L}\p{N} '\-]*$/u);
 export const catalogSortSchema = z.enum(["name-asc", "name-desc"]);
+export const catalogFacetSchema = z
+  .string()
+  .trim()
+  .max(40)
+  .regex(/^[\p{L}\p{N} .'-]*$/u);
+export const catalogPriceSchema = z.enum(["", "under-60", "60-80", "over-80"]);
 export const catalogQuerySchema = z.object({
   page: catalogPageSchema.default(1),
   query: catalogSearchSchema.default(""),
   category: z.union([productSlugSchema, z.literal("")]).default(""),
+  size: catalogFacetSchema.default(""),
+  color: catalogFacetSchema.default(""),
+  price: catalogPriceSchema.default(""),
   sort: catalogSortSchema.default("name-asc"),
 });
 
@@ -84,6 +93,26 @@ export const catalogProductSchema = z
 /** DTO públic validat: sense SKU interns, costos, estoc ni notes. */
 export type CatalogProduct = z.output<typeof catalogProductSchema>;
 export type CatalogQuery = z.output<typeof catalogQuerySchema>;
+
+export function demoProductImage(slug: string): string | undefined {
+  const editorial = [
+    "/editorial/campaign-woman.png",
+    "/editorial/campaign-man.png",
+    "/editorial/campaign-hero.png",
+  ] as const;
+  const known = [
+    "vestit-alba",
+    "camisa-brisa",
+    "pantalons-ona",
+    "jaqueta-terra",
+    "sobrecamisa-bosc",
+    "pantalons-calc",
+    "mocador-argila",
+    "bossa-nus",
+  ];
+  const index = known.indexOf(slug);
+  return index < 0 ? undefined : editorial[index % editorial.length];
+}
 
 export function displayPrice(product: CatalogProduct): string {
   if (product.variants.length === 0) return "Preu pendent";

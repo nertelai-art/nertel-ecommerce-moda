@@ -15,8 +15,8 @@ update private.inventory_levels set on_hand=2,reserved=0
 where variant_id='30000000-0000-4000-8000-000000000001' and location_id='40000000-0000-4000-8000-000000000001';
 
 set local role anon;
-select is((public.quote_cart('[{"variantId":"30000000-0000-4000-8000-000000000001","quantity":1}]'::jsonb)->>'totalMinor')::bigint,4990::bigint,'Quote uses the database price');
-select is(public.quote_cart('[{"variantId":"30000000-0000-4000-8000-000000000001","quantity":1}]'::jsonb)#>>'{items,0,name}','DEMO · Vestit de prova','Quote returns public product data');
+select is((public.quote_cart('[{"variantId":"30000000-0000-4000-8000-000000000001","quantity":1}]'::jsonb)->>'totalMinor')::bigint,8990::bigint,'Quote uses the database price');
+select is(public.quote_cart('[{"variantId":"30000000-0000-4000-8000-000000000001","quantity":1}]'::jsonb)#>>'{items,0,name}','Vestit Alba','Quote returns public product data');
 select throws_ok($$select public.quote_cart('[{"variantId":"30000000-0000-4000-8000-000000000001","quantity":1,"unitPriceMinor":1}]'::jsonb)$$,'22023',null,'Injected prices are rejected');
 select throws_ok($$select public.quote_cart('[{"variantId":"30000000-0000-4000-8000-000000000001","quantity":1},{"variantId":"30000000-0000-4000-8000-000000000001","quantity":1}]'::jsonb)$$,'22023',null,'Duplicate variants are rejected');
 reset role;
