@@ -467,6 +467,22 @@ export type Database = {
           variant_id: string;
         }[];
       };
+      staff_orders: {
+        Args: never;
+        Returns: {
+          id: string;
+          status: string;
+          email: string;
+          shipping_address: Json;
+          amount_minor: number;
+          currency: string;
+          payment_status: string | null;
+          expires_at: string;
+          created_at: string;
+          updated_at: string;
+          items: Json;
+        }[];
+      };
     };
     Enums: {
       [_ in never]: never;
