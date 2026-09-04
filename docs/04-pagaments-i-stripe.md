@@ -1,5 +1,7 @@
 # Pagaments independents del proveïdor i primers passos amb Stripe
 
+> Guia operativa completa: [Stripe: funcionament, implementació i operació](10-guia-stripe-implementacio.md). Aquesta pàgina resumeix l'estat actual; la guia completa és la referència per reprendre la fase.
+
 ## Estat real
 
 Hi ha un contracte TypeScript de pagaments i un selector de proveïdor amb proves. Les reserves, les comandes persistents i l'intent intern idempotent ja estan implementats. Encara no hi ha SDK Stripe, compte connectat, sessió de Stripe Checkout ni webhook; per tant, no es poden fer cobraments.
