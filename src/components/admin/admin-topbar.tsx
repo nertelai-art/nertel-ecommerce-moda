@@ -29,6 +29,11 @@ const sections = {
     title: "Clients",
     description: "Activitat, recurrència, valor i última adreça d’entrega.",
   },
+  "/admin/proveidors": {
+    eyebrow: "Compres",
+    title: "Proveïdors",
+    description: "Contactes, terminis, costos i productes vinculats.",
+  },
 } as const;
 
 export function AdminTopbar() {

@@ -500,6 +500,58 @@ export type Database = {
           orders: Json;
         }[];
       };
+      staff_suppliers: {
+        Args: never;
+        Returns: {
+          id: string;
+          name: string;
+          contact_name: string;
+          email: string;
+          phone: string;
+          status: string;
+          lead_time_days: number;
+          minimum_order_minor: number;
+          currency: string;
+          notes: string;
+          updated_at: string;
+          products: Json;
+        }[];
+      };
+      create_supplier: {
+        Args: {
+          supplier_name: string;
+          supplier_contact: string;
+          supplier_email: string;
+          supplier_phone: string;
+          supplier_lead_days: number;
+          supplier_minimum_minor: number;
+          supplier_notes: string;
+        };
+        Returns: string;
+      };
+      update_supplier: {
+        Args: {
+          target_id: string;
+          supplier_name: string;
+          supplier_contact: string;
+          supplier_email: string;
+          supplier_phone: string;
+          supplier_status: string;
+          supplier_lead_days: number;
+          supplier_minimum_minor: number;
+          supplier_notes: string;
+        };
+        Returns: undefined;
+      };
+      set_supplier_product: {
+        Args: {
+          target_supplier: string;
+          target_product: string;
+          new_supplier_sku: string;
+          new_unit_cost_minor: number;
+        };
+        Returns: undefined;
+      };
     };
     Enums: {
       [_ in never]: never;
