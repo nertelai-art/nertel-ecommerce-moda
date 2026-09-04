@@ -98,7 +98,6 @@ export function demoProductImage(slug: string): string | undefined {
   const editorial = [
     "/editorial/campaign-woman.png",
     "/editorial/campaign-man.png",
-    "/editorial/campaign-hero.png",
   ] as const;
   const known = [
     "vestit-alba",

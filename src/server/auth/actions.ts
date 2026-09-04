@@ -60,7 +60,11 @@ export async function submitAuth(
           message:
             "No hem pogut entrar. Revisa les dades i confirma el correu.",
         };
-      destination = "/compte";
+      const permissions = await client.rpc("current_staff_permissions");
+      destination =
+        !permissions.error && permissions.data.length > 0
+          ? "/admin"
+          : "/compte";
     } else if (mode === "register" && email.success && password.success) {
       const { data, error } = await client.auth.signUp({
         email: email.data,
