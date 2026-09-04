@@ -66,12 +66,14 @@ export default async function AdminProductsPage({
 
   return (
     <main id="main" className="mx-auto max-w-7xl px-5 py-8 sm:px-8 sm:py-10">
-      <header className="border-b border-line pb-7">
-        <p className="text-xs tracking-[0.18em] text-muted uppercase">
-          Catàleg
-        </p>
-        <h1 className="mt-2 font-serif text-4xl sm:text-5xl">Productes</h1>
-        <p className="mt-3 max-w-2xl text-muted">
+      <header className="border-b border-line pb-6 lg:flex lg:items-end lg:justify-between lg:gap-10">
+        <div className="shrink-0">
+          <p className="text-xs tracking-[0.18em] text-muted uppercase">
+            Catàleg
+          </p>
+          <h1 className="mt-2 font-serif text-4xl sm:text-5xl">Productes</h1>
+        </div>
+        <p className="mt-3 max-w-2xl text-muted lg:mt-0 lg:pb-1 lg:text-right">
           Crea, publica i arxiva peces. Gestiona preus, variants, categories i
           fotografies des d’un únic lloc.
         </p>
@@ -82,7 +84,7 @@ export default async function AdminProductsPage({
           <label className="grid gap-1 text-xs font-semibold tracking-wide text-muted uppercase">
             Cercar
             <input
-              className="field normal-case"
+              className="min-h-11 w-full border-0 bg-transparent px-0 text-base normal-case outline-none placeholder:text-muted/70 focus:ring-0"
               defaultValue={queryText}
               name="q"
               placeholder="Nom, URL o SKU"
