@@ -46,5 +46,5 @@ Pendent: connexió de Stripe, webhook de confirmació, correus, devolucions, PWA
 
 - [Producte](docs/01-guia-producte-pwa.md) i [arquitectura](docs/02-stack-arquitectura-seguretat.md).
 - [Base SQL](docs/06-base-dades-local.md), [catàleg](docs/08-cataleg-public.md) i [autenticació](docs/09-autenticacio.md).
-- [Pagaments](docs/04-pagaments-i-stripe.md), [direcció visual](docs/05-direccio-visual.md) i [VPS](docs/07-opcio-vps.md).
+- [Pagaments](docs/04-pagaments-i-stripe.md), [guia completa de Stripe](docs/10-guia-stripe-implementacio.md), [direcció visual](docs/05-direccio-visual.md) i [VPS](docs/07-opcio-vps.md).
 - [GitHub](https://github.com/nertelai-art/nertel-ecommerce-moda).
