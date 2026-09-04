@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { z } from "zod";
 import {
   permissionSchema,
@@ -6,7 +7,7 @@ import {
 } from "@/features/auth/validation";
 import { requireUser } from "@/server/auth/session";
 
-export async function staffAccess() {
+export const staffAccess = cache(async function staffAccess() {
   const { client, user } = await requireUser();
   const { data: level, error: levelError } =
     await client.auth.mfa.getAuthenticatorAssuranceLevel();
@@ -21,7 +22,7 @@ export async function staffAccess() {
     permissions,
     userId: user.id,
   };
-}
+});
 
 /** Every future staff mutation must call this, in addition to DB authorization. */
 export async function requirePermission(permission: StaffPermission) {
