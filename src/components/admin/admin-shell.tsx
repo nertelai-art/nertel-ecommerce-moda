@@ -7,9 +7,10 @@ const navigation = [
   { href: "/admin/productes", label: "Productes" },
   { href: "/admin/inventari", label: "Inventari" },
   { href: "/admin/comandes", label: "Comandes" },
+  { href: "/admin/clients", label: "Clients" },
 ] as const;
 
-const upcoming = ["Clients", "Proveïdors", "Economia", "Contingut"];
+const upcoming = ["Proveïdors", "Economia", "Contingut"];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   return (

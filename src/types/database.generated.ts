@@ -483,6 +483,23 @@ export type Database = {
           items: Json;
         }[];
       };
+      staff_customers: {
+        Args: never;
+        Returns: {
+          email: string;
+          display_name: string;
+          latest_address: Json;
+          is_registered: boolean;
+          order_count: number;
+          paid_order_count: number;
+          pending_order_count: number;
+          total_spent_minor: number;
+          currency: string;
+          first_order_at: string;
+          last_order_at: string;
+          orders: Json;
+        }[];
+      };
     };
     Enums: {
       [_ in never]: never;

@@ -24,6 +24,11 @@ const sections = {
     title: "Comandes",
     description: "Clients, peces, imports, pagaments i adreces d’entrega.",
   },
+  "/admin/clients": {
+    eyebrow: "Relacions",
+    title: "Clients",
+    description: "Activitat, recurrència, valor i última adreça d’entrega.",
+  },
 } as const;
 
 export function AdminTopbar() {
