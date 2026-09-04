@@ -84,7 +84,7 @@ export default async function AdminProductsPage({
           <label className="grid gap-1 text-xs font-semibold tracking-wide text-muted uppercase">
             Cercar
             <input
-              className="min-h-11 w-full border-0 bg-transparent px-0 text-base normal-case outline-none placeholder:text-muted/70 focus:ring-0"
+              className="field normal-case outline-none focus:border-muted focus:outline-none focus:ring-0"
               defaultValue={queryText}
               name="q"
               placeholder="Nom, URL o SKU"
