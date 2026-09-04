@@ -77,12 +77,14 @@ export default async function AdminInventoryPage({
 
   return (
     <main id="main" className="mx-auto max-w-7xl px-5 py-8 sm:px-8 sm:py-10">
-      <header className="border-b border-line pb-7">
-        <p className="text-xs tracking-[0.18em] text-muted uppercase">
-          Operacions
-        </p>
-        <h1 className="mt-2 font-serif text-4xl sm:text-5xl">Inventari</h1>
-        <p className="mt-3 max-w-2xl text-muted">
+      <header className="border-b border-line pb-6 lg:flex lg:items-end lg:justify-between lg:gap-10">
+        <div className="shrink-0">
+          <p className="text-xs tracking-[0.18em] text-muted uppercase">
+            Operacions
+          </p>
+          <h1 className="mt-2 font-serif text-4xl sm:text-5xl">Inventari</h1>
+        </div>
+        <p className="mt-3 max-w-2xl text-muted lg:mt-0 lg:pb-1 lg:text-right">
           Consulta cada talla i color d’un cop d’ull. Els ajustos queden
           registrats amb quantitat, motiu i persona responsable.
         </p>
@@ -106,7 +108,7 @@ export default async function AdminInventoryPage({
         <InstantFilterForm className="grid gap-3 md:grid-cols-[minmax(15rem,1fr)_12rem_14rem]">
           <FilterLabel label="Cercar">
             <input
-              className="field normal-case"
+              className="min-h-11 w-full border-0 bg-transparent px-0 text-base normal-case outline-none placeholder:text-muted/70 focus:ring-0"
               defaultValue={queryText}
               name="q"
               placeholder="Peça, SKU, talla o color"
