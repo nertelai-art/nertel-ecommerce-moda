@@ -1,0 +1,18 @@
+begin;
+select plan(8);
+insert into auth.users(id,email) values('ae000000-0000-4000-8000-000000000001','finance@example.invalid');
+insert into private.staff_permissions(user_id,permission) values('ae000000-0000-4000-8000-000000000001','finance.read');
+select ok(not has_function_privilege('anon','public.staff_finance_sales(integer)','EXECUTE'),'Anon cannot read finance');
+select ok(not has_function_privilege('service_role','public.staff_finance_sales(integer)','EXECUTE'),'Service role has no implicit finance access');
+select ok(not (select prosecdef from pg_proc where oid='public.staff_finance_sales(integer)'::regprocedure),'Public wrapper is invoker');
+select ok((select prosecdef from pg_proc where oid='private.staff_finance_sales(integer)'::regprocedure),'Private reader owns restricted query');
+select throws_ok('select * from private.staff_finance_sales(null)','42501',null,'No session is denied');
+set local role authenticated;
+set local request.jwt.claim.sub='ae000000-0000-4000-8000-000000000001';
+set local request.jwt.claim.role='authenticated';
+set local request.jwt.claim.aal='aal1';
+select lives_ok('select * from public.staff_finance_sales(90)','Finance staff can read report');
+select is((select count(*) from public.staff_finance_sales(null) where revenue_minor < 0),0::bigint,'Revenue cannot be negative');
+select is((select count(*) from public.staff_finance_sales(null) where estimated_cost_minor < 0),0::bigint,'Estimated cost cannot be negative');
+select * from finish();
+rollback;
