@@ -11,10 +11,10 @@ Node 24 LTS i Docker Desktop. Amb la pila local activa:
 ```sh
 npm ci
 npm run db:env
-npm run dev -- --hostname 127.0.0.1 --port 3100
+npm run dev
 ```
 
-db:env crea l'entorn local o hi afegeix la credencial secreta si falta, sense substituir els valors existents. Genera la clau publicable i la credencial exclusiva del servidor. `.env.local` està exclòs de Git; la credencial secreta mai no ha de tenir prefix `NEXT_PUBLIC_`. La web és a http://127.0.0.1:3100. En producció, APP_ORIGIN ha de coincidir exactament amb l'origen de la petició; en desenvolupament, els hosts de loopback localhost, 127.0.0.1 i [::1] són equivalents quan protocol i port coincideixen.
+db:env crea l'entorn local o hi afegeix la credencial secreta si falta, sense substituir els valors existents. Genera la clau publicable i la credencial exclusiva del servidor. `.env.local` està exclòs de Git; la credencial secreta mai no ha de tenir prefix `NEXT_PUBLIC_`. La web és a http://localhost:3000. En producció, APP_ORIGIN ha de coincidir exactament amb l'origen de la petició; en desenvolupament, els hosts de loopback localhost, 127.0.0.1 i [::1] són equivalents quan protocol i port coincideixen.
 
 Windows ha bloquejat l'executable de compatibilitat de db:start a la nova carpeta. La pila existent funciona amb ports de loopback; no aturar-la per provar una arrencada nova fins a resoldre aquesta limitació amb un flux admès. No desactivar el Control d'aplicacions. Vegeu [operació local](docs/09-autenticacio.md).
 

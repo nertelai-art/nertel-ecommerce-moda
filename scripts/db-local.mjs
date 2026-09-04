@@ -205,7 +205,7 @@ try {
     } else {
       writeFileSync(
         environmentFile,
-        `SUPABASE_URL=${status.API_URL}\nSUPABASE_PUBLISHABLE_KEY=${status.ANON_KEY}\nSUPABASE_SECRET_KEY=${status.SERVICE_ROLE_KEY}\nAPP_ORIGIN=http://127.0.0.1:3100\n`,
+        `SUPABASE_URL=${status.API_URL}\nSUPABASE_PUBLISHABLE_KEY=${status.ANON_KEY}\nSUPABASE_SECRET_KEY=${status.SERVICE_ROLE_KEY}\nAPP_ORIGIN=http://localhost:3000\n`,
         { flag: "wx", mode: 0o600 },
       );
     }
