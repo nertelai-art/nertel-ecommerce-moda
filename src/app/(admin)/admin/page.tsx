@@ -34,17 +34,11 @@ export default async function AdminDashboardPage() {
   ).length;
 
   return (
-    <main id="main" className="mx-auto max-w-7xl px-5 py-8 sm:px-8 sm:py-10">
-      <div className="flex flex-wrap items-end justify-between gap-5">
-        <div>
-          <p className="text-xs tracking-[0.18em] text-muted uppercase">
-            Vista general
-          </p>
-          <h1 className="mt-2 font-serif text-4xl sm:text-5xl">Bon dia.</h1>
-          <p className="mt-3 text-muted">
-            Estat actual de la botiga i accessos ràpids de gestió.
-          </p>
-        </div>
+    <main
+      id="main"
+      className="mx-auto max-w-[100rem] px-5 py-5 sm:px-8 sm:py-6"
+    >
+      <div className="flex justify-end">
         <span className="rounded-full bg-[#dce8df] px-3 py-1.5 text-xs text-[#274a38]">
           {access.status === "allowed" && access.mfaRequired
             ? "Accés protegit amb MFA"

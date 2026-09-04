@@ -77,23 +77,13 @@ export default async function AdminOrdersPage({
   );
 
   return (
-    <main id="main" className="mx-auto max-w-7xl px-5 py-8 sm:px-8 sm:py-10">
-      <header className="border-b border-line pb-6 lg:flex lg:items-end lg:justify-between lg:gap-10">
-        <div className="shrink-0">
-          <p className="text-xs tracking-[0.18em] text-muted uppercase">
-            Operacions
-          </p>
-          <h1 className="mt-2 font-serif text-4xl sm:text-5xl">Comandes</h1>
-        </div>
-        <p className="mt-3 max-w-2xl text-muted lg:mt-0 lg:pb-1 lg:text-right">
-          Consulta què ha comprat cada client, l’adreça d’entrega i l’estat del
-          pagament. Les accions de cobrament s’activaran amb Stripe.
-        </p>
-      </header>
-
+    <main
+      id="main"
+      className="mx-auto max-w-[100rem] px-5 py-5 sm:px-8 sm:py-6"
+    >
       <section
         aria-label="Resum de comandes"
-        className="mt-7 grid grid-cols-2 gap-3 lg:grid-cols-4"
+        className="flex flex-wrap gap-x-7 gap-y-2 border-b border-line pb-4"
       >
         <Metric label="Total" value={String(orders.length)} />
         <Metric
@@ -105,7 +95,7 @@ export default async function AdminOrdersPage({
         <Metric label="Import pendent" value={money(pendingAmount, "EUR")} />
       </section>
 
-      <section className="mt-5 rounded-xl border border-line bg-white p-4 sm:p-5">
+      <section className="mt-4 rounded-xl border border-line bg-white p-3 sm:p-4">
         <InstantFilterForm className="grid gap-3 md:grid-cols-[minmax(16rem,1fr)_16rem]">
           <FilterLabel label="Cercar">
             <input
@@ -289,14 +279,12 @@ function Metric({
   alert?: boolean;
 }) {
   return (
-    <article
-      className={`rounded-xl border p-4 sm:p-5 ${alert ? "border-[#e7b89e] bg-[#fff8f3]" : "border-line bg-white"}`}
-    >
-      <p className="text-xs text-muted uppercase">{label}</p>
-      <p
-        className={`mt-2 font-serif text-3xl ${alert ? "text-[#914724]" : ""}`}
-      >
+    <article className="flex items-baseline gap-2">
+      <p className={`font-serif text-2xl ${alert ? "text-[#914724]" : ""}`}>
         {value}
+      </p>
+      <p className="text-[0.68rem] tracking-wide text-muted uppercase">
+        {label}
       </p>
     </article>
   );

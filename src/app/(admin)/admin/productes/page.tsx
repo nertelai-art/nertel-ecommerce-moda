@@ -65,19 +65,10 @@ export default async function AdminProductsPage({
   );
 
   return (
-    <main id="main" className="mx-auto max-w-7xl px-5 py-8 sm:px-8 sm:py-10">
-      <header className="border-b border-line pb-6 lg:flex lg:items-end lg:justify-between lg:gap-10">
-        <div className="shrink-0">
-          <p className="text-xs tracking-[0.18em] text-muted uppercase">
-            Catàleg
-          </p>
-          <h1 className="mt-2 font-serif text-4xl sm:text-5xl">Productes</h1>
-        </div>
-        <p className="mt-3 max-w-2xl text-muted lg:mt-0 lg:pb-1 lg:text-right">
-          Crea, publica i arxiva peces. Gestiona preus, variants, categories i
-          fotografies des d’un únic lloc.
-        </p>
-      </header>
+    <main
+      id="main"
+      className="mx-auto max-w-[100rem] px-5 py-5 sm:px-8 sm:py-6"
+    >
       <MediaStatus value={query.media} />
       <section className="mt-7 grid gap-4 rounded-xl border border-line bg-white p-4 sm:grid-cols-[1fr_auto] sm:p-5">
         <InstantFilterForm className="grid gap-3 sm:grid-cols-[minmax(15rem,1fr)_12rem]">
