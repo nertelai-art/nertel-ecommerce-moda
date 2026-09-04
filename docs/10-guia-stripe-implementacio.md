@@ -303,7 +303,7 @@ Quan l'endpoint existeixi:
 
 ```powershell
 stripe login
-stripe listen --forward-to http://127.0.0.1:3100/api/webhooks/stripe
+stripe listen --forward-to http://localhost:3000/api/webhooks/stripe
 ```
 
 El secret `whsec_...` que mostra la CLI és temporal i diferent del secret del webhook desplegat. S'ha de guardar només a `.env.local`. Una prova completa ha de passar pel Checkout real del Sandbox; `stripe trigger` per si sol no demostra que les nostres metadades, comanda i imports coincideixin.

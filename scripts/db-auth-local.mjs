@@ -67,7 +67,7 @@ try {
       item.slice(item.indexOf("=") + 1),
     ]),
   );
-  values.set("GOTRUE_SITE_URL", "http://127.0.0.1:3100");
+  values.set("GOTRUE_SITE_URL", "http://localhost:3000");
   values.set("GOTRUE_URI_ALLOW_LIST", "");
   values.set("GOTRUE_MAILER_AUTOCONFIRM", "true");
   for (const type of ["confirmation", "recovery"])

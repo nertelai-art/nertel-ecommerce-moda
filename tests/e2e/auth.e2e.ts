@@ -160,7 +160,9 @@ test("local account lifecycle, HttpOnly cookies, MFA and live staff authorizatio
     await expect(page).toHaveURL(/\/compte$/);
     await page.goto("/admin");
     await expect(
-      page.getByText("Verifica el segon factor per comprovar el teu accés."),
+      page.getByText(
+        "Verifica el segon factor abans d’entrar a l’administració.",
+      ),
     ).toBeVisible();
 
     await page.goto("/compte/seguretat");
@@ -186,30 +188,30 @@ test("local account lifecycle, HttpOnly cookies, MFA and live staff authorizatio
         "'",
     );
     await page.reload();
-    await expect(
-      page.getByText("catalog.manage", { exact: true }),
-    ).toBeVisible();
-    await expect(
-      page.getByText("inventory.manage", { exact: true }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Bon dia." })).toBeVisible();
+    await page.getByRole("link", { name: "Inventari", exact: true }).click();
     await expect(
       page.getByRole("heading", { name: "Inventari" }),
     ).toBeVisible();
-    inventoryReference = await page
+    const inventoryRow = page
+      .getByRole("row")
+      .filter({ hasText: "ALBA-M-SORRA" });
+    inventoryReference = await inventoryRow
       .locator('input[name="idempotencyKey"]')
       .getAttribute("value");
     expect(inventoryReference).toMatch(/^[0-9a-f-]{36}$/);
-    await page.getByLabel("Variació d’estoc").fill("1");
-    await page.getByLabel("Motiu").fill("Ajust E2E reversible");
-    await page.getByRole("button", { name: "Registrar ajust" }).click();
+    await inventoryRow.getByLabel("Variació d’estoc").fill("1");
+    await inventoryRow.getByLabel("Motiu").fill("Ajust E2E reversible");
+    await inventoryRow.getByRole("button", { name: "Registrar ajust" }).click();
     await expect(
       page.getByText("Estoc actualitzat i moviment registrat."),
     ).toBeVisible();
-    await expect(
-      page.getByText(
-        `Ubicació fictícia: ${originalOnHand + 1} disponibles físicament, 0 reservats.`,
-      ),
-    ).toBeVisible();
+    const adjustedRow = page
+      .getByRole("row")
+      .filter({ hasText: "ALBA-M-SORRA" });
+    await expect(adjustedRow.locator("td").nth(3)).toHaveText(
+      String(originalOnHand + 1),
+    );
     sql(
       "delete from private.staff_permissions where user_id=(select id from auth.users where email='" +
         email +

@@ -95,7 +95,7 @@ test("cart, reservation, pending order, reload and cancellation", async ({
 });
 
 test("two simultaneous buyers cannot reserve the same unit", async () => {
-  const baseURL = process.env.E2E_BASE_URL ?? "http://127.0.0.1:3100";
+  const baseURL = process.env.E2E_BASE_URL ?? "http://localhost:3000";
   const variant = "30000000-0000-4000-8000-000000000001";
   const location = "40000000-0000-4000-8000-000000000001";
   const original = Number(
