@@ -6,7 +6,10 @@ import type { InventoryRow } from "@/features/inventory/validation";
 const inventoryRowSchema = z.object({
   variant_id: z.uuid(),
   location_id: z.uuid(),
+  product_id: z.uuid(),
+  product_slug: z.string().min(1).max(160),
   product_name: z.string(),
+  product_image_id: z.uuid().nullable(),
   sku: z.string(),
   size: z.string(),
   color: z.string(),

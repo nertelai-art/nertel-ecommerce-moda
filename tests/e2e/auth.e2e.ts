@@ -156,25 +156,37 @@ test("local account lifecycle, HttpOnly cookies and live staff authorization", a
     await expect(
       page.getByRole("heading", { name: "Inventari" }),
     ).toBeVisible();
-    const inventoryRow = page
-      .getByRole("row")
+    await page.getByRole("searchbox", { name: "CERCAR" }).fill("ALBA-M");
+    await expect(page).toHaveURL(/q=ALBA-M/);
+    await expect(
+      page.locator("article").filter({ hasText: "ALBA-M-SORRA" }),
+    ).toHaveCount(1);
+    await page.getByRole("searchbox", { name: "CERCAR" }).fill("");
+    await expect(page).not.toHaveURL(/q=/);
+    const inventoryCard = page
+      .locator("article")
       .filter({ hasText: "ALBA-M-SORRA" });
-    inventoryReference = await inventoryRow
+    await inventoryCard
+      .getByText("Registrar una entrada o sortida d’estoc")
+      .click();
+    inventoryReference = await inventoryCard
       .locator('input[name="idempotencyKey"]')
       .getAttribute("value");
     expect(inventoryReference).toMatch(/^[0-9a-f-]{36}$/);
-    await inventoryRow.getByLabel("Variació d’estoc").fill("1");
-    await inventoryRow.getByLabel("Motiu").fill("Ajust E2E reversible");
-    await inventoryRow.getByRole("button", { name: "Registrar ajust" }).click();
+    await inventoryCard.getByLabel("Variació d’estoc").fill("1");
+    await inventoryCard.getByLabel("Motiu").fill("Ajust E2E reversible");
+    await inventoryCard
+      .getByRole("button", { name: "Registrar ajust" })
+      .click();
     await expect(
       page.getByText("Estoc actualitzat i moviment registrat."),
     ).toBeVisible();
-    const adjustedRow = page
-      .getByRole("row")
+    const adjustedCard = page
+      .locator("article")
       .filter({ hasText: "ALBA-M-SORRA" });
-    await expect(adjustedRow.locator("td").nth(3)).toHaveText(
-      String(originalOnHand + 1),
-    );
+    await expect(
+      adjustedCard.getByLabel(`Físic: ${originalOnHand + 1}`),
+    ).toBeVisible();
     sql(
       "delete from private.staff_permissions where user_id=(select id from auth.users where email='" +
         email +
