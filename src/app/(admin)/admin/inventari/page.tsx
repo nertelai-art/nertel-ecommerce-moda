@@ -108,7 +108,7 @@ export default async function AdminInventoryPage({
         <InstantFilterForm className="grid gap-3 md:grid-cols-[minmax(15rem,1fr)_12rem_14rem]">
           <FilterLabel label="Cercar">
             <input
-              className="min-h-11 w-full border-0 bg-transparent px-0 text-base normal-case outline-none placeholder:text-muted/70 focus:ring-0"
+              className="field normal-case outline-none focus:border-muted focus:outline-none focus:ring-0"
               defaultValue={queryText}
               name="q"
               placeholder="Peça, SKU, talla o color"
