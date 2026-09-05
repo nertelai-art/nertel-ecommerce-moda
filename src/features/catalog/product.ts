@@ -95,23 +95,30 @@ export type CatalogProduct = z.output<typeof catalogProductSchema>;
 export type CatalogQuery = z.output<typeof catalogQuerySchema>;
 
 export function demoProductImage(slug: string): string | undefined {
-  const editorial = [
-    "/editorial/campaign-woman.png",
-    "/editorial/campaign-man.png",
-  ] as const;
-  const known = [
-    "vestit-alba",
-    "camisa-brisa",
-    "pantalons-ona",
-    "jaqueta-terra",
-    "sobrecamisa-bosc",
-    "pantalons-calc",
-    "mocador-argila",
-    "bossa-nus",
-  ];
-  const index = known.indexOf(slug);
-  return index < 0 ? undefined : editorial[index % editorial.length];
+  return demoImages[slug as keyof typeof demoImages];
 }
+
+export function demoProductImageByName(name: string): string | undefined {
+  return demoProductImage(
+    name
+      .toLocaleLowerCase("ca")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, ""),
+  );
+}
+
+const demoImages = {
+  "vestit-alba": "/products/vestit-alba.png",
+  "camisa-brisa": "/products/camisa-brisa.png",
+  "pantalons-ona": "/products/pantalons-ona.png",
+  "jaqueta-terra": "/products/jaqueta-terra.png",
+  "sobrecamisa-bosc": "/products/sobrecamisa-bosc.png",
+  "pantalons-calc": "/products/pantalons-calc.png",
+  "mocador-argila": "/products/mocador-argila.png",
+  "bossa-nus": "/products/bossa-nus.png",
+} as const;
 
 export function displayPrice(product: CatalogProduct): string {
   if (product.variants.length === 0) return "Preu pendent";
