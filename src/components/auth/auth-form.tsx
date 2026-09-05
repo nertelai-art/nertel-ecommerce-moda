@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { submitAuth } from "@/server/auth/actions";
 import type { AuthMode } from "@/features/auth/validation";
 
@@ -55,6 +55,11 @@ export function AuthForm({
     message: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const emailInput = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (state.email !== undefined && emailInput.current)
+      emailInput.current.value = state.email;
+  }, [state.email]);
   const needsPassword = ["login", "register", "password"].includes(mode);
   const needsCode = ["confirm", "verify-recovery"].includes(mode);
   const content = copy[mode];
@@ -91,6 +96,7 @@ export function AuthForm({
               <input
                 className="field"
                 key={state.email ?? "initial-email"}
+                ref={emailInput}
                 name="email"
                 type="email"
                 autoComplete="email"
