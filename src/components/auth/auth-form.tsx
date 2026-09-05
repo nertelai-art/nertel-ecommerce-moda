@@ -56,10 +56,11 @@ export function AuthForm({
   });
   const [showPassword, setShowPassword] = useState(false);
   const emailInput = useRef<HTMLInputElement>(null);
+  const emailStorageKey = `moda-auth-email:${mode}`;
   useEffect(() => {
-    if (state.email !== undefined && emailInput.current)
-      emailInput.current.value = state.email;
-  }, [state.email]);
+    const stored = sessionStorage.getItem(emailStorageKey);
+    if (emailInput.current && stored) emailInput.current.value = stored;
+  }, [emailStorageKey, state.message]);
   const needsPassword = ["login", "register", "password"].includes(mode);
   const needsCode = ["confirm", "verify-recovery"].includes(mode);
   const content = copy[mode];
@@ -101,6 +102,9 @@ export function AuthForm({
                 type="email"
                 autoComplete="email"
                 defaultValue={state.email ?? email}
+                onChange={(event) =>
+                  sessionStorage.setItem(emailStorageKey, event.target.value)
+                }
                 required
                 maxLength={254}
               />
