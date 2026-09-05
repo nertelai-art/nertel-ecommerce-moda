@@ -8,6 +8,7 @@ import {
 } from "@/features/orders/admin";
 import { staffOrders } from "@/server/orders/admin";
 import { staffAccess } from "@/server/permissions/staff";
+import { demoProductImageByName } from "@/features/catalog/product";
 
 export const metadata = { title: "Comandes · Administració" };
 
@@ -208,13 +209,18 @@ function OrderCard({ order }: { order: StaffOrder }) {
               key={item.id}
             >
               <div className="relative aspect-[3/4] overflow-hidden rounded bg-sand">
-                {item.productImageId ? (
+                {item.productImageId ||
+                demoProductImageByName(item.productName) ? (
                   <Image
                     alt=""
                     className="object-cover"
                     fill
                     sizes="64px"
-                    src={`/media/products/${item.productImageId}`}
+                    src={
+                      item.productImageId
+                        ? `/media/products/${item.productImageId}`
+                        : demoProductImageByName(item.productName)!
+                    }
                   />
                 ) : (
                   <span className="grid h-full place-items-center text-[0.6rem] text-muted">
