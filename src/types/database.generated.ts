@@ -246,6 +246,12 @@ export type Database = {
         };
         Relationships: [];
       };
+      storefront_content: {
+        Row: { singleton: boolean; content: Json; published_at: string };
+        Insert: { singleton?: boolean; content: Json; published_at?: string };
+        Update: { singleton?: boolean; content?: Json; published_at?: string };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -598,6 +604,20 @@ export type Database = {
           currency: string;
         }[];
       };
+      staff_storefront_content: {
+        Args: never;
+        Returns: {
+          draft: Json;
+          published: Json;
+          updated_at: string;
+          published_at: string;
+        }[];
+      };
+      save_storefront_draft: {
+        Args: { new_content: Json };
+        Returns: undefined;
+      };
+      publish_storefront_content: { Args: never; Returns: undefined };
     };
     Enums: {
       [_ in never]: never;

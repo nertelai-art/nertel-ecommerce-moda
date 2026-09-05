@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { publishedStorefrontContent } from "@/server/content/repository";
 
 const stories = [
   {
@@ -36,7 +37,8 @@ const principles = [
   ],
 ] as const;
 
-export default function StorePage() {
+export default async function StorePage() {
+  const content = await publishedStorefrontContent();
   return (
     <main id="main" className="overflow-hidden">
       <section
@@ -44,29 +46,28 @@ export default function StorePage() {
         aria-labelledby="hero-title"
       >
         <Image
-          alt="Dues persones amb peces de lli en una arquitectura mediterrània"
+          alt={content.hero.imageAlt}
           className="landing-hero-image object-cover object-[64%_center]"
           fill
           priority
           sizes="100vw"
-          src="/editorial/campaign-hero.png"
+          src={content.hero.image}
         />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(24,23,20,.74)_0%,rgba(24,23,20,.34)_43%,rgba(24,23,20,.03)_72%)]" />
         <div className="relative mx-auto flex min-h-[calc(100svh-9rem)] max-w-7xl items-end px-6 py-14 sm:px-12 sm:py-20 lg:items-center">
           <div className="max-w-2xl text-white">
             <p className="mb-6 flex items-center gap-3 text-[0.68rem] font-medium tracking-[0.28em] uppercase">
               <span className="h-px w-10 bg-current" aria-hidden="true" />
-              Primavera · Estiu 2026
+              {content.hero.eyebrow}
             </p>
             <h1
               id="hero-title"
               className="max-w-xl font-serif text-[clamp(3.5rem,8vw,7.5rem)] leading-[0.88] tracking-[-0.045em]"
             >
-              Menys soroll. Més tu.
+              {content.hero.title}
             </h1>
             <p className="mt-7 max-w-md text-base leading-relaxed text-white/82 sm:text-lg">
-              Una col·lecció serena de peces versàtils, textures naturals i
-              formes que respiren.
+              {content.hero.description}
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Link
@@ -119,13 +120,13 @@ export default function StorePage() {
         <div className="mb-12 flex flex-col justify-between gap-6 border-b border-line pb-8 sm:flex-row sm:items-end">
           <div>
             <p className="text-xs tracking-[0.22em] text-muted uppercase">
-              Històries d&apos;estil
+              {content.editorial.eyebrow}
             </p>
             <h2
               id="edit-title"
               className="mt-4 max-w-2xl font-serif text-4xl leading-none tracking-tight sm:text-6xl"
             >
-              Una manera més tranquil·la de vestir.
+              {content.editorial.title}
             </h2>
           </div>
           <Link
@@ -176,10 +177,10 @@ export default function StorePage() {
         <div className="mx-auto grid max-w-7xl lg:grid-cols-[0.9fr_1.1fr]">
           <div className="flex min-h-[32rem] flex-col justify-between border-white/15 px-6 py-16 sm:px-12 lg:border-r lg:py-24">
             <p className="text-xs tracking-[0.24em] text-white/65 uppercase">
-              Manifest 01
+              {content.manifest.eyebrow}
             </p>
             <p className="font-serif text-4xl leading-[1.05] tracking-tight sm:text-6xl">
-              Comprar menys. Triar millor. Portar-ho molt.
+              {content.manifest.title}
             </p>
           </div>
           <div className="grid content-center gap-12 px-6 py-16 sm:grid-cols-3 sm:px-12 lg:py-24">
@@ -201,13 +202,13 @@ export default function StorePage() {
         aria-labelledby="closing-title"
       >
         <p className="text-xs tracking-[0.22em] text-muted uppercase">
-          La primera edició
+          {content.closing.eyebrow}
         </p>
         <h2
           id="closing-title"
           className="mx-auto mt-5 max-w-3xl font-serif text-5xl leading-[0.98] tracking-tight sm:text-7xl"
         >
-          Peces per tornar-hi, una vegada i una altra.
+          {content.closing.title}
         </h2>
         <Link className="action mt-10 rounded-none px-7" href="/cataleg">
           Descobreix la col·lecció
@@ -216,8 +217,7 @@ export default function StorePage() {
           </span>
         </Link>
         <p className="mx-auto mt-7 max-w-lg text-sm leading-relaxed text-muted">
-          Previsualització de la botiga. Pots explorar el catàleg i preparar el
-          carret; els pagaments encara no estan activats.
+          {content.closing.description}
         </p>
       </section>
     </main>
