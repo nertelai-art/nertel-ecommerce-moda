@@ -94,6 +94,9 @@ test("local account lifecycle, HttpOnly cookies and live staff authorization", a
       "La contrasenya ha de tenir",
     );
     await expect(page.getByLabel("Correu electrònic")).toHaveValue(email);
+    await expect(page.getByLabel("Contrasenya", { exact: true })).toHaveValue(
+      "",
+    );
     await page.getByLabel("Contrasenya", { exact: true }).fill(password);
     await page
       .getByRole("button", { name: "Crear compte", exact: true })

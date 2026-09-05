@@ -73,7 +73,15 @@ export function AuthForm({
           ) : null}
         </header>
       ) : null}
-      <form action={action} className="mt-8 grid gap-5">
+      <form
+        action={action}
+        className="mt-8 grid gap-5"
+        onReset={(event) => {
+          event.preventDefault();
+          const password = event.currentTarget.elements.namedItem("password");
+          if (password instanceof HTMLInputElement) password.value = "";
+        }}
+      >
         {mode !== "password" ? (
           needsCode && email ? (
             <input name="email" type="hidden" value={email} />
