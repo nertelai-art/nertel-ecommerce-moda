@@ -83,6 +83,17 @@ test("local account lifecycle, HttpOnly cookies and live staff authorization", a
     ).toBeVisible();
     await expect(page.getByRole("heading")).toHaveCount(1);
     await page.getByLabel("Correu electrònic").fill(email);
+    await page.locator("form").evaluate((form) => {
+      form.noValidate = true;
+    });
+    await page.getByLabel("Contrasenya", { exact: true }).fill("massa-curta");
+    await page
+      .getByRole("button", { name: "Crear compte", exact: true })
+      .click();
+    await expect(page.locator('form [role="alert"]')).toContainText(
+      "La contrasenya ha de tenir",
+    );
+    await expect(page.getByLabel("Correu electrònic")).toHaveValue(email);
     await page.getByLabel("Contrasenya", { exact: true }).fill(password);
     await page
       .getByRole("button", { name: "Crear compte", exact: true })

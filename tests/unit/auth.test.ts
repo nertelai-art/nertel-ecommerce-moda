@@ -75,6 +75,24 @@ describe("auth input boundaries", () => {
       ),
     ).toBe(true);
   });
+  it("accepts only Vercel-provided HTTPS hosts as production fallbacks", () => {
+    expect(
+      isAllowedRequestOrigin(
+        "https://shop.vercel.app",
+        "https://wrong.example.com",
+        "production",
+        ["shop.vercel.app"],
+      ),
+    ).toBe(true);
+    expect(
+      isAllowedRequestOrigin(
+        "https://evil.example.com",
+        "https://wrong.example.com",
+        "production",
+        ["shop.vercel.app"],
+      ),
+    ).toBe(false);
+  });
   it("rejects missing, opaque, external and mismatched local origins", () => {
     for (const origin of [
       null,
