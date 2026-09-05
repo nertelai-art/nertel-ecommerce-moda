@@ -84,7 +84,7 @@ test("local account lifecycle, HttpOnly cookies and live staff authorization", a
     await expect(page.getByRole("heading")).toHaveCount(1);
     await page.getByLabel("Correu electrònic").fill(email);
     await page.locator("form").evaluate((form) => {
-      form.noValidate = true;
+      (form as HTMLFormElement).noValidate = true;
     });
     await page.getByLabel("Contrasenya", { exact: true }).fill("massa-curta");
     await page
