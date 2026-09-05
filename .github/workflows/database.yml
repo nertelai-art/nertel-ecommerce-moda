@@ -1,17 +1,13 @@
 name: Database
 on:
-  push:
-    paths:
-      - "supabase/**"
-      - "scripts/**"
-      - "package*.json"
-      - ".github/workflows/database.yml"
   pull_request:
+    branches: [develop, main]
     paths:
       - "supabase/**"
       - "scripts/**"
       - "package*.json"
       - ".github/workflows/database.yml"
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
