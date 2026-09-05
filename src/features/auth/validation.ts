@@ -56,6 +56,10 @@ export function isAllowedRequestOrigin(
   requestOrigin: string | null,
   applicationOrigin: string | undefined,
   environment = process.env.NODE_ENV,
+  vercelHosts: readonly (string | undefined)[] = [
+    process.env.VERCEL_PROJECT_PRODUCTION_URL,
+    process.env.VERCEL_URL,
+  ],
 ) {
   if (!requestOrigin) return false;
 
@@ -69,6 +73,18 @@ export function isAllowedRequestOrigin(
   }
 
   if (requested.origin === configured.origin) return true;
+  if (
+    environment === "production" &&
+    vercelHosts.some((host) => {
+      if (!host) return false;
+      try {
+        return requested.origin === trustedOrigin(`https://${host}`);
+      } catch {
+        return false;
+      }
+    })
+  )
+    return true;
   if (environment !== "development") return false;
 
   return (
