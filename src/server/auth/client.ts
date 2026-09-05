@@ -9,7 +9,9 @@ export function authCookieOptions() {
   return {
     httpOnly: true,
     sameSite: "lax" as const,
-    secure: trustedOrigin(process.env.APP_ORIGIN).startsWith("https:"),
+    secure:
+      process.env.NODE_ENV === "production" ||
+      trustedOrigin(process.env.APP_ORIGIN).startsWith("https:"),
     path: "/",
   };
 }

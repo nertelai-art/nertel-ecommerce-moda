@@ -55,6 +55,7 @@ export function AuthForm({
     message: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [currentEmail, setCurrentEmail] = useState(email);
   const needsPassword = ["login", "register", "password"].includes(mode);
   const needsCode = ["confirm", "verify-recovery"].includes(mode);
   const content = copy[mode];
@@ -85,7 +86,8 @@ export function AuthForm({
                 name="email"
                 type="email"
                 autoComplete="email"
-                defaultValue={email}
+                value={currentEmail}
+                onChange={(event) => setCurrentEmail(event.target.value)}
                 required
                 maxLength={254}
               />
@@ -163,9 +165,13 @@ export function AuthForm({
         </button>
         {state.message ? (
           <p
-            role="status"
+            role={state.ok ? "status" : "alert"}
             aria-live="polite"
-            className="text-sm leading-relaxed"
+            className={`border px-4 py-3 text-sm leading-relaxed ${
+              state.ok
+                ? "border-line bg-white"
+                : "border-red-300 bg-red-50 text-red-900"
+            }`}
           >
             {state.message}
           </p>

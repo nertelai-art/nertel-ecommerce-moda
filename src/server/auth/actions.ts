@@ -31,25 +31,30 @@ export async function submitAuth(
   _previous: AuthState,
   form: FormData,
 ): Promise<AuthState> {
-  await assertOrigin();
-  const mode = authModeSchema.parse(modeInput);
+  const mode = authModeSchema.safeParse(modeInput);
+  if (!mode.success)
+    return { ok: false, message: "No hem pogut processar aquesta operació." };
   const email = emailSchema.safeParse(form.get("email"));
   const password = passwordSchema.safeParse(form.get("password"));
   const token = otpSchema.safeParse(form.get("token"));
-  if (mode !== "password" && !email.success)
+  if (mode.data !== "password" && !email.success)
     return { ok: false, message: "Introdueix un correu vàlid." };
-  if (["login", "register", "password"].includes(mode) && !password.success)
+  if (
+    ["login", "register", "password"].includes(mode.data) &&
+    !password.success
+  )
     return {
       ok: false,
       message: "La contrasenya ha de tenir entre 12 i 128 caràcters.",
     };
-  if (["confirm", "verify-recovery"].includes(mode) && !token.success)
+  if (["confirm", "verify-recovery"].includes(mode.data) && !token.success)
     return { ok: false, message: "Introdueix el codi de sis dígits." };
 
   let destination: string | null = null;
   try {
+    await assertOrigin();
     const client = await authClient(true);
-    if (mode === "login" && email.success && password.success) {
+    if (mode.data === "login" && email.success && password.success) {
       const { error } = await client.auth.signInWithPassword({
         email: email.data,
         password: password.data,
@@ -65,7 +70,7 @@ export async function submitAuth(
         !permissions.error && permissions.data.length > 0
           ? "/admin"
           : "/compte";
-    } else if (mode === "register" && email.success && password.success) {
+    } else if (mode.data === "register" && email.success && password.success) {
       const { data, error } = await client.auth.signUp({
         email: email.data,
         password: password.data,
@@ -92,14 +97,16 @@ export async function submitAuth(
           {
             httpOnly: true,
             sameSite: "lax",
-            secure: trustedOrigin(process.env.APP_ORIGIN).startsWith("https:"),
+            secure:
+              process.env.NODE_ENV === "production" ||
+              trustedOrigin(process.env.APP_ORIGIN).startsWith("https:"),
             path: "/auth",
             maxAge: 600,
           },
         );
         destination = "/auth/confirmar";
       }
-    } else if (mode === "recover" && email.success) {
+    } else if (mode.data === "recover" && email.success) {
       await client.auth.resetPasswordForEmail(email.data);
       (await cookies()).set(
         "moda-auth-flow",
@@ -109,26 +116,28 @@ export async function submitAuth(
         {
           httpOnly: true,
           sameSite: "lax",
-          secure: trustedOrigin(process.env.APP_ORIGIN).startsWith("https:"),
+          secure:
+            process.env.NODE_ENV === "production" ||
+            trustedOrigin(process.env.APP_ORIGIN).startsWith("https:"),
           path: "/auth",
           maxAge: 600,
         },
       );
       destination = "/auth/validar-recuperacio";
     } else if (
-      ["confirm", "verify-recovery"].includes(mode) &&
+      ["confirm", "verify-recovery"].includes(mode.data) &&
       email.success &&
       token.success
     ) {
       const { error } = await client.auth.verifyOtp({
         email: email.data,
         token: token.data,
-        type: mode === "confirm" ? "signup" : "recovery",
+        type: mode.data === "confirm" ? "signup" : "recovery",
       });
       if (error)
         return { ok: false, message: "El codi no és vàlid o ha caducat." };
-      destination = mode === "confirm" ? "/compte" : "/compte/contrasenya";
-    } else if (mode === "password" && password.success) {
+      destination = mode.data === "confirm" ? "/compte" : "/compte/contrasenya";
+    } else if (mode.data === "password" && password.success) {
       const { data, error: identityError } = await client.auth.getUser();
       if (identityError || !data.user)
         return { ok: false, message: "Torna a entrar o recupera el compte." };
@@ -156,7 +165,7 @@ export async function submitAuth(
     return {
       ok: false,
       message:
-        "El servei d’accés no està disponible. Torna-ho a provar més tard.",
+        "No hem pogut connectar amb el servei d’accés. El correu es conserva perquè ho puguis tornar a provar.",
     };
   }
   if (destination) {
