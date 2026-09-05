@@ -6,6 +6,7 @@ playwright-report/
 test-results/
 .env*
 !.env.example
+!.env.preproduction.example
 .vercel/
 *.tsbuildinfo
 *.log
