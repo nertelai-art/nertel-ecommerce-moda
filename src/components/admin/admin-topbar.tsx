@@ -44,6 +44,12 @@ const sections = {
     title: "Economia",
     description: "Ingressos confirmats, costos estimats i rendibilitat.",
   },
+  "/admin/contingut": {
+    eyebrow: "Aparador",
+    title: "Contingut",
+    description:
+      "Textos, campanya visual, esborrany i publicació de la botiga.",
+  },
 } as const;
 
 export function AdminTopbar() {

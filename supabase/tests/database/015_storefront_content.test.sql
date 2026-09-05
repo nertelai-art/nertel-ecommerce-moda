@@ -1,0 +1,12 @@
+begin; select plan(8);
+insert into auth.users(id,email) values('af000000-0000-4000-8000-000000000001','content@example.invalid'); insert into private.staff_permissions(user_id,permission) values('af000000-0000-4000-8000-000000000001','content.manage');
+select ok(has_table_privilege('anon','public.storefront_content','SELECT'),'Published content is public');
+select ok(not has_table_privilege('anon','private.storefront_drafts','SELECT'),'Drafts stay private');
+select ok(not has_function_privilege('anon','public.save_storefront_draft(jsonb)','EXECUTE'),'Anon cannot edit content');
+select ok(not has_function_privilege('anon','public.publish_storefront_content()','EXECUTE'),'Anon cannot publish content');
+select throws_ok('select * from private.staff_storefront_content()','42501',null,'No session cannot inspect drafts');
+set local role authenticated; set local request.jwt.claim.sub='af000000-0000-4000-8000-000000000001'; set local request.jwt.claim.role='authenticated'; set local request.jwt.claim.aal='aal1';
+select lives_ok('select * from public.staff_storefront_content()','Content manager reads editor data');
+select lives_ok('select public.save_storefront_draft((select content from public.storefront_content))','Content manager saves valid draft');
+select lives_ok('select public.publish_storefront_content()','Content manager publishes draft');
+select * from finish(); rollback;

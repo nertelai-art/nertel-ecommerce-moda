@@ -11,9 +11,10 @@ const navigation = [
   { href: "/admin/proveidors", label: "Proveïdors" },
   { href: "/admin/enviaments", label: "Enviaments" },
   { href: "/admin/economia", label: "Economia" },
+  { href: "/admin/contingut", label: "Contingut" },
 ] as const;
 
-const upcoming = ["Contingut"];
+const upcoming: string[] = [];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   return (
@@ -41,18 +42,20 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             </Link>
           ))}
         </nav>
-        <div className="hidden border-t border-white/10 px-4 pt-5 lg:block">
-          <p className="px-3 text-[0.65rem] tracking-[0.18em] text-white/50 uppercase">
-            Pròximament
-          </p>
-          <ul className="mt-2 grid gap-1">
-            {upcoming.map((label) => (
-              <li className="px-3 py-2 text-sm text-white/45" key={label}>
-                {label}
-              </li>
-            ))}
-          </ul>
-        </div>
+        {upcoming.length ? (
+          <div className="hidden border-t border-white/10 px-4 pt-5 lg:block">
+            <p className="px-3 text-[0.65rem] tracking-[0.18em] text-white/50 uppercase">
+              Pròximament
+            </p>
+            <ul className="mt-2 grid gap-1">
+              {upcoming.map((label) => (
+                <li className="px-3 py-2 text-sm text-white/45" key={label}>
+                  {label}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
         <div className="hidden px-7 py-6 lg:absolute lg:bottom-0 lg:block">
           <Link className="text-xs text-white/70 underline" href="/">
             Tornar a la botiga

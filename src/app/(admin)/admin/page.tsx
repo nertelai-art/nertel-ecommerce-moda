@@ -31,6 +31,9 @@ export default async function AdminDashboardPage() {
     access.permissions.includes("orders.fulfill");
   const mayReadFinance =
     access.status === "allowed" && access.permissions.includes("finance.read");
+  const mayManageContent =
+    access.status === "allowed" &&
+    access.permissions.includes("content.manage");
   const [
     products,
     inventory,
@@ -138,6 +141,11 @@ export default async function AdminDashboardPage() {
                 Consulta ingressos confirmats, costos estimats i marges.
               </AdminLink>
             ) : null}
+            {mayManageContent ? (
+              <AdminLink href="/admin/contingut" title="Contingut i aparador">
+                Edita la campanya, desa esborranys i publica la landing.
+              </AdminLink>
+            ) : null}
           </div>
         </section>
         <section
@@ -148,11 +156,11 @@ export default async function AdminDashboardPage() {
             Següent increment
           </p>
           <h2 id="next-title" className="mt-2 font-serif text-2xl">
-            Contingut i aparador
+            Base administrativa completa
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-muted">
-            El següent increment permetrà editar textos i imatges de la web des
-            del panell.
+            Catàleg, operacions, relacions, logística, economia i aparador ja
+            comparteixen una base segura.
           </p>
           {mayReadFinance ? (
             <p className="mt-4 text-sm">
