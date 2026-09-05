@@ -23,6 +23,10 @@ export const permissionSchema = z.enum([
   "inventory.manage",
   "orders.fulfill",
   "customers.read",
+  "suppliers.manage",
+  "finance.read",
+  "content.manage",
+  "content.manage",
   "refunds.create",
   "staff.manage",
 ]);

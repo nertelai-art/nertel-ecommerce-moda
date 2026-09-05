@@ -110,6 +110,47 @@ export type Database = {
           },
         ];
       };
+      product_images: {
+        Row: {
+          id: string;
+          product_id: string;
+          object_path: string;
+          alt_text: string;
+          sort_order: number;
+          mime_type: string;
+          byte_size: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          product_id: string;
+          object_path: string;
+          alt_text: string;
+          sort_order?: number;
+          mime_type: string;
+          byte_size: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          product_id?: string;
+          object_path?: string;
+          alt_text?: string;
+          sort_order?: number;
+          mime_type?: string;
+          byte_size?: number;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "product_images_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       product_variants: {
         Row: {
           color: string;
@@ -205,11 +246,33 @@ export type Database = {
         };
         Relationships: [];
       };
+      storefront_content: {
+        Row: { singleton: boolean; content: Json; published_at: string };
+        Insert: { singleton?: boolean; content: Json; published_at?: string };
+        Update: { singleton?: boolean; content?: Json; published_at?: string };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
+      create_pending_order: {
+        Args: {
+          session_token: string;
+          request_key: string;
+          checkout_details: Json;
+        };
+        Returns: Json;
+      };
+      current_pending_order: {
+        Args: { session_token: string };
+        Returns: Json;
+      };
+      cancel_cart_reservation: {
+        Args: { session_token: string };
+        Returns: boolean;
+      };
       adjust_inventory: {
         Args: {
           idempotency_key: string;
@@ -234,6 +297,107 @@ export type Database = {
         };
         Returns: string;
       };
+      create_catalog_variant: {
+        Args: {
+          target_product: string;
+          variant_sku: string;
+          variant_size: string;
+          variant_color: string;
+          variant_price_minor: number;
+          inventory_location: string;
+        };
+        Returns: string;
+      };
+      update_catalog_variant: {
+        Args: {
+          target_id: string;
+          new_sku: string;
+          new_size: string;
+          new_color: string;
+          new_price_minor: number;
+          new_is_active: boolean;
+        };
+        Returns: undefined;
+      };
+      create_catalog_category: {
+        Args: { category_slug: string; category_name: string };
+        Returns: string;
+      };
+      update_catalog_category: {
+        Args: {
+          target_id: string;
+          new_slug: string;
+          new_name: string;
+          new_is_active: boolean;
+        };
+        Returns: undefined;
+      };
+      set_product_categories: {
+        Args: { target_product: string; target_categories: string[] };
+        Returns: undefined;
+      };
+      register_catalog_image: {
+        Args: {
+          target_product: string;
+          new_object_path: string;
+          new_alt_text: string;
+          new_sort_order: number;
+          new_mime_type: string;
+          new_byte_size: number;
+        };
+        Returns: string;
+      };
+      queue_product_image_cleanup: {
+        Args: { object_path: string };
+        Returns: undefined;
+      };
+      update_catalog_image: {
+        Args: {
+          target_id: string;
+          new_alt_text: string;
+          new_sort_order: number;
+        };
+        Returns: undefined;
+      };
+      delete_catalog_image: { Args: { target_id: string }; Returns: string };
+      quote_cart: { Args: { cart: Json }; Returns: Json };
+      reserve_cart: {
+        Args: { cart: Json; request_key: string; session_token: string };
+        Returns: Json;
+      };
+      server_reserve_cart: {
+        Args: {
+          cart: Json;
+          request_key: string;
+          session_token: string;
+          actor_id: string | null;
+          rate_key: string;
+        };
+        Returns: Json;
+      };
+      server_quote_cart: { Args: { cart: Json }; Returns: Json };
+      server_create_pending_order: {
+        Args: {
+          session_token: string;
+          request_key: string;
+          checkout_details: Json;
+          actor_id: string | null;
+          rate_key: string;
+        };
+        Returns: Json;
+      };
+      server_current_pending_order: {
+        Args: { session_token: string; actor_id: string | null };
+        Returns: Json;
+      };
+      server_cancel_cart_reservation: {
+        Args: {
+          session_token: string;
+          actor_id: string | null;
+          rate_key: string;
+        };
+        Returns: boolean;
+      };
       staff_catalog: {
         Args: never;
         Returns: {
@@ -242,6 +406,44 @@ export type Database = {
           name: string;
           description: string;
           status: string;
+        }[];
+      };
+      staff_catalog_variants: {
+        Args: never;
+        Returns: {
+          id: string;
+          product_id: string;
+          sku: string;
+          size: string;
+          color: string;
+          price_minor: number;
+          currency: string;
+          is_active: boolean;
+        }[];
+      };
+      staff_categories: {
+        Args: never;
+        Returns: {
+          id: string;
+          slug: string;
+          name: string;
+          is_active: boolean;
+        }[];
+      };
+      staff_product_categories: {
+        Args: never;
+        Returns: { product_id: string; category_id: string }[];
+      };
+      staff_catalog_images: {
+        Args: never;
+        Returns: {
+          id: string;
+          product_id: string;
+          object_path: string;
+          alt_text: string;
+          sort_order: number;
+          mime_type: string;
+          byte_size: number;
         }[];
       };
       update_catalog_product: {
@@ -261,13 +463,161 @@ export type Database = {
           location_id: string;
           location_name: string;
           on_hand: number;
+          product_id: string;
+          product_image_id: string | null;
           product_name: string;
+          product_slug: string;
           reserved: number;
           size: string;
           sku: string;
           variant_id: string;
         }[];
       };
+      staff_orders: {
+        Args: never;
+        Returns: {
+          id: string;
+          status: string;
+          email: string;
+          shipping_address: Json;
+          amount_minor: number;
+          currency: string;
+          payment_status: string | null;
+          expires_at: string;
+          created_at: string;
+          updated_at: string;
+          items: Json;
+        }[];
+      };
+      staff_customers: {
+        Args: never;
+        Returns: {
+          email: string;
+          display_name: string;
+          latest_address: Json;
+          is_registered: boolean;
+          order_count: number;
+          paid_order_count: number;
+          pending_order_count: number;
+          total_spent_minor: number;
+          currency: string;
+          first_order_at: string;
+          last_order_at: string;
+          orders: Json;
+        }[];
+      };
+      staff_suppliers: {
+        Args: never;
+        Returns: {
+          id: string;
+          name: string;
+          contact_name: string;
+          email: string;
+          phone: string;
+          status: string;
+          lead_time_days: number;
+          minimum_order_minor: number;
+          currency: string;
+          notes: string;
+          updated_at: string;
+          products: Json;
+        }[];
+      };
+      create_supplier: {
+        Args: {
+          supplier_name: string;
+          supplier_contact: string;
+          supplier_email: string;
+          supplier_phone: string;
+          supplier_lead_days: number;
+          supplier_minimum_minor: number;
+          supplier_notes: string;
+        };
+        Returns: string;
+      };
+      update_supplier: {
+        Args: {
+          target_id: string;
+          supplier_name: string;
+          supplier_contact: string;
+          supplier_email: string;
+          supplier_phone: string;
+          supplier_status: string;
+          supplier_lead_days: number;
+          supplier_minimum_minor: number;
+          supplier_notes: string;
+        };
+        Returns: undefined;
+      };
+      set_supplier_product: {
+        Args: {
+          target_supplier: string;
+          target_product: string;
+          new_supplier_sku: string;
+          new_unit_cost_minor: number;
+        };
+        Returns: undefined;
+      };
+      staff_fulfillment_queue: {
+        Args: never;
+        Returns: {
+          order_id: string;
+          email: string;
+          shipping_address: Json;
+          amount_minor: number;
+          currency: string;
+          created_at: string;
+          items: Json;
+          shipment_id: string | null;
+          shipment_status: string | null;
+          carrier: string | null;
+          tracking_number: string | null;
+          notes: string | null;
+          events: Json;
+        }[];
+      };
+      create_shipment: {
+        Args: { target_order: string; new_notes: string };
+        Returns: string;
+      };
+      advance_shipment: {
+        Args: {
+          target_shipment: string;
+          new_status: string;
+          new_carrier: string;
+          new_tracking_number: string;
+          event_note: string;
+        };
+        Returns: undefined;
+      };
+      staff_finance_sales: {
+        Args: { report_days?: number | null };
+        Returns: {
+          order_id: string;
+          occurred_at: string;
+          product_id: string;
+          product_name: string;
+          sku: string;
+          quantity: number;
+          revenue_minor: number;
+          estimated_cost_minor: number | null;
+          currency: string;
+        }[];
+      };
+      staff_storefront_content: {
+        Args: never;
+        Returns: {
+          draft: Json;
+          published: Json;
+          updated_at: string;
+          published_at: string;
+        }[];
+      };
+      save_storefront_draft: {
+        Args: { new_content: Json };
+        Returns: undefined;
+      };
+      publish_storefront_content: { Args: never; Returns: undefined };
     };
     Enums: {
       [_ in never]: never;

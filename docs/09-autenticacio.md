@@ -14,7 +14,7 @@ Les accions POST comproven Origin contra APP_ORIGIN i limiten el cos a 16 KiB. L
 
 20260903134804_staff_access.sql afegeix public.current_staff_permissions(), RPC SECURITY INVOKER que delega en una funció privada SECURITY DEFINER. Excepció deliberada i limitada: no accepta identitat ni permís com a paràmetres i no escriu dades.
 
-Retorna exclusivament permisos del caller amb auth.uid(), JWT aal2, sessió existent no caducada i factor TOTP verificat vinculat a la sessió. Consulta private.staff_permissions cada vegada; no confia en user_metadata ni en permisos cachejats. Sense alguna condició retorna una llista buida.
+Retorna exclusivament permisos del caller amb auth.uid(). La política protegida exigeix per defecte JWT aal2, sessió existent no caducada i factor TOTP verificat vinculat a la sessió. El seed local desactiva explícitament aquesta exigència per facilitar el desenvolupament; la taula de política no és accessible als rols web. Consulta private.staff_permissions cada vegada i no confia en user_metadata ni en permisos cachejats. Sense alguna condició retorna una llista buida.
 
 authenticated rep USAGE de private i EXECUTE de la funció prevista, però cap accés a les taules privades. anon i service_role no poden cridar la RPC. Futures mutacions necessitaran autorització al servidor i dins la transacció SQL; la RPC no habilita escriptures.
 

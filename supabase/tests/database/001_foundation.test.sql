@@ -19,10 +19,10 @@ select ok(not has_table_privilege('anon', 'public.products', 'TRUNCATE'), 'Anon 
 select ok(not has_table_privilege('authenticated', 'public.products', 'INSERT'), 'Customer cannot insert catalog entries');
 
 set local role anon;
-select is((select count(*) from public.products), 1::bigint, 'Anon sees published products only');
-select is((select count(*) from public.categories), 1::bigint, 'Anon sees active categories only');
-select is((select count(*) from public.product_variants), 1::bigint, 'Inactive and draft variants are hidden');
-select is((select count(*) from public.product_categories), 1::bigint, 'Category links do not leak hidden products/categories');
+select is((select count(*) from public.products), 8::bigint, 'Anon sees published products only');
+select is((select count(*) from public.categories), 5::bigint, 'Anon sees active categories only');
+select is((select count(*) from public.product_variants), 14::bigint, 'Inactive and draft variants are hidden');
+select is((select count(*) from public.product_categories), 9::bigint, 'Category links do not leak hidden products/categories');
 select throws_ok('select * from public.profiles', '42501', null, 'Anon cannot read profiles');
 select throws_ok('select * from public.addresses', '42501', null, 'Anon cannot read addresses');
 select throws_ok('select * from private.inventory_levels', '42501', null, 'Anon cannot read internal inventory');
@@ -44,7 +44,7 @@ select throws_ok($$insert into public.addresses(customer_id, recipient, line1, c
 select throws_ok($$update public.addresses set customer_id = '50000000-0000-4000-8000-000000000002'$$, '42501', null, 'Cannot transfer address ownership');
 with changed as (update public.addresses set city = 'Hijacked' where customer_id = '50000000-0000-4000-8000-000000000002' returning id) select is((select count(*) from changed), 0::bigint, 'Cannot update B address');
 with removed as (delete from public.addresses where customer_id = '50000000-0000-4000-8000-000000000002' returning id) select is((select count(*) from removed), 0::bigint, 'Cannot delete B address');
-select is((select count(*) from public.products), 1::bigint, 'Fake admin user_metadata does not unlock drafts');
+select is((select count(*) from public.products), 8::bigint, 'Fake admin user_metadata does not unlock drafts');
 select throws_ok('select * from private.staff_permissions', '42501', null, 'Fake admin cannot read staff permissions');
 select throws_ok($$insert into private.staff_permissions(user_id, permission) values ('50000000-0000-4000-8000-000000000001', 'staff.manage')$$, '42501', null, 'Customer cannot grant themselves permissions');
 select throws_ok($$update public.product_variants set price_minor = 1$$, '42501', null, 'Customer cannot alter price');
@@ -53,9 +53,10 @@ reset role;
 
 select throws_ok($$update public.product_variants set price_minor = -1$$, '23514', null, 'Database rejects negative price');
 select throws_ok($$update public.product_variants set price_minor = 9007199254740992$$, '23514', null, 'Database rejects JS-unsafe price');
+update private.inventory_levels set on_hand = 0, reserved = 0 where variant_id = '30000000-0000-4000-8000-000000000001' and location_id = '40000000-0000-4000-8000-000000000001';
 select throws_ok($$update private.inventory_levels set reserved = 1$$, '23514', null, 'Cannot reserve more than physical stock');
 select throws_ok($$update private.inventory_levels set on_hand = -1$$, '23514', null, 'Physical stock cannot be negative');
-select throws_ok($$insert into public.product_variants(product_id, sku, size, color, price_minor, currency) values ('20000000-0000-4000-8000-000000000001', 'DEMO-DRESS-M-SAND', 'XL', 'blue', 100, 'EUR')$$, '23505', null, 'SKU remains unique');
+select throws_ok($$insert into public.product_variants(product_id, sku, size, color, price_minor, currency) values ('20000000-0000-4000-8000-000000000001', 'ALBA-M-SORRA', 'XL', 'blue', 100, 'EUR')$$, '23505', null, 'SKU remains unique');
 select throws_ok($$delete from public.products where id = '20000000-0000-4000-8000-000000000001'$$, '23503', null, 'Deleting parent does not cascade commercial variants');
 select throws_ok($$update public.addresses set country_code = 'Spain'$$, '23514', null, 'Country code shape validated');
 

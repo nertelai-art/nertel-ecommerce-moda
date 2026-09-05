@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { findCatalogProduct } from "@/server/repositories/catalog";
-import { displayPrice } from "@/features/catalog/product";
-import { ProductPlaceholder } from "@/components/catalog/product-placeholder";
+import { demoProductImage, displayPrice } from "@/features/catalog/product";
+import { ProductImage } from "@/components/catalog/product-image";
+import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 
 export const metadata = { title: "Detall de la peça" };
 
@@ -23,7 +24,26 @@ export default async function ProductPage({
         ← Tornar a la col·lecció
       </Link>
       <div className="mt-6 grid items-start gap-10 md:grid-cols-2 md:gap-16">
-        <ProductPlaceholder />
+        <div className="grid gap-4">
+          <ProductImage
+            image={product.images[0]}
+            fallbackSrc={demoProductImage(product.slug)}
+            sizes="(max-width: 768px) 100vw, 50vw"
+            priority
+          />
+          {product.images.length > 1 ? (
+            <ul className="grid grid-cols-3 gap-3" aria-label="Més fotografies">
+              {product.images.slice(1).map((image) => (
+                <li key={image.id}>
+                  <ProductImage
+                    image={image}
+                    sizes="(max-width: 768px) 33vw, 16vw"
+                  />
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
         <section className="py-4" aria-labelledby="product-title">
           <h1
             id="product-title"
@@ -32,6 +52,15 @@ export default async function ProductPage({
             {product.name}
           </h1>
           <p className="mt-6 text-xl">{displayPrice(product)}</p>
+          {product.categories.length ? (
+            <ul className="mt-5 flex flex-wrap gap-2" aria-label="Categories">
+              {product.categories.map((category) => (
+                <li key={category.id} className="bg-sand px-3 py-1 text-xs">
+                  {category.name}
+                </li>
+              ))}
+            </ul>
+          ) : null}
           <p className="mt-8 whitespace-pre-line leading-relaxed text-muted">
             {product.description}
           </p>
@@ -44,17 +73,23 @@ export default async function ProductPage({
                 {product.variants.map((variant) => (
                   <li
                     key={variant.id}
-                    className="border border-muted px-4 py-3 text-sm"
+                    className="grid gap-3 border border-muted px-4 py-3 text-sm"
                   >
-                    {variant.size} · {variant.color}
+                    <span>
+                      {variant.size} · {variant.color}
+                    </span>
+                    <AddToCartButton
+                      variantId={variant.id}
+                      label={`${product.name}, ${variant.size}, ${variant.color}`}
+                    />
                   </li>
                 ))}
               </ul>
             </div>
           ) : null}
           <p className="mt-10 bg-sand p-5 text-sm leading-relaxed">
-            Aquesta peça encara no es pot comprar. La disponibilitat es
-            confirmarà quan obrim la botiga.
+            Pots preparar el carret i reservar estoc. El cobrament encara no
+            està habilitat.
           </p>
         </section>
       </div>

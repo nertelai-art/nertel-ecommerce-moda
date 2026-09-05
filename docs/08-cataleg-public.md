@@ -34,6 +34,18 @@ db:env crea .env.local amb URL i clau anon de la pila local, sense imprimir cred
 
 ## Pendent
 
-Autenticació SSR, recuperació de compte, MFA i permisos del personal; alta atòmica de producte, primera variant i nivell d'inventari; edició protegida de nom, slug, descripció i estat; i ajustos transaccionals d'inventari estan implementats. Falten variants addicionals, categories, filtres/cerca, fotografies, carret i checkout. La web continua sent una previsualització local amb compres desactivades. No s'ha publicat a Vercel ni creat infraestructura de producció.
+Autenticació SSR, recuperació de compte, MFA i permisos del personal; alta atòmica de producte, primera variant i nivell d'inventari; edició protegida de productes; múltiples variants; categories i assignacions; i ajustos transaccionals d'inventari estan implementats. Les variants noves neixen inactives amb estoc zero i les categories noves neixen inactives. Les funcions SQL tornen a autoritzar amb una sessió AAL2 viva dins la transacció i no són executables per `anon` ni `service_role`.
+
+Les fitxes públiques mostren només categories actives. El catàleg permet cercar per nom, filtrar per categoria activa i ordenar alfabèticament amb paràmetres d'URL validats i paginació que conserva els criteris.
+
+Les fotografies viuen al bucket privat `product-images`. Només s'accepten JPEG, PNG i WebP de fins a 5 MB; el servidor comprova la signatura binària a més del MIME declarat. Les pujades exigeixen sessió AAL2 i `catalog.manage`, usen noms aleatoris sense sobreescriptura i registren metadades després de pujar. Si el registre falla, s'intenta retirar l'objecte. La lectura anònima només és possible per a metadades i objectes vinculats a productes publicats. `next/image` serveix les imatges a través d'una ruta local amb `nosniff`; els productes sense imatges conserven el placeholder.
+
+El carret desa exclusivament identificadors de variant i quantitats al navegador. La cotització del servidor torna a comprovar producte publicat, variant activa, preu, moneda i disponibilitat. La reserva bloqueja files d'inventari en ordre estable, és atòmica i idempotent, substitueix de forma transaccional la reserva anterior de la mateixa sessió i caduca al cap de 15 minuts. Una cookie opaca HttpOnly identifica la sessió; no conté imports ni dades personals.
+
+El carret pot convertir una reserva vigent en una única comanda pendent amb línies immutables, adreça normalitzada i un intent intern de pagament idempotent. Una recàrrega recupera la comanda mitjançant la cookie opaca i una cancel·lació allibera l'estoc i cancel·la l'intent.
+
+Les mutacions passen per Route Handlers amb límit real de cos i una credencial exclusiva del servidor. PostgreSQL aplica límits distribuïts, vincula les claus d'idempotència amb el contingut, congela el preu en reservar i executa cada minut la caducitat i neteja d'estoc. Les dades personals de comandes cancel·lades o caducades s'anonimitzen al cap de 90 dies.
+
+Falten la connexió de Stripe i el webhook que confirmarà el pagament. La web continua sent una previsualització local sense cobrament. No s'ha publicat a Vercel ni creat infraestructura de producció.
 
 Referències: [Next.js: dades al servidor](https://nextjs.org/docs/app/getting-started/fetching-data), [Supabase: seguretat de la Data API](https://supabase.com/docs/guides/api/securing-your-api).

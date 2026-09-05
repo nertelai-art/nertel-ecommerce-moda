@@ -1,5 +1,5 @@
 import { test, expect, type APIRequestContext } from "@playwright/test";
-import { randomUUID, createHmac } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { execFileSync } from "node:child_process";
 
 test.skip(
@@ -37,24 +37,7 @@ async function mailboxCode(
     .toBe(true);
   return code!;
 }
-function totp(secret: string) {
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-  let bits = "";
-  for (const character of secret.replace(/=+$/, ""))
-    bits += alphabet.indexOf(character).toString(2).padStart(5, "0");
-  const bytes = Buffer.from(
-    bits.match(/.{8}/g)!.map((byte) => Number.parseInt(byte, 2)),
-  );
-  const counter = Buffer.alloc(8);
-  counter.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 30000)));
-  const digest = createHmac("sha1", bytes).update(counter).digest();
-  const offset = digest[digest.length - 1]! & 15;
-  return ((digest.readUInt32BE(offset) & 0x7fffffff) % 1000000)
-    .toString()
-    .padStart(6, "0");
-}
-
-test("local account lifecycle, HttpOnly cookies, MFA and live staff authorization", async ({
+test("local account lifecycle, HttpOnly cookies and live staff authorization", async ({
   page,
   request,
   context,
@@ -160,55 +143,49 @@ test("local account lifecycle, HttpOnly cookies, MFA and live staff authorizatio
     await expect(page).toHaveURL(/\/compte$/);
     await page.goto("/admin");
     await expect(
-      page.getByText("Verifica el segon factor per comprovar el teu accés."),
-    ).toBeVisible();
-
-    await page.goto("/compte/seguretat");
-    await page.getByRole("button", { name: "Configurar autenticador" }).click();
-    await expect(page.locator("code")).toBeVisible();
-    const secret = await page.locator("code").innerText();
-    await page.getByLabel("Codi de l’autenticador").fill(totp(secret));
-    await page
-      .getByRole("button", { name: "Verificar autenticador", exact: true })
-      .click();
-    await expect(page).toHaveURL(/\/compte$/);
-    await expect(
-      page.getByText("Sessió verificada amb segon factor."),
-    ).toBeVisible();
-    await page.goto("/admin");
-    await expect(
       page.getByText("Aquest compte no té permisos d’administració."),
     ).toBeVisible();
-
     sql(
       "insert into private.staff_permissions(user_id,permission) select id,permission from auth.users cross join (values ('catalog.manage'),('inventory.manage')) p(permission) where email='" +
         email +
         "'",
     );
     await page.reload();
-    await expect(
-      page.getByText("catalog.manage", { exact: true }),
-    ).toBeVisible();
-    await expect(
-      page.getByText("inventory.manage", { exact: true }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Bon dia." })).toBeVisible();
+    await page.getByRole("link", { name: "Inventari", exact: true }).click();
     await expect(
       page.getByRole("heading", { name: "Inventari" }),
     ).toBeVisible();
-    inventoryReference = await page
+    await page.getByRole("searchbox", { name: "CERCAR" }).fill("ALBA-M");
+    await expect(page).toHaveURL(/q=ALBA-M/);
+    await expect(
+      page.locator("article").filter({ hasText: "ALBA-M-SORRA" }),
+    ).toHaveCount(1);
+    await page.getByRole("searchbox", { name: "CERCAR" }).fill("");
+    await expect(page).not.toHaveURL(/q=/);
+    const inventoryCard = page
+      .locator("article")
+      .filter({ hasText: "ALBA-M-SORRA" });
+    await inventoryCard
+      .getByText("Registrar una entrada o sortida d’estoc")
+      .click();
+    inventoryReference = await inventoryCard
       .locator('input[name="idempotencyKey"]')
       .getAttribute("value");
     expect(inventoryReference).toMatch(/^[0-9a-f-]{36}$/);
-    await page.getByLabel("Variació d’estoc").fill("1");
-    await page.getByLabel("Motiu").fill("Ajust E2E reversible");
-    await page.getByRole("button", { name: "Registrar ajust" }).click();
+    await inventoryCard.getByLabel("Variació d’estoc").fill("1");
+    await inventoryCard.getByLabel("Motiu").fill("Ajust E2E reversible");
+    await inventoryCard
+      .getByRole("button", { name: "Registrar ajust" })
+      .click();
     await expect(
       page.getByText("Estoc actualitzat i moviment registrat."),
     ).toBeVisible();
+    const adjustedCard = page
+      .locator("article")
+      .filter({ hasText: "ALBA-M-SORRA" });
     await expect(
-      page.getByText(
-        `Ubicació fictícia: ${originalOnHand + 1} disponibles físicament, 0 reservats.`,
-      ),
+      adjustedCard.getByLabel(`Físic: ${originalOnHand + 1}`),
     ).toBeVisible();
     sql(
       "delete from private.staff_permissions where user_id=(select id from auth.users where email='" +

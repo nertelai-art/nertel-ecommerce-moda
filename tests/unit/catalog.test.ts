@@ -4,12 +4,21 @@ import {
   productSlugSchema,
   displayPrice,
   catalogPageSchema,
+  catalogQuerySchema,
 } from "../../src/features/catalog/product";
 import { publicCatalogConfig } from "../../src/server/integrations/supabase/public-config";
 import {
   catalogCreateSchema,
+  catalogCategoryCreateSchema,
   catalogEditSchema,
+  catalogVariantCreateSchema,
+  catalogVariantEditSchema,
+  productCategoriesEditSchema,
 } from "../../src/features/catalog/admin";
+import {
+  detectProductImage,
+  productImageInputSchema,
+} from "../../src/features/catalog/image";
 
 const row = {
   id: "20000000-0000-4000-8000-000000000001",
@@ -24,6 +33,22 @@ const row = {
       price_minor: 4990,
       currency: "EUR",
       sku: "PRIVATE",
+    },
+  ],
+  product_categories: [
+    {
+      categories: {
+        id: "60000000-0000-4000-8000-000000000001",
+        slug: "vestits",
+        name: "Vestits",
+      },
+    },
+  ],
+  product_images: [
+    {
+      id: "70000000-0000-4000-8000-000000000001",
+      alt_text: "Vestit blau sobre fons clar",
+      sort_order: 0,
     },
   ],
   internal_note: "PRIVATE",
@@ -41,6 +66,8 @@ describe("public catalog trust boundary", () => {
     const product = catalogProductSchema.parse(row);
     expect(JSON.stringify(product)).not.toContain("PRIVATE");
     expect(displayPrice(product)).toContain("49,90");
+    expect(product.categories[0]?.slug).toBe("vestits");
+    expect(product.images[0]?.altText).toBe("Vestit blau sobre fons clar");
   });
   it("rejects unsafe prices and unsupported currencies", () => {
     for (const value of [-1, 1.5, Number.MAX_SAFE_INTEGER + 1, "4990"]) {
@@ -77,6 +104,61 @@ describe("public catalog trust boundary", () => {
       expect(productSlugSchema.safeParse(slug).success).toBe(false);
     for (const page of [0, -1, 1.5, 1001, "abc"])
       expect(catalogPageSchema.safeParse(page).success).toBe(false);
+    expect(
+      catalogQuerySchema.parse({
+        page: "2",
+        query: "vestit blau",
+        category: "vestits",
+        sort: "name-desc",
+      }),
+    ).toEqual({
+      page: 2,
+      query: "vestit blau",
+      category: "vestits",
+      size: "",
+      color: "",
+      price: "",
+      sort: "name-desc",
+    });
+    for (const query of ["x,or(status.eq.draft)", "*", "x".repeat(81)])
+      expect(
+        catalogQuerySchema.safeParse({
+          page: 1,
+          query,
+          category: "",
+          sort: "name-asc",
+        }).success,
+      ).toBe(false);
+    expect(
+      catalogQuerySchema.safeParse({
+        page: 1,
+        query: "",
+        category: "vestits",
+        sort: "price-asc",
+      }).success,
+    ).toBe(false);
+    expect(
+      catalogQuerySchema.safeParse({
+        page: 1,
+        query: "",
+        category: "",
+        size: "M",
+        color: "oliva",
+        price: "60-80",
+        sort: "name-asc",
+      }).success,
+    ).toBe(true);
+    expect(
+      catalogQuerySchema.safeParse({
+        page: 1,
+        query: "",
+        category: "",
+        size: "M,or(is_active.eq.false)",
+        color: "",
+        price: "gratis",
+        sort: "name-asc",
+      }).success,
+    ).toBe(false);
   });
   it("refuses privileged credentials and remote plain HTTP", () => {
     const jwt = (role: string) =>
@@ -115,5 +197,69 @@ describe("public catalog trust boundary", () => {
     expect(
       catalogCreateSchema.safeParse({ ...input, sku: "unsafe sku" }).success,
     ).toBe(false);
+  });
+  it("validates variant and category administration inputs", () => {
+    const variant = {
+      productId: row.id,
+      sku: "VESTIT-S-BLAU",
+      size: "S",
+      color: "blau",
+      priceMinor: "4590",
+      locationId: "40000000-0000-4000-8000-000000000001",
+    };
+    expect(catalogVariantCreateSchema.safeParse(variant).success).toBe(true);
+    expect(
+      catalogVariantEditSchema.safeParse({
+        ...variant,
+        id: "30000000-0000-4000-8000-000000000001",
+        isActive: "true",
+      }).success,
+    ).toBe(true);
+    expect(
+      catalogVariantEditSchema.safeParse({
+        ...variant,
+        id: "30000000-0000-4000-8000-000000000001",
+        isActive: "yes",
+      }).success,
+    ).toBe(false);
+    expect(
+      catalogCategoryCreateSchema.safeParse({
+        slug: "novetats",
+        name: "Novetats",
+      }).success,
+    ).toBe(true);
+    expect(
+      productCategoriesEditSchema.safeParse({
+        productId: row.id,
+        categoryIds: ["60000000-0000-4000-8000-000000000001"],
+      }).success,
+    ).toBe(true);
+  });
+  it("validates image metadata and detects content independently of the filename", () => {
+    expect(
+      productImageInputSchema.safeParse({
+        productId: row.id,
+        altText: "Vestit sobre fons clar",
+        sortOrder: "0",
+      }).success,
+    ).toBe(true);
+    expect(
+      productImageInputSchema.safeParse({
+        productId: row.id,
+        altText: "",
+        sortOrder: "100",
+      }).success,
+    ).toBe(false);
+    expect(
+      detectProductImage(Uint8Array.from([0xff, 0xd8, 0xff, 0x00])),
+    ).toEqual({ mimeType: "image/jpeg", extension: "jpg" });
+    expect(
+      detectProductImage(
+        Uint8Array.from([0x89, 0x50, 0x4e, 0x47, 13, 10, 26, 10]),
+      ),
+    ).toEqual({ mimeType: "image/png", extension: "png" });
+    expect(detectProductImage(new TextEncoder().encode("not-an-image"))).toBe(
+      null,
+    );
   });
 });

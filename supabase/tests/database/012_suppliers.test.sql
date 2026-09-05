@@ -1,0 +1,17 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+set search_path=public,extensions;
+select no_plan();
+update private.security_settings set require_staff_mfa=true where singleton;
+insert into auth.users(id,email) values('aa000000-0000-4000-8000-000000000001','supplier-staff@example.invalid');
+insert into private.staff_permissions(user_id,permission) values('aa000000-0000-4000-8000-000000000001','suppliers.manage');
+insert into auth.mfa_factors(id,user_id,factor_type,status,created_at,updated_at) values('ab000000-0000-4000-8000-000000000001','aa000000-0000-4000-8000-000000000001','totp','verified',now(),now());
+insert into auth.sessions(id,user_id,factor_id,aal) values('ac000000-0000-4000-8000-000000000001','aa000000-0000-4000-8000-000000000001','ab000000-0000-4000-8000-000000000001','aal2');
+select ok(not has_table_privilege('authenticated','private.suppliers','SELECT'),'Supplier table is private');
+select ok(not has_function_privilege('anon','public.staff_suppliers()','EXECUTE'),'Anon cannot list suppliers');
+set local role authenticated;
+select set_config('request.jwt.claims','{"sub":"aa000000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2","session_id":"ac000000-0000-4000-8000-000000000001"}',true);
+select lives_ok($$select public.create_supplier('Taller Test','Aina','aina@example.invalid','',5,10000,'')$$,'Authorized staff creates supplier');
+select is((select count(*) from public.staff_suppliers() where name='Taller Test'),1::bigint,'Created supplier is listed');
+reset role;
+select * from finish(); rollback;
