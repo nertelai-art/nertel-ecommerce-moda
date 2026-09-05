@@ -55,7 +55,7 @@ export function AuthForm({
     message: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [currentEmail, setCurrentEmail] = useState(email);
+  const [emailOverride, setEmailOverride] = useState<string | null>(null);
   const needsPassword = ["login", "register", "password"].includes(mode);
   const needsCode = ["confirm", "verify-recovery"].includes(mode);
   const content = copy[mode];
@@ -86,8 +86,8 @@ export function AuthForm({
                 name="email"
                 type="email"
                 autoComplete="email"
-                value={currentEmail}
-                onChange={(event) => setCurrentEmail(event.target.value)}
+                value={emailOverride ?? state.email ?? email}
+                onChange={(event) => setEmailOverride(event.target.value)}
                 required
                 maxLength={254}
               />

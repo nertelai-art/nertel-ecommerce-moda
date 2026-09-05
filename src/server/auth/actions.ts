@@ -34,21 +34,29 @@ export async function submitAuth(
   const mode = authModeSchema.safeParse(modeInput);
   if (!mode.success)
     return { ok: false, message: "No hem pogut processar aquesta operació." };
+  const submittedEmail =
+    typeof form.get("email") === "string"
+      ? String(form.get("email")).trim().slice(0, 254)
+      : undefined;
+  const failure = (message: string): AuthState => ({
+    ok: false,
+    message,
+    ...(mode.data !== "password" && submittedEmail
+      ? { email: submittedEmail }
+      : {}),
+  });
   const email = emailSchema.safeParse(form.get("email"));
   const password = passwordSchema.safeParse(form.get("password"));
   const token = otpSchema.safeParse(form.get("token"));
   if (mode.data !== "password" && !email.success)
-    return { ok: false, message: "Introdueix un correu vàlid." };
+    return failure("Introdueix un correu vàlid.");
   if (
     ["login", "register", "password"].includes(mode.data) &&
     !password.success
   )
-    return {
-      ok: false,
-      message: "La contrasenya ha de tenir entre 12 i 128 caràcters.",
-    };
+    return failure("La contrasenya ha de tenir entre 12 i 128 caràcters.");
   if (["confirm", "verify-recovery"].includes(mode.data) && !token.success)
-    return { ok: false, message: "Introdueix el codi de sis dígits." };
+    return failure("Introdueix el codi de sis dígits.");
 
   let destination: string | null = null;
   try {
@@ -60,11 +68,9 @@ export async function submitAuth(
         password: password.data,
       });
       if (error)
-        return {
-          ok: false,
-          message:
-            "No hem pogut entrar. Revisa les dades i confirma el correu.",
-        };
+        return failure(
+          "No hem pogut entrar. Revisa les dades i confirma el correu.",
+        );
       const permissions = await client.rpc("current_staff_permissions");
       destination =
         !permissions.error && permissions.data.length > 0
@@ -76,11 +82,9 @@ export async function submitAuth(
         password: password.data,
       });
       if (error)
-        return {
-          ok: false,
-          message:
-            "No hem pogut crear el compte. Torna-ho a provar o entra si ja en tens un.",
-        };
+        return failure(
+          "No hem pogut crear el compte. Torna-ho a provar o entra si ja en tens un.",
+        );
       if (data.session) {
         // Auth decides whether email confirmation is required in this environment.
         (await cookies()).set("moda-auth-flow", "", {
@@ -134,45 +138,38 @@ export async function submitAuth(
         token: token.data,
         type: mode.data === "confirm" ? "signup" : "recovery",
       });
-      if (error)
-        return { ok: false, message: "El codi no és vàlid o ha caducat." };
+      if (error) return failure("El codi no és vàlid o ha caducat.");
       destination = mode.data === "confirm" ? "/compte" : "/compte/contrasenya";
     } else if (mode.data === "password" && password.success) {
       const { data, error: identityError } = await client.auth.getUser();
       if (identityError || !data.user)
-        return { ok: false, message: "Torna a entrar o recupera el compte." };
+        return failure("Torna a entrar o recupera el compte.");
       const { error } = await client.auth.updateUser({
         password: password.data,
       });
       if (error)
-        return {
-          ok: false,
-          message:
-            "No hem pogut canviar-la. Torna a iniciar la recuperació del compte.",
-        };
+        return failure(
+          "No hem pogut canviar-la. Torna a iniciar la recuperació del compte.",
+        );
       const { error: signOutError } = await client.auth.signOut({
         scope: "global",
       });
       if (signOutError)
-        return {
-          ok: false,
-          message:
-            "Contrasenya canviada. Torna a provar de tancar les sessions.",
-        };
+        return failure(
+          "Contrasenya canviada. Torna a provar de tancar les sessions.",
+        );
       destination = "/auth/entrar";
     }
   } catch {
-    return {
-      ok: false,
-      message:
-        "No hem pogut connectar amb el servei d’accés. El correu es conserva perquè ho puguis tornar a provar.",
-    };
+    return failure(
+      "No hem pogut connectar amb el servei d’accés. El correu es conserva perquè ho puguis tornar a provar.",
+    );
   }
   if (destination) {
     revalidatePath("/", "layout");
     redirect(destination);
   }
-  return { ok: false, message: "No hem pogut completar la petició." };
+  return failure("No hem pogut completar la petició.");
 }
 
 export async function signOut() {

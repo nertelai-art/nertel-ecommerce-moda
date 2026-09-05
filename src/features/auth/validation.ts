@@ -15,6 +15,7 @@ export type AuthMode = z.infer<typeof authModeSchema>;
 export type AuthState = {
   message: string;
   ok: boolean;
+  email?: string;
 };
 export type MfaState = AuthState & { secret?: string; factorId?: string };
 
