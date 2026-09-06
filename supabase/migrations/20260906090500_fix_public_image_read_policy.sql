@@ -1,4 +1,4 @@
--- PROPOSTA · NO APLICADA
+-- APLICADA. Es una migracio de la cadena: s'executa com totes les altres.
 -- Correccio de la politica de lectura publica dels objectes d'imatge.
 --
 -- La versio original comparava «i.object_path = name». Dins la subconsulta,

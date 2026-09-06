@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     request_key: input.data.requestKey,
     checkout_details: input.data.details,
     actor_id: identity.user?.id ?? null,
-    rate_key: commerceRateKey(request),
+    rate_key: commerceRateKey(request, sessionToken),
   });
   const result = pendingOrderResultSchema.safeParse(data);
   if (error || !result.success) {

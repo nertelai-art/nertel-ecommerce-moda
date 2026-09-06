@@ -1,4 +1,4 @@
--- PROPOSTA · NO APLICADA
+-- APLICADA. Es una migracio de la cadena: s'executa com totes les altres.
 -- La moneda deixa de ser una constant del nucli comercial i passa a ser
 -- configuracio d'instancia, escrita una sola vegada en crear la botiga.
 -- Les set funcions de sota son la definicio actual amb 'EUR' substituit per

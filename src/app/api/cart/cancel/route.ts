@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     const { error } = await client.rpc("server_cancel_cart_reservation", {
       session_token: sessionToken,
       actor_id: identity.user?.id ?? null,
-      rate_key: commerceRateKey(request),
+      rate_key: commerceRateKey(request, sessionToken),
     });
     if (error)
       return new Response("Reservation could not be released", { status: 409 });
