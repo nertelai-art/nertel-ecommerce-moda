@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { brand } from "@/lib/brand";
+import { shopSettings } from "@/server/shop/settings";
 import { AdminTopbar } from "@/components/admin/admin-topbar";
 
 const navigation = [
@@ -16,13 +16,14 @@ const navigation = [
 
 const upcoming: string[] = [];
 
-export function AdminShell({ children }: { children: React.ReactNode }) {
+export async function AdminShell({ children }: { children: React.ReactNode }) {
+  const shop = await shopSettings();
   return (
     <div className="min-h-dvh bg-[#f2f1ed] text-[#1f2420] lg:grid lg:grid-cols-[15rem_1fr]">
       <aside className="border-b border-[#d8d8d0] bg-[#20392e] text-white lg:sticky lg:top-0 lg:h-dvh lg:border-r lg:border-b-0 lg:border-white/10">
         <div className="flex items-center justify-between px-5 py-4 lg:block lg:px-6 lg:py-7">
           <Link className="font-serif text-xl" href="/admin">
-            {brand.name}
+            {shop.shop_name}
           </Link>
           <span className="rounded-full bg-white/10 px-2.5 py-1 text-[0.65rem] tracking-[0.16em] uppercase">
             Admin

@@ -1,3 +1,4 @@
+import { formatPrice } from "@/features/shop/settings";
 import Image from "next/image";
 import Link from "next/link";
 import { CatalogCreateForm } from "@/components/admin/catalog-create-form";
@@ -221,8 +222,14 @@ function ProductSummary({
   const reserved = inventory.reduce((sum, row) => sum + row.reserved, 0);
   const sizes = [...new Set(variants.map((variant) => variant.size))];
   const colors = [...new Set(variants.map((variant) => variant.color))];
-  const prices = variants.map((variant) => variant.price_minor);
-  const price = prices.length ? formatPrice(Math.min(...prices)) : "Sense preu";
+  const cheapest = variants.reduce<(typeof variants)[number] | undefined>(
+    (lowest, variant) =>
+      !lowest || variant.price_minor < lowest.price_minor ? variant : lowest,
+    undefined,
+  );
+  const price = cheapest
+    ? formatPrice(cheapest.price_minor, cheapest.currency)
+    : "Sense preu";
   const statusCopy = {
     published: "Publicat",
     draft: "Esborrany",
@@ -336,13 +343,6 @@ function StockMetric({
       <span className="text-[0.65rem] uppercase">{label}</span>
     </span>
   );
-}
-
-function formatPrice(amountMinor: number) {
-  return new Intl.NumberFormat("ca-ES", {
-    style: "currency",
-    currency: "EUR",
-  }).format(amountMinor / 100);
 }
 
 function MediaStatus({ value }: { value: string | string[] | undefined }) {

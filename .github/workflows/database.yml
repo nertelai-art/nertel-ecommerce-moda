@@ -1,23 +1,22 @@
 name: Database
 on:
   push:
+    branches: [develop]
     paths:
       - "supabase/**"
       - "scripts/**"
       - "package*.json"
       - ".github/workflows/database.yml"
-  pull_request:
-    paths:
-      - "supabase/**"
-      - "scripts/**"
-      - "package*.json"
-      - ".github/workflows/database.yml"
+  workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: database-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   schema-and-permissions:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v7
         with:
@@ -26,11 +25,16 @@ jobs:
         with:
           node-version-file: .node-version
           cache: npm
-      - run: npm ci
+      - run: npm ci --no-audit
       - name: Build a fresh local database from migrations
         run: npm run db:start
       - run: npm run db:test
       - run: npm run db:advisors
+      # Porta contra la deriva. La base ombra aplica NOMÉS les migracions i es
+      # compara amb la base viva: si en surt res, hi ha DDL que cap migració
+      # explica. És el cas que a l'altre projecte va passar desapercebut.
+      - name: La cadena de migracions ha de reproduir l'esquema real
+        run: node scripts/check-drift.mjs
       - name: Stop this project only
         if: always()
         run: npm run db:stop

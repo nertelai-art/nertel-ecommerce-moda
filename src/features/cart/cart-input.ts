@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { currencyCodeSchema } from "../shop/settings";
 
 // Límit tècnic provisional; el servidor també comprovarà el límit comercial i l'estoc.
 export const cartItemInputSchema = z.strictObject({
@@ -32,7 +33,7 @@ export const cartQuoteSchema = z.object({
         size: z.string(),
         color: z.string(),
         unitPriceMinor: z.number().int().nonnegative(),
-        currency: z.literal("EUR"),
+        currency: currencyCodeSchema,
         quantity: z.number().int().min(1).max(99),
         lineTotalMinor: z.number().int().nonnegative(),
         available: z.boolean(),
@@ -40,7 +41,7 @@ export const cartQuoteSchema = z.object({
     )
     .max(100),
   totalMinor: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
-  currency: z.literal("EUR"),
+  currency: currencyCodeSchema,
 });
 export const reservationInputSchema = cartInputSchema.extend({
   requestKey: z.uuid(),
@@ -83,7 +84,7 @@ export const pendingOrderResultSchema = z.object({
     "cancelled",
   ]),
   amountMinor: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
-  currency: z.literal("EUR"),
+  currency: currencyCodeSchema,
   expiresAt: z.string().datetime({ offset: true }),
 });
 

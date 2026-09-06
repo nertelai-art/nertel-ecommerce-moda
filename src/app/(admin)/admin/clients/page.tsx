@@ -1,3 +1,4 @@
+import { shopSettings } from "@/server/shop/settings";
 import Link from "next/link";
 import { InstantFilterForm } from "@/components/admin/instant-filter-form";
 import type { StaffCustomer } from "@/features/customers/admin";
@@ -14,7 +15,11 @@ export default async function AdminCustomersPage({
 }: {
   searchParams: Promise<{ q?: string | string[]; segment?: string | string[] }>;
 }) {
-  const [access, query] = await Promise.all([staffAccess(), searchParams]);
+  const [access, query, shop] = await Promise.all([
+    staffAccess(),
+    searchParams,
+    shopSettings(),
+  ]);
   const allowed =
     access.status === "allowed" &&
     access.permissions.includes("customers.read");
@@ -79,7 +84,7 @@ export default async function AdminCustomersPage({
         <Metric label="Recurrents" value={String(repeatCustomers.length)} />
         <Metric
           label="Ingressos confirmats"
-          value={money(confirmedRevenue, "EUR")}
+          value={money(confirmedRevenue, shop.currency)}
         />
       </section>
 

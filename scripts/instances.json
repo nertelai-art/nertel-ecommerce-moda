@@ -1,0 +1,13 @@
+{
+  "comment": "PROPOSTA. Registre de botigues. Cap secret: nomes identificadors publics de projecte. El testimoni d'acces va per entorn, mai aqui.",
+  "instances": [
+    {
+      "shop": "moda-client-1",
+      "ref": "REF_DEL_PROJECTE",
+      "region": "eu-central-1",
+      "origin": "https://exemple.com",
+      "stripe_account": "compte propi de la botiga",
+      "opened_at": "pendent"
+    }
+  ]
+}

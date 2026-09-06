@@ -1,7 +1,12 @@
 name: Quality
+# Sense pull requests: el desenvolupador és una sola persona i la integració
+# passa per merge commit cap a develop. La porta remota es dispara en pujar.
+# Les portes barates ja s'han executat al hook de pre-push; aquí es repeteixen
+# perquè un hook es pot saltar i aquesta és l'única comprovació que no.
 on:
   push:
-  pull_request:
+    branches: [develop]
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:

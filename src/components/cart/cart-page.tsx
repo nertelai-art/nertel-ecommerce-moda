@@ -10,14 +10,14 @@ import {
 } from "@/features/cart/cart-input";
 import { useCart } from "./cart-provider";
 
-function money(amount: number) {
+function money(amount: number, currency: string) {
   return new Intl.NumberFormat("ca-ES", {
     style: "currency",
-    currency: "EUR",
+    currency,
   }).format(amount / 100);
 }
 
-export function CartPage() {
+export function CartPage({ currency }: { currency: string }) {
   const { items, setQuantity, remove, clear, hydrated } = useCart();
   const [quote, setQuote] = useState<CartQuote | null>(null);
   const [message, setMessage] = useState("");
@@ -176,7 +176,7 @@ export function CartPage() {
         <p>
           {order.status === "expired"
             ? "No s’ha fet cap cobrament i l’estoc ha tornat a estar disponible."
-            : `Import verificat: ${money(order.amountMinor)}. Encara no s’ha fet cap cobrament perquè Stripe no està connectat.`}
+            : `Import verificat: ${money(order.amountMinor, currency)}. Encara no s’ha fet cap cobrament perquè Stripe no està connectat.`}
         </p>
         <p className="text-sm text-muted">
           Referència: {order.orderId} · caduca a les{" "}
@@ -222,8 +222,8 @@ export function CartPage() {
               <Link href={`/productes/${item.slug}`}>{item.name}</Link>
             </h2>
             <p className="mt-1 text-sm text-muted">
-              {item.size} · {item.color} · {money(item.unitPriceMinor)} cada
-              unitat
+              {item.size} · {item.color} ·{" "}
+              {money(item.unitPriceMinor, currency)} cada unitat
             </p>
             {!item.available ? (
               <p className="mt-2 text-sm" role="alert">
@@ -254,13 +254,13 @@ export function CartPage() {
             </button>
           </div>
           <p className="font-medium sm:col-span-2">
-            {money(item.lineTotalMinor)}
+            {money(item.lineTotalMinor, currency)}
           </p>
         </article>
       ))}
       {quote ? (
         <p className="text-xl font-semibold">
-          Total: {money(quote.totalMinor)}
+          Total: {money(quote.totalMinor, currency)}
         </p>
       ) : null}
       <div className="flex flex-wrap gap-3">
