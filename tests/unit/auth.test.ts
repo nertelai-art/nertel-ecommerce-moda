@@ -27,6 +27,23 @@ describe("auth input boundaries", () => {
     expect(authModeSchema.safeParse("grant-admin").success).toBe(false);
     expect(permissionSchema.safeParse("admin").success).toBe(false);
   });
+  it("enumerates every staff permission exactly once", () => {
+    // La llista ha de coincidir, en contingut i ordre, amb el CHECK de
+    // private.staff_permissions. Zod dedupliqua les entrades repetides, de
+    // manera que una còpia sobrera no canviava el comportament i no la veia
+    // ningú: aquesta prova la fa visible al codi font.
+    expect(permissionSchema.options).toEqual([
+      "catalog.manage",
+      "inventory.manage",
+      "orders.fulfill",
+      "customers.read",
+      "suppliers.manage",
+      "finance.read",
+      "content.manage",
+      "refunds.create",
+      "staff.manage",
+    ]);
+  });
   it("requires a trusted HTTPS or loopback origin without URL payloads", () => {
     for (const input of [
       "http://example.com",

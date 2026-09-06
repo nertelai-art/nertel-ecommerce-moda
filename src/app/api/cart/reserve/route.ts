@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     request_key: input.data.requestKey,
     session_token: sessionToken,
     actor_id: identity.user?.id ?? null,
-    rate_key: commerceRateKey(request),
+    rate_key: commerceRateKey(request, sessionToken),
   });
   const result = reservationResultSchema.safeParse(data);
   if (error || !result.success)

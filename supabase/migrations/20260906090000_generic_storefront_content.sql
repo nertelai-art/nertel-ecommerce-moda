@@ -1,4 +1,4 @@
--- PROPOSTA · NO APLICADA
+-- APLICADA. Es una migracio de la cadena: s'executa com totes les altres.
 -- La validacio del contingut de l'aparador deixa de coneixer els blocs i els
 -- fitxers d'imatge d'aquest client. Passa a validar forma, limits i seguretat
 -- del cami d'imatge, sense imposar cap estructura editorial concreta.

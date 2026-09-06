@@ -1,5 +1,6 @@
 import "server-only";
 import { createHash } from "node:crypto";
+import { commerceRateSubject } from "@/features/commerce/rate-key";
 
 export async function readJsonBody(
   request: Request,
@@ -30,11 +31,15 @@ export async function readMultipartBody(request: Request, maximum: number) {
   }).formData();
 }
 
-export function commerceRateKey(request: Request) {
-  const forwarded =
-    request.headers.get("x-vercel-forwarded-for") ??
-    request.headers.get("x-forwarded-for") ??
-    "local";
-  const address = forwarded.split(",", 1)[0]!.trim().slice(0, 128);
-  return createHash("sha256").update(address).digest("hex");
+/**
+ * La sessió de compra és el recanvi quan no hi ha cap adreça de confiança; per
+ * això la demana qui crida, que ja la té a la mà.
+ */
+export function commerceRateKey(request: Request, sessionToken: string) {
+  const subject = commerceRateSubject(
+    request.headers,
+    sessionToken,
+    process.env.TRUST_FORWARDED_FOR === "1",
+  );
+  return createHash("sha256").update(subject).digest("hex");
 }

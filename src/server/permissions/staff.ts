@@ -25,13 +25,16 @@ export const staffAccess = cache(async function staffAccess() {
     return {
       status: "mfa-required" as const,
       permissions: [],
-      mfaRequired: true,
+      mfaSatisfied: false,
     };
+  // No és «cal MFA», és «aquesta sessió ja té el segon factor verificat». Amb
+  // el nom antic, mfaRequired, la lectura natural de la condició era la
+  // contrària de la que fa el codi, i això és un lloc dolent per equivocar-se.
   return {
     status: permissions.length ? ("allowed" as const) : ("denied" as const),
     permissions,
     userId: user.id,
-    mfaRequired: assurance.data.currentLevel === "aal2",
+    mfaSatisfied: assurance.data.currentLevel === "aal2",
   };
 });
 

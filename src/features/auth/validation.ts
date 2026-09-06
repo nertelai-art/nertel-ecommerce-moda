@@ -27,7 +27,6 @@ export const permissionSchema = z.enum([
   "suppliers.manage",
   "finance.read",
   "content.manage",
-  "content.manage",
   "refunds.create",
   "staff.manage",
 ]);

@@ -27,28 +27,34 @@ export const storefrontContentSchema = z.object({
   }),
 });
 export type StorefrontContent = z.infer<typeof storefrontContentSchema>;
+/**
+ * Text de reserva quan la lectura del contingut publicat falla. És el mateix
+ * text neutre que deixa la migració 20260906090000: cap instància pot arrencar
+ * ni caure mai amb la campanya d'una altra botiga. La campanya d'una botiga
+ * concreta viu a la base de dades i s'edita des del panell de contingut.
+ */
 export const defaultStorefrontContent: StorefrontContent = {
   hero: {
-    eyebrow: "Primavera · Estiu 2026",
-    title: "Menys soroll. Més tu.",
+    eyebrow: "Nova temporada",
+    title: "El titular de la portada",
     description:
-      "Una col·lecció serena de peces versàtils, textures naturals i formes que respiren.",
+      "Aquest text el defineix la botiga des del panell de contingut.",
     image: "/editorial/campaign-hero.png",
-    imageAlt: "Dues persones amb peces de lli en una arquitectura mediterrània",
+    imageAlt: "Descripcio de la imatge de portada",
   },
   editorial: {
-    eyebrow: "Històries d’estil",
-    title: "Una manera més tranquil·la de vestir.",
+    eyebrow: "Seccio editorial",
+    title: "El titular de la seccio editorial.",
   },
   manifest: {
-    eyebrow: "Manifest 01",
-    title: "Comprar menys. Triar millor. Portar-ho molt.",
+    eyebrow: "Manifest",
+    title: "El titular del manifest.",
   },
   closing: {
-    eyebrow: "La primera edició",
-    title: "Peces per tornar-hi, una vegada i una altra.",
+    eyebrow: "Tancament",
+    title: "El titular de tancament.",
     description:
-      "Previsualització de la botiga. Pots explorar el catàleg i preparar el carret; els pagaments encara no estan activats.",
+      "Aquest text el defineix la botiga des del panell de contingut.",
   },
 };
 export const contentActionStateSchema = z.object({

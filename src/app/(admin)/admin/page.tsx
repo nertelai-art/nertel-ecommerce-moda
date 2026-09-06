@@ -72,7 +72,7 @@ export default async function AdminDashboardPage() {
     >
       <div className="flex justify-end">
         <span className="rounded-full bg-[#dce8df] px-3 py-1.5 text-xs text-[#274a38]">
-          {access.status === "allowed" && access.mfaRequired
+          {access.status === "allowed" && access.mfaSatisfied
             ? "Accés protegit amb MFA"
             : "Entorn local segur"}
         </span>
