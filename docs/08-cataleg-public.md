@@ -12,7 +12,7 @@ La presentació de preus només admet EUR en aquest increment: no s'aplica una d
 
 ## Preparació local
 
-Des de C:\Users\nerte\pwa-ecommerce-moda, amb Node 24 i Docker:
+Des de la carpeta del projecte, amb Node 24 i Docker:
 
 ```sh
 npm ci

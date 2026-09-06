@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { currencyCodeSchema, formatPrice } from "../shop/settings";
 
 export type ProductStatus = "draft" | "published" | "archived";
 export const productSlugSchema = z
@@ -52,7 +53,7 @@ export const catalogProductSchema = z
             .int()
             .nonnegative()
             .max(Number.MAX_SAFE_INTEGER),
-          currency: z.literal("EUR"),
+          currency: currencyCodeSchema,
         }),
       )
       .max(200),
@@ -122,15 +123,16 @@ const demoImages = {
 
 export function displayPrice(product: CatalogProduct): string {
   if (product.variants.length === 0) return "Preu pendent";
-  const amount = Math.min(
-    ...product.variants.map((variant) => variant.price.amountMinor),
+  // El preu porta la seva pròpia moneda; no cal consultar la instància.
+  const cheapest = product.variants.reduce((lowest, variant) =>
+    variant.price.amountMinor < lowest.price.amountMinor ? variant : lowest,
   );
-  const formatted = new Intl.NumberFormat("ca-ES", {
-    style: "currency",
-    currency: "EUR",
-  }).format(amount / 100);
+  const formatted = formatPrice(
+    cheapest.price.amountMinor,
+    cheapest.price.currency,
+  );
   return product.variants.some(
-    (variant) => variant.price.amountMinor !== amount,
+    (variant) => variant.price.amountMinor !== cheapest.price.amountMinor,
   )
     ? `Des de ${formatted}`
     : formatted;

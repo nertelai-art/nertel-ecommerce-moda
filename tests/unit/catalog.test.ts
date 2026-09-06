@@ -69,7 +69,7 @@ describe("public catalog trust boundary", () => {
     expect(product.categories[0]?.slug).toBe("vestits");
     expect(product.images[0]?.altText).toBe("Vestit blau sobre fons clar");
   });
-  it("rejects unsafe prices and unsupported currencies", () => {
+  it("rejects unsafe prices and malformed currency codes", () => {
     for (const value of [-1, 1.5, Number.MAX_SAFE_INTEGER + 1, "4990"]) {
       expect(
         catalogProductSchema.safeParse({
@@ -80,12 +80,28 @@ describe("public catalog trust boundary", () => {
         }).success,
       ).toBe(false);
     }
-    expect(
-      catalogProductSchema.safeParse({
-        ...row,
-        product_variants: [{ ...row.product_variants[0], currency: "JPY" }],
-      }).success,
-    ).toBe(false);
+    // La forma sí que es valida: ha de ser un codi ISO 4217 de tres majúscules.
+    for (const value of ["eur", "EURO", "EU", "", "€", 978]) {
+      expect(
+        catalogProductSchema.safeParse({
+          ...row,
+          product_variants: [{ ...row.product_variants[0], currency: value }],
+        }).success,
+      ).toBe(false);
+    }
+  });
+  it("accepts any well-formed currency, because the instance decides which", () => {
+    // El domini no coneix la moneda de la botiga. Qui la imposa és la base:
+    // quote_cart filtra les variants per private.shop_currency(), de manera
+    // que una variant en una altra moneda mai no arriba a cotitzar-se.
+    for (const value of ["EUR", "GBP", "JPY", "CHF"]) {
+      expect(
+        catalogProductSchema.safeParse({
+          ...row,
+          product_variants: [{ ...row.product_variants[0], currency: value }],
+        }).success,
+      ).toBe(true);
+    }
   });
   it("handles products without active variants", () => {
     expect(

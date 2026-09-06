@@ -1,7 +1,7 @@
 name: Database
 on:
-  pull_request:
-    branches: [develop, main]
+  push:
+    branches: [develop]
     paths:
       - "supabase/**"
       - "scripts/**"
@@ -10,10 +10,13 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: database-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   schema-and-permissions:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v7
         with:
@@ -22,11 +25,23 @@ jobs:
         with:
           node-version-file: .node-version
           cache: npm
-      - run: npm ci
+      - run: npm ci --no-audit
       - name: Build a fresh local database from migrations
         run: npm run db:start
       - run: npm run db:test
       - run: npm run db:advisors
+      # Porta contra la deriva. La base ombra aplica NOMÉS les migracions i es
+      # compara amb la base viva: si en surt res, hi ha DDL que cap migració
+      # explica. És el cas que a l'altre projecte va passar desapercebut.
+      - name: La cadena ha de reproduir l'esquema real
+        run: |
+          npx supabase db diff --local --schema public,private,storage > drift.sql
+          if [ -s drift.sql ]; then
+            echo "::error::L'esquema real no coincideix amb les migracions."
+            cat drift.sql
+            exit 1
+          fi
+          echo "Sense deriva."
       - name: Stop this project only
         if: always()
         run: npm run db:stop

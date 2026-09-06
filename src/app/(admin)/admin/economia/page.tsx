@@ -1,3 +1,4 @@
+import { shopSettings } from "@/server/shop/settings";
 import Link from "next/link";
 import { InstantFilterForm } from "@/components/admin/instant-filter-form";
 import type { FinanceSale } from "@/features/finance/report";
@@ -17,7 +18,12 @@ export default async function FinancePage({
 }: {
   searchParams: Promise<{ periode?: string | string[] }>;
 }) {
-  const [access, params] = await Promise.all([staffAccess(), searchParams]);
+  const [access, params, shop] = await Promise.all([
+    staffAccess(),
+    searchParams,
+    shopSettings(),
+  ]);
+  const currency = shop.currency;
   if (
     access.status !== "allowed" ||
     !access.permissions.includes("finance.read")
@@ -48,19 +54,23 @@ export default async function FinancePage({
           className="flex flex-wrap gap-x-8 gap-y-2"
           aria-label="Indicadors econòmics"
         >
-          <Metric label="Ingressos confirmats" value={money(report.revenue)} />
+          <Metric
+            label="Ingressos confirmats"
+            value={money(report.revenue, currency)}
+          />
           <Metric label="Comandes pagades" value={String(report.orders)} />
           <Metric
             label="Tiquet mitjà"
             value={money(
               report.orders ? Math.round(report.revenue / report.orders) : 0,
+              currency,
             )}
           />
           <Metric
             label="Marge brut estimat"
             value={
               report.coveredRevenue
-                ? money(report.knownRevenue - report.knownCost)
+                ? money(report.knownRevenue - report.knownCost, currency)
                 : "—"
             }
           />
@@ -106,7 +116,7 @@ export default async function FinancePage({
                   key={month.key}
                 >
                   <span className="mb-2 truncate text-center text-[.65rem] font-semibold opacity-0 transition-opacity group-hover:opacity-100">
-                    {money(month.revenue)}
+                    {money(month.revenue, currency)}
                   </span>
                   <div
                     className="min-h-1 rounded-t bg-[#315545]"
@@ -182,14 +192,16 @@ export default async function FinancePage({
                     <td className="py-4 font-semibold">{product.name}</td>
                     <td className="py-4 text-right">{product.units}</td>
                     <td className="py-4 text-right">
-                      {money(product.revenue)}
+                      {money(product.revenue, currency)}
                     </td>
                     <td className="py-4 text-right">
-                      {product.complete ? money(product.cost) : "Incomplet"}
+                      {product.complete
+                        ? money(product.cost, currency)
+                        : "Incomplet"}
                     </td>
                     <td className="py-4 text-right font-semibold">
                       {product.complete
-                        ? money(product.revenue - product.cost)
+                        ? money(product.revenue - product.cost, currency)
                         : "—"}
                     </td>
                   </tr>
@@ -298,9 +310,9 @@ function Empty() {
     </div>
   );
 }
-function money(value: number) {
+function money(value: number, currency: string) {
   return new Intl.NumberFormat("ca-ES", {
     style: "currency",
-    currency: "EUR",
+    currency,
   }).format(value / 100);
 }

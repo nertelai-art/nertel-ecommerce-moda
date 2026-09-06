@@ -1,3 +1,4 @@
+import { shopSettings } from "@/server/shop/settings";
 import Image from "next/image";
 import Link from "next/link";
 import { InstantFilterForm } from "@/components/admin/instant-filter-form";
@@ -25,7 +26,11 @@ export default async function AdminOrdersPage({
     estat?: string | string[];
   }>;
 }) {
-  const [access, query] = await Promise.all([staffAccess(), searchParams]);
+  const [access, query, shop] = await Promise.all([
+    staffAccess(),
+    searchParams,
+    shopSettings(),
+  ]);
   const allowed =
     access.status === "allowed" &&
     access.permissions.includes("orders.fulfill") &&
@@ -93,7 +98,10 @@ export default async function AdminOrdersPage({
           value={String(pending.length)}
         />
         <Metric label="Pagades" value={String(paid.length)} />
-        <Metric label="Import pendent" value={money(pendingAmount, "EUR")} />
+        <Metric
+          label="Import pendent"
+          value={money(pendingAmount, shop.currency)}
+        />
       </section>
 
       <section className="mt-4 rounded-xl border border-line bg-white p-3 sm:p-4">

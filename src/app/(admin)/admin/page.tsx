@@ -1,3 +1,5 @@
+import { formatPrice } from "@/features/shop/settings";
+import { shopSettings } from "@/server/shop/settings";
 import Link from "next/link";
 import { staffCatalog } from "@/server/catalog/admin";
 import { staffInventory } from "@/server/inventory/repository";
@@ -9,7 +11,7 @@ import { staffFinanceSales } from "@/server/finance/repository";
 import { staffAccess } from "@/server/permissions/staff";
 
 export default async function AdminDashboardPage() {
-  const access = await staffAccess();
+  const [access, shop] = await Promise.all([staffAccess(), shopSettings()]);
   const mayManageCatalog =
     access.status === "allowed" &&
     access.permissions.includes("catalog.manage");
@@ -165,12 +167,9 @@ export default async function AdminDashboardPage() {
           {mayReadFinance ? (
             <p className="mt-4 text-sm">
               <strong>
-                {new Intl.NumberFormat("ca-ES", {
-                  style: "currency",
-                  currency: "EUR",
-                }).format(
-                  finance.reduce((sum, row) => sum + row.revenue_minor, 0) /
-                    100,
+                {formatPrice(
+                  finance.reduce((sum, row) => sum + row.revenue_minor, 0),
+                  shop.currency,
                 )}
               </strong>{" "}
               d’ingressos confirmats.
