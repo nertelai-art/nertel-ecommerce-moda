@@ -33,13 +33,17 @@ export async function readMultipartBody(request: Request, maximum: number) {
 
 /**
  * La sessió de compra és el recanvi quan no hi ha cap adreça de confiança; per
- * això la demana qui crida, que ja la té a la mà.
+ * això la demana qui crida, que ja la té a la mà. Null quan no hi ha cap de les
+ * dues: la base de dades ho entén com «no limitis», que és millor que les dues
+ * alternatives possibles sense identitat del client.
  */
-export function commerceRateKey(request: Request, sessionToken: string) {
+export function commerceRateKey(request: Request, sessionToken: string | null) {
   const subject = commerceRateSubject(
     request.headers,
     sessionToken,
     process.env.TRUST_FORWARDED_FOR === "1",
   );
-  return createHash("sha256").update(subject).digest("hex");
+  return subject === null
+    ? null
+    : createHash("sha256").update(subject).digest("hex");
 }

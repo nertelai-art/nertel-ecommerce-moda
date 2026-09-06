@@ -379,18 +379,21 @@ export type Database = {
           request_key: string;
           session_token: string;
           actor_id: string | null;
-          rate_key: string;
+          rate_key: string | null;
         };
         Returns: Json;
       };
-      server_quote_cart: { Args: { cart: Json }; Returns: Json };
+      server_quote_cart: {
+        Args: { cart: Json; rate_key: string | null };
+        Returns: Json;
+      };
       server_create_pending_order: {
         Args: {
           session_token: string;
           request_key: string;
           checkout_details: Json;
           actor_id: string | null;
-          rate_key: string;
+          rate_key: string | null;
         };
         Returns: Json;
       };
@@ -402,7 +405,7 @@ export type Database = {
         Args: {
           session_token: string;
           actor_id: string | null;
-          rate_key: string;
+          rate_key: string | null;
         };
         Returns: boolean;
       };

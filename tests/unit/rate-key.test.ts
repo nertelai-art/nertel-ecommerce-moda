@@ -61,6 +61,21 @@ describe("commerce rate limit subject", () => {
     ).toBe("address:203.0.113.7");
   });
 
+  it("gives up rather than share a bucket when the client is unidentifiable", () => {
+    // El pressupost del carret no crea sessió, i sense adreça de confiança no
+    // hi ha manera d'identificar qui truca. La base de dades ho llegeix com
+    // «no limitis»; una clau compartida seria pitjor que no limitar.
+    expect(commerceRateSubject(headers({}), null, false)).toBeNull();
+    expect(commerceRateSubject(headers({}), null, true)).toBeNull();
+    expect(
+      commerceRateSubject(
+        headers({ "x-vercel-forwarded-for": "203.0.113.7" }),
+        null,
+        false,
+      ),
+    ).toBe("address:203.0.113.7");
+  });
+
   it("keeps spoofed and trustworthy addresses in different namespaces", () => {
     // Una sessió que es digués «address:203.0.113.7» no ha de poder consumir
     // el dipòsit d'una adreça real.

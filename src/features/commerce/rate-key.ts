@@ -31,12 +31,18 @@ export function forwardedClientAddress(
  * confiança el dipòsit va per sessió de compra i no per a tothom: una constant
  * compartida deixaria que un sol client esgotés el límit de la botiga sencera,
  * que és una denegació de servei contra la clientela legítima.
+ *
+ * Null quan no hi ha cap de les dues coses. Sense identitat del client només hi
+ * ha dues sortides i totes dues són pitjors que no limitar: una clau per
+ * petició no limita res, i una de compartida torna a ser aquella denegació de
+ * servei. La base de dades ho entén com «no limitis».
  */
 export function commerceRateSubject(
   headers: Headers,
-  sessionToken: string,
+  sessionToken: string | null,
   trustForwardedFor: boolean,
-): string {
+): string | null {
   const address = forwardedClientAddress(headers, trustForwardedFor);
-  return address ? `address:${address}` : `session:${sessionToken}`;
+  if (address) return `address:${address}`;
+  return sessionToken ? `session:${sessionToken}` : null;
 }
