@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { isAllowedRequestOrigin } from "@/features/auth/validation";
 import { cartInputSchema, cartQuoteSchema } from "@/features/cart/cart-input";
 import { commerceClient } from "@/server/integrations/supabase/commerce-client";
-import { readJsonBody } from "@/server/http/request";
+import { commerceRateKey, readJsonBody } from "@/server/http/request";
+import { checkoutSessionFrom } from "@/server/checkout/session";
 
 export async function POST(request: Request) {
   if (
@@ -23,6 +24,9 @@ export async function POST(request: Request) {
   const client = commerceClient();
   const { data, error } = await client.rpc("server_quote_cart", {
     cart: input.data.items,
+    // El pressupost no crea sessió de compra: si encara no n'hi ha cap, el
+    // límit depèn de l'adreça, i sense adreça de confiança no se n'imposa cap.
+    rate_key: commerceRateKey(request, checkoutSessionFrom(request)),
   });
   const quote = cartQuoteSchema.safeParse(data);
   if (error || !quote.success)
