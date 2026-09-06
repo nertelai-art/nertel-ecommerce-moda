@@ -47,7 +47,7 @@ git config core.hooksPath .githooks
 `.githooks/pre-push` comprova, abans que res surti de la màquina: patrons de
 credencial als canvis, que no es pugi cap `.env` amb valors, `npm run check`
 (lint, tipus, proves unitàries i format) i, si s'ha tocat SQL i la pila local
-està aixecada, que no hi hagi deriva d'esquema.
+està aixecada, `node scripts/check-drift.mjs`.
 
 Cares o que necessiten Docker, a CI en pujar a `develop`:
 

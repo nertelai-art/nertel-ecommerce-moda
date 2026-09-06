@@ -16,11 +16,14 @@ echo "pre-push · portes locals"
 
 # 1. Res que sembli una credencial. Barat i abans de sortir de la màquina.
 #    Només mira el que es puja, no tot l'historial: d'això se n'ocupa gitleaks a CI.
+#
+#    Es busquen valors, no noms: «service_role» apareix a cada revoke legítim
+#    d'aquest esquema, i prohibir la paraula faria el hook inservible. El que
+#    no pot sortir d'aquí és una clau: prefixos de proveïdor, JWT i claus PEM.
 range_base=$(git merge-base origin/develop HEAD 2>/dev/null || echo "")
 if [ -n "$range_base" ]; then
-  if git diff "$range_base"..HEAD -U0 \
-     | grep -nE '^\+.*(sb_secret_|service_role|sk_live_|sk_test_|whsec_|-----BEGIN [A-Z ]*PRIVATE KEY-----)' \
-     | grep -v '^\+.*# *exemple' ; then
+  if git diff "$range_base"..HEAD -U0 -- . ':(exclude).githooks/pre-push' \
+     | grep -nE '^\+.*(sb_secret_[A-Za-z0-9_-]{8}|sk_(live|test)_[A-Za-z0-9]{8}|whsec_[A-Za-z0-9]{8}|eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY-----)' ; then
     echo ""
     echo "ATURAT: hi ha alguna cosa que sembla una credencial als canvis."
     echo "Si és un fals positiu, revisa-ho i torna-ho a intentar."
@@ -43,13 +46,7 @@ npm run check
 if git diff --name-only "${range_base:-HEAD~1}"..HEAD | grep -q '^supabase/migrations/'; then
   if docker ps --format '{{.Names}}' 2>/dev/null | grep -q '^supabase_db_nertel-ecommerce-moda$'; then
     echo "pre-push · comprovant deriva d'esquema"
-    drift=$(npx supabase db diff --local --schema public,private,storage 2>/dev/null | tr -d '[:space:]')
-    if [ -n "$drift" ]; then
-      echo ""
-      echo "ATURAT: l'esquema real no coincideix amb les migracions."
-      echo "Executa: npx supabase db diff --local --schema public,private,storage"
-      exit 1
-    fi
+    node scripts/check-drift.mjs || exit 1
   else
     echo "pre-push · pila local aturada, la deriva la comprovarà CI"
   fi

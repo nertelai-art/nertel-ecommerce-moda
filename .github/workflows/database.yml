@@ -33,15 +33,8 @@ jobs:
       # Porta contra la deriva. La base ombra aplica NOMÉS les migracions i es
       # compara amb la base viva: si en surt res, hi ha DDL que cap migració
       # explica. És el cas que a l'altre projecte va passar desapercebut.
-      - name: La cadena ha de reproduir l'esquema real
-        run: |
-          npx supabase db diff --local --schema public,private,storage > drift.sql
-          if [ -s drift.sql ]; then
-            echo "::error::L'esquema real no coincideix amb les migracions."
-            cat drift.sql
-            exit 1
-          fi
-          echo "Sense deriva."
+      - name: La cadena de migracions ha de reproduir l'esquema real
+        run: node scripts/check-drift.mjs
       - name: Stop this project only
         if: always()
         run: npm run db:stop
