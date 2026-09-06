@@ -2,7 +2,7 @@
 
 Botiga modular en desenvolupament: Next.js, TypeScript, Tailwind i Supabase local. Compres desactivades i dades de demostració.
 
-Carpeta de treball: C:\Users\nerte\pwa-ecommerce-moda.
+Un projecte de Supabase i un desplegament per botiga; per muntar-ne una de nova, vegeu [muntar una botiga nova](docs/12-botiga-nova.md).
 
 ## Desenvolupament
 
@@ -48,5 +48,5 @@ Pendent: connexió de Stripe, webhook de confirmació, correus, devolucions, PWA
 - [Producte](docs/01-guia-producte-pwa.md) i [arquitectura](docs/02-stack-arquitectura-seguretat.md).
 - [Base SQL](docs/06-base-dades-local.md), [catàleg](docs/08-cataleg-public.md) i [autenticació](docs/09-autenticacio.md).
 - [Pagaments](docs/04-pagaments-i-stripe.md), [guia completa de Stripe](docs/10-guia-stripe-implementacio.md), [direcció visual](docs/05-direccio-visual.md) i [VPS](docs/07-opcio-vps.md).
-- [Runbook de preproducció, desplegament i recuperació](docs/11-preproduccio-i-desplegament.md).
+- [Runbook de preproducció, desplegament i recuperació](docs/11-preproduccio-i-desplegament.md) i [muntar una botiga nova](docs/12-botiga-nova.md).
 - [GitHub](https://github.com/nertelai-art/nertel-ecommerce-moda).

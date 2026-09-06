@@ -71,3 +71,14 @@ insert into private.inventory_levels (variant_id, location_id, on_hand) values
   ('30000000-0000-4000-8000-000000000014', '40000000-0000-4000-8000-000000000001', 12),
   ('30000000-0000-4000-8000-000000000015', '40000000-0000-4000-8000-000000000001', 4);
 -- No credentials, users, staff permissions or real orders are seeded.
+
+-- Contingut editorial de demostració. Viu aquí i no a una migració perquè és
+-- d'aquest client: la cadena de migracions deixa un text neutre perquè una
+-- botiga nova no arrenqui amb la campanya d'una altra.
+do $seed$
+declare demo jsonb := '{"hero":{"eyebrow":"Primavera · Estiu 2026","title":"Menys soroll. Més tu.","description":"Una col·lecció serena de peces versàtils, textures naturals i formes que respiren.","image":"/editorial/campaign-hero.png","imageAlt":"Dues persones amb peces de lli en una arquitectura mediterrània"},"editorial":{"eyebrow":"Històries d’estil","title":"Una manera més tranquil·la de vestir."},"manifest":{"eyebrow":"Manifest 01","title":"Comprar menys. Triar millor. Portar-ho molt."},"closing":{"eyebrow":"La primera edició","title":"Peces per tornar-hi, una vegada i una altra.","description":"Previsualització de la botiga. Pots explorar el catàleg i preparar el carret; els pagaments encara no estan activats."}}'::jsonb;
+begin
+  update public.storefront_content set content = demo where singleton;
+  update private.storefront_drafts set content = demo where singleton;
+end
+$seed$;

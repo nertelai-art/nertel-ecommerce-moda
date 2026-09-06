@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { currencyCodeSchema } from "../shop/settings";
 import { productSlugSchema } from "./product";
 
 export const catalogStatusSchema = z.enum(["draft", "published", "archived"]);
@@ -45,7 +46,7 @@ export const staffCatalogVariantSchema = z.object({
   size: variantFields.size,
   color: variantFields.color,
   price_minor: z.number().int().min(0).max(Number.MAX_SAFE_INTEGER),
-  currency: z.literal("EUR"),
+  currency: currencyCodeSchema,
   is_active: z.boolean(),
 });
 export const catalogCategoryCreateSchema = z.object({

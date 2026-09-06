@@ -284,6 +284,14 @@ export type Database = {
         Returns: number;
       };
       current_staff_permissions: { Args: never; Returns: string[] };
+      shop_settings: {
+        Args: never;
+        Returns: {
+          shop_name: string;
+          currency: string;
+          country_code: string;
+        }[];
+      };
       create_catalog_product: {
         Args: {
           product_slug: string;

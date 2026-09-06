@@ -1,0 +1,58 @@
+#!/bin/sh
+# Portes barates, en local, abans que res surti d'aquesta màquina.
+#
+# Aquí hi va tot el que és gratuït i ràpid. El que necessita Docker o una base
+# de dades real va a CI, que s'executa en pujar a develop.
+#
+# S'activa una sola vegada per clon:
+#   git config core.hooksPath .githooks
+#
+# Per saltar-lo cal una raó i deixar-ne constància al missatge del commit.
+# Mai sobre una branca compartida.
+
+set -e
+
+echo "pre-push · portes locals"
+
+# 1. Res que sembli una credencial. Barat i abans de sortir de la màquina.
+#    Només mira el que es puja, no tot l'historial: d'això se n'ocupa gitleaks a CI.
+range_base=$(git merge-base origin/develop HEAD 2>/dev/null || echo "")
+if [ -n "$range_base" ]; then
+  if git diff "$range_base"..HEAD -U0 \
+     | grep -nE '^\+.*(sb_secret_|service_role|sk_live_|sk_test_|whsec_|-----BEGIN [A-Z ]*PRIVATE KEY-----)' \
+     | grep -v '^\+.*# *exemple' ; then
+    echo ""
+    echo "ATURAT: hi ha alguna cosa que sembla una credencial als canvis."
+    echo "Si és un fals positiu, revisa-ho i torna-ho a intentar."
+    exit 1
+  fi
+fi
+
+# 2. Cap fitxer d'entorn amb valors.
+if git diff --name-only "${range_base:-HEAD~1}"..HEAD | grep -E '^\.env' | grep -v '\.example$'; then
+  echo ""
+  echo "ATURAT: no es puja cap fitxer .env amb valors."
+  exit 1
+fi
+
+# 3. Lint, tipus, proves unitàries i format.
+npm run check
+
+# 4. Si s'ha tocat SQL, la cadena de migracions ha de reproduir l'esquema real.
+#    Només si la pila local està aixecada; si no ho està, ho farà CI.
+if git diff --name-only "${range_base:-HEAD~1}"..HEAD | grep -q '^supabase/migrations/'; then
+  if docker ps --format '{{.Names}}' 2>/dev/null | grep -q '^supabase_db_nertel-ecommerce-moda$'; then
+    echo "pre-push · comprovant deriva d'esquema"
+    drift=$(npx supabase db diff --local --schema public,private,storage 2>/dev/null | tr -d '[:space:]')
+    if [ -n "$drift" ]; then
+      echo ""
+      echo "ATURAT: l'esquema real no coincideix amb les migracions."
+      echo "Executa: npx supabase db diff --local --schema public,private,storage"
+      exit 1
+    fi
+  else
+    echo "pre-push · pila local aturada, la deriva la comprovarà CI"
+  fi
+fi
+
+echo "pre-push · d'acord"
