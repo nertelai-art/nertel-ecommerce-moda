@@ -5,11 +5,17 @@
 // compara amb la base viva. Si en surt SQL, hi ha alguna cosa que cap migracio
 // explica: DDL aplicat a ma amb psql o des de Studio.
 //
-// Compte amb la forma de la sortida: la CLI escriu a stdout un sobre JSON que
-// SEMPRE es no buit, fins i tot sense cap diferencia:
-//   {"diff":"\n","file":null,"files":[],...,"message":"Diff complete."}
-// Comprovar si stdout te contingut, doncs, dona sempre positiu. El que val es
-// el camp `diff`. El missatge llegible per humans va a stderr.
+// La forma de la sortida no es estable entre entorns, i aixo ja ens ha enganyat
+// dues vegades. Els missatges llegibles van sempre a stderr; a stdout hi pot
+// haver tres coses:
+//
+//   1. Res, quan no hi ha diferencies en algun entorn (CI).
+//   2. Un sobre JSON que SEMPRE es no buit, fins i tot sense diferencies:
+//      {"diff":"\n","file":null,...,"message":"Diff complete."}  (local)
+//   3. El SQL de la diferencia, en cru.
+//
+// Per aixo no serveix ni «stdout te contingut» ni assumir JSON. Es tracten els
+// tres casos, i qualsevol SQL que no sapiguem explicar compta com a deriva.
 
 import { execSync } from "node:child_process";
 
@@ -29,16 +35,23 @@ try {
   process.exit(2);
 }
 
-const payload = stdout.trim().split("\n").at(-1) ?? "";
-let diff;
+function extractDiff(output) {
+  const trimmed = output.trim();
+  if (trimmed === "") return "";
 
-try {
-  diff = JSON.parse(payload).diff ?? "";
-} catch {
-  console.error("Sortida inesperada de supabase db diff:");
-  console.error(payload.slice(0, 500));
-  process.exit(2);
+  const lastLine = trimmed.split("\n").at(-1) ?? "";
+  if (lastLine.startsWith("{") && lastLine.endsWith("}")) {
+    try {
+      const parsed = JSON.parse(lastLine);
+      if (typeof parsed.diff === "string") return parsed.diff;
+    } catch {
+      // No era el sobre JSON; es tracta com a SQL en cru.
+    }
+  }
+  return trimmed;
 }
+
+const diff = extractDiff(stdout);
 
 if (diff.trim() === "") {
   console.log("Sense deriva: la cadena reprodueix l'esquema real.");
