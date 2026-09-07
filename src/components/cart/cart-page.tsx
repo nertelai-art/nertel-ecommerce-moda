@@ -9,6 +9,7 @@ import {
   type PendingOrderResult,
 } from "@/features/cart/cart-input";
 import { useCart } from "./cart-provider";
+import { useOnline } from "@/components/pwa/use-online";
 
 function money(amount: number, currency: string) {
   return new Intl.NumberFormat("ca-ES", {
@@ -18,7 +19,8 @@ function money(amount: number, currency: string) {
 }
 
 export function CartPage({ currency }: { currency: string }) {
-  const { items, setQuantity, remove, clear, hydrated } = useCart();
+  const { items, setQuantity, remove, clear, hydrated, persistent } = useCart();
+  const online = useOnline();
   const [quote, setQuote] = useState<CartQuote | null>(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -29,7 +31,7 @@ export function CartPage({ currency }: { currency: string }) {
   const signature = JSON.stringify(items);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || !online) return;
     const controller = new AbortController();
     fetch("/api/checkout/current", { signal: controller.signal })
       .then(async (response) => {
@@ -42,10 +44,10 @@ export function CartPage({ currency }: { currency: string }) {
       })
       .catch(() => undefined);
     return () => controller.abort();
-  }, [hydrated]);
+  }, [hydrated, online]);
 
   useEffect(() => {
-    if (!hydrated || !items.length) {
+    if (!hydrated || !online || !items.length) {
       return;
     }
     const controller = new AbortController();
@@ -77,9 +79,10 @@ export function CartPage({ currency }: { currency: string }) {
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [hydrated, signature, items]);
+  }, [hydrated, online, signature, items]);
 
   async function reserve() {
+    if (!navigator.onLine) return;
     if (request.current.signature !== signature) {
       request.current = { signature, key: crypto.randomUUID() };
     }
@@ -106,6 +109,7 @@ export function CartPage({ currency }: { currency: string }) {
 
   async function prepareOrder(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!navigator.onLine) return;
     const form = new FormData(event.currentTarget);
     const details = {
       email: String(form.get("email") ?? ""),
@@ -149,6 +153,7 @@ export function CartPage({ currency }: { currency: string }) {
   }
 
   async function emptyCart() {
+    if (!navigator.onLine) return;
     setLoading(true);
     setMessage("");
     try {
@@ -188,7 +193,7 @@ export function CartPage({ currency }: { currency: string }) {
         <button
           className="action w-fit"
           type="button"
-          disabled={loading}
+          disabled={loading || !online}
           onClick={emptyCart}
         >
           Cancel·lar comanda
@@ -209,6 +214,18 @@ export function CartPage({ currency }: { currency: string }) {
     );
   return (
     <div className="grid gap-6">
+      {!persistent ? (
+        <p role="status">
+          El navegador no permet desar el carret. Es mantindrà mentre naveguis
+          per la botiga, però es perdrà si recarregues o tanques aquesta pàgina.
+        </p>
+      ) : null}
+      {!online ? (
+        <p role="status">
+          El carret es conserva al dispositiu. Cal connexió per actualitzar
+          preus i disponibilitat; els imports mostrats poden haver canviat.
+        </p>
+      ) : null}
       {loading && !quote ? (
         <p role="status">Validant preus i disponibilitat…</p>
       ) : null}
@@ -268,7 +285,10 @@ export function CartPage({ currency }: { currency: string }) {
           className="action"
           type="button"
           disabled={
-            loading || !quote || quote.items.some((item) => !item.available)
+            !online ||
+            loading ||
+            !quote ||
+            quote.items.some((item) => !item.available)
           }
           onClick={reserve}
         >
@@ -277,7 +297,7 @@ export function CartPage({ currency }: { currency: string }) {
         <button
           className="action"
           type="button"
-          disabled={loading}
+          disabled={loading || !online}
           onClick={emptyCart}
         >
           Buidar carret
@@ -378,7 +398,7 @@ export function CartPage({ currency }: { currency: string }) {
           <button
             className="action w-fit sm:col-span-2"
             type="submit"
-            disabled={loading}
+            disabled={loading || !online}
           >
             Crear comanda pendent
           </button>

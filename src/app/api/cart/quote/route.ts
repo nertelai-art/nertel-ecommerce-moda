@@ -22,11 +22,13 @@ export async function POST(request: Request) {
   const input = cartInputSchema.safeParse(body);
   if (!input.success) return new Response("Invalid cart", { status: 400 });
   const client = commerceClient();
+  const rateKey = commerceRateKey(request, checkoutSessionFrom(request));
+  if (rateKey instanceof Response) return rateKey;
   const { data, error } = await client.rpc("server_quote_cart", {
     cart: input.data.items,
     // El pressupost no crea sessió de compra: si encara no n'hi ha cap, el
-    // límit depèn de l'adreça, i sense adreça de confiança no se n'imposa cap.
-    rate_key: commerceRateKey(request, checkoutSessionFrom(request)),
+    // límit depèn de l'adreça, obligatòria en producció.
+    rate_key: rateKey,
   });
   const quote = cartQuoteSchema.safeParse(data);
   if (error || !quote.success)

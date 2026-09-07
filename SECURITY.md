@@ -17,6 +17,9 @@ No publiqueu credencials ni dades personals en incidències. Si detecteu una vul
 
 ## Decisions i límits
 
+Les correccions i els límits de l'auditoria de setembre es documenten a
+[millores de seguretat i integritat](docs/13-auditoria-seguretat.md).
+
 La CSP permet estils inline per compatibilitat amb el renderitzat; s'haurà de revisar en afegir components i integracions. La CSP amb nonce implica renderització dinàmica: abans de cachejar catàleg, cal dissenyar una estratègia compatible. El proxy no és una barrera d'autorització.
 
 HTTPS i HSTS s'han de verificar al desplegament. Les capçaleres no substitueixen autenticació, RLS, validació o límits distribuïts. El desplegament ha de garantir que les capçaleres d'IP reenviada només les escrigui el proxy de confiança.

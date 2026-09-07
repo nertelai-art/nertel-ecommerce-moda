@@ -1,5 +1,6 @@
 import "server-only";
 import { z } from "zod";
+import { cache } from "react";
 import {
   catalogPageSchema,
   catalogProductSchema,
@@ -12,7 +13,11 @@ import { publicCatalogConfig } from "@/server/integrations/supabase/public-confi
 const pageSize = 12;
 const projection =
   "id,slug,name,description,product_variants(id,size,color,price_minor,currency),product_categories(categories(id,slug,name)),product_images(id,alt_text,sort_order)";
-const facetRowSchema = z.object({ size: z.string(), color: z.string() });
+const catalogFiltersSchema = z.object({
+  sizes: z.array(z.string()),
+  colors: z.array(z.string()),
+  categories: z.array(publicCategorySchema),
+});
 const catalogRequestTimeoutMs = 10_000;
 
 async function fetchCatalogResource(url: string, key: string) {
@@ -111,55 +116,23 @@ export async function listCatalog(filters: CatalogQuery) {
   };
 }
 
+const readCatalogFilters = cache(async function readCatalogFilters() {
+  const config = publicCatalogConfig(process.env);
+  const response = await fetchCatalogResource(
+    `${config.url}/rest/v1/rpc/catalog_filters`,
+    config.key,
+  );
+  if (!response.ok) throw new Error("Catalog filters unavailable");
+  return catalogFiltersSchema.parse(await response.json());
+});
+
 export async function listCatalogFacets() {
-  try {
-    const config = publicCatalogConfig(process.env);
-    const query = new URLSearchParams({
-      select: "size,color,products!inner(status)",
-      is_active: "eq.true",
-      "products.status": "eq.published",
-      order: "size.asc,color.asc",
-      limit: "500",
-    });
-    const response = await fetchCatalogResource(
-      `${config.url}/rest/v1/product_variants?${query}`,
-      config.key,
-    );
-    if (!response.ok) throw new Error("Catalog facets request failed");
-    const rows = z
-      .array(facetRowSchema)
-      .max(500)
-      .parse(await response.json());
-    return {
-      sizes: [...new Set(rows.map(({ size }) => size))],
-      colors: [...new Set(rows.map(({ color }) => color))],
-    };
-  } catch {
-    throw new Error("Catalog temporarily unavailable");
-  }
+  const { sizes, colors } = await readCatalogFilters();
+  return { sizes, colors };
 }
 
 export async function listCatalogCategories() {
-  try {
-    const config = publicCatalogConfig(process.env);
-    const query = new URLSearchParams({
-      select: "id,slug,name",
-      is_active: "eq.true",
-      order: "name.asc,id.asc",
-      limit: "200",
-    });
-    const response = await fetchCatalogResource(
-      `${config.url}/rest/v1/categories?${query}`,
-      config.key,
-    );
-    if (!response.ok) throw new Error("Category request failed");
-    return z
-      .array(publicCategorySchema)
-      .max(200)
-      .parse(await response.json());
-  } catch {
-    throw new Error("Catalog temporarily unavailable");
-  }
+  return (await readCatalogFilters()).categories;
 }
 
 export async function findCatalogProduct(slug: string) {

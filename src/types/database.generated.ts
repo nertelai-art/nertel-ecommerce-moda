@@ -257,6 +257,11 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      catalog_filters: { Args: never; Returns: Json };
+      staff_snapshot: {
+        Args: { resource: string; report_days?: number | null };
+        Returns: Json;
+      };
       create_pending_order: {
         Args: {
           session_token: string;

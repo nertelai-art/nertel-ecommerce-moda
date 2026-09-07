@@ -22,7 +22,7 @@ Nota de manteniment: ESLint queda fixat a 9.39.5 perquè el plugin React d'`esli
 4. Afegir Auth SSR i proves de propietat; després permisos de personal amb MFA.
 5. Construir inventari i reserves transaccionals abans de connectar Stripe.
 
-La PWA, el manifest amb identitat definitiva i les icones es prepararan quan es concreti la marca; no s'afirma que la base sigui instal·lable.
+La base PWA incorpora manifest per instància, icones genèriques, instal·lació opcional i pantalla offline. Cal adaptar les icones a la marca i validar la instal·lació en dispositius físics abans de publicar; vegeu [PWA](15-pwa-installacio-offline.md).
 
 ## Verificació local
 

@@ -1,0 +1,58 @@
+:root {
+  color-scheme: light;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #292723;
+  background: #faf8f4;
+}
+body {
+  margin: 0;
+}
+main {
+  max-width: 38rem;
+  margin: 10vh auto;
+  padding: 1.5rem;
+}
+h1 {
+  font:
+    400 clamp(2.2rem, 8vw, 3.4rem)/1.1 Georgia,
+    serif;
+}
+p {
+  line-height: 1.65;
+}
+.eyebrow {
+  margin-top: 2rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 2rem;
+}
+button,
+a {
+  min-height: 44px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  font: inherit;
+  border-radius: 0.25rem;
+}
+button {
+  border: 0;
+  color: white;
+  background: #354d40;
+  cursor: pointer;
+}
+a {
+  color: #354d40;
+}
+:focus-visible {
+  outline: 3px solid #354d40;
+  outline-offset: 4px;
+}

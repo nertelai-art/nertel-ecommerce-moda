@@ -38,12 +38,14 @@ export async function POST(request: Request) {
   const identityClient = await authClient(true);
   const { data: identity } = await identityClient.auth.getUser();
   const client = commerceClient();
+  const rateKey = commerceRateKey(request, sessionToken);
+  if (rateKey instanceof Response) return rateKey;
   const { data, error } = await client.rpc("server_create_pending_order", {
     session_token: sessionToken,
     request_key: input.data.requestKey,
     checkout_details: input.data.details,
     actor_id: identity.user?.id ?? null,
-    rate_key: commerceRateKey(request, sessionToken),
+    rate_key: rateKey,
   });
   const result = pendingOrderResultSchema.safeParse(data);
   if (error || !result.success) {

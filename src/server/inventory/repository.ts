@@ -1,6 +1,6 @@
 import "server-only";
 import { z } from "zod";
-import { authClient } from "@/server/auth/client";
+import { staffSnapshot } from "@/server/repositories/staff-snapshot";
 import type { InventoryRow } from "@/features/inventory/validation";
 
 const inventoryRowSchema = z.object({
@@ -19,8 +19,6 @@ const inventoryRowSchema = z.object({
 });
 
 export async function staffInventory(): Promise<InventoryRow[]> {
-  const client = await authClient();
-  const { data, error } = await client.rpc("staff_inventory");
-  if (error) throw new Error("Unable to load inventory");
+  const data = await staffSnapshot("inventory");
   return z.array(inventoryRowSchema).parse(data);
 }
