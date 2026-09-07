@@ -26,8 +26,8 @@ La PWA, el manifest amb identitat definitiva i les icones es prepararan quan es 
 
 ## Verificació local
 
-- `npm run check`: lint sense avisos, tipus correctes, 10 proves aprovades i format correcte.
-- `npm run build`: compilació de producció correcta.
+- `pnpm check`: lint sense avisos, tipus correctes, 10 proves aprovades i format correcte.
+- `pnpm build`: compilació de producció correcta.
 - Servidor de producció a localhost: HTTP 200 i contingut esperat; dues peticions amb nonce diferent; els 11 scripts HTML porten nonce; `Cache-Control` inclou `no-store` i `X-Frame-Options` és `DENY`.
 - Instal·lació amb audit: cap vulnerabilitat coneguda detectada en aquell moment.
 - La CI remota, la revisió visual en navegador, les integracions i les proves comercials encara no s'han executat.

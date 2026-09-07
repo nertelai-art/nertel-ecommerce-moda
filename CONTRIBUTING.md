@@ -45,7 +45,7 @@ git config core.hooksPath .githooks
 ```
 
 `.githooks/pre-push` comprova, abans que res surti de la màquina: patrons de
-credencial als canvis, que no es pugi cap `.env` amb valors, `npm run check`
+credencial als canvis, que no es pugi cap `.env` amb valors, `pnpm check`
 (lint, tipus, proves unitàries i format) i, si s'ha tocat SQL i la pila local
 està aixecada, `node scripts/check-drift.mjs`.
 
@@ -53,7 +53,7 @@ Cares o que necessiten Docker, a CI en pujar a `develop`:
 
 | Workflow          | Quan                                     | Què                                                                       |
 | ----------------- | ---------------------------------------- | ------------------------------------------------------------------------- |
-| Quality           | push a `develop`                         | `npm run check` i `npm run build`                                         |
+| Quality           | push a `develop`                         | `pnpm check` i `pnpm build`                                               |
 | Database          | push a `develop` que toqui `supabase/**` | migracions des de zero, proves SQL, assessors i **comprovació de deriva** |
 | Secrets           | push a `develop`                         | gitleaks sobre tot l'historial                                            |
 | Release readiness | manual                                   | porta completa abans de promoure a `main`                                 |
@@ -75,6 +75,6 @@ enrere.** Esborrar o renombrar es fa en dos passos separats per un desplegament.
 ## Dependabot
 
 Les actualitzacions compatibles s'integren en una branca `chore/*` i han de
-passar `npm run check`, `npm run build`, les proves de base de dades i els
+passar `pnpm check`, `pnpm build`, les proves de base de dades i els
 assessors. Les pujades majors de la cadena d'eines es mantenen bloquejades fins
 que Next.js i els seus plugins declarin compatibilitat.

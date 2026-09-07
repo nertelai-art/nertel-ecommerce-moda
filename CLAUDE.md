@@ -68,11 +68,18 @@ caducitat, ni token de navegador. El pagament és allotjat pel proveïdor.
 
 ## Gestor de paquets
 
-Aquest projecte fa servir **npm** amb `package-lock.json`, cosa que es desvia de
-la regla de casa de pnpm. És deute conegut, d'abans que la regla existís: el
-lockfile, `npm ci` a tots els workflows i `release:check` hi depenen. Migrar-ho
-és una decisió a part i encara no s'ha pres. **Mentrestant, npm a tot arreu; no
-barregis gestors.**
+**pnpm**, com la resta de projectes de casa. El deute d'npm que hi havia aquí
+està saldat: `pnpm-lock.yaml` versionat, `package-lock.json` fora, la versió de
+pnpm fixada a `packageManager` del `package.json` i `pnpm install --frozen-lockfile`
+a tots els workflows. El `preinstall` para qualsevol altre gestor.
+
+**Els scripts d'instal·lació de les dependències es decideixen un per un** a
+`pnpm-workspace.yaml`, amb el motiu escrit al costat. Ara mateix n'hi ha un de
+sol i està **rebutjat**: el `postinstall` d'`unrs-resolver` crida
+`napi-postinstall`, que en el camí de reserva executa `npm install`, `pnpm i` o
+`yarn add` i baixa tarballs durant la instal·lació. No cal aprovar-lo: el binari
+natiu arriba com a dependència opcional normal i eslint passa igualment.
+Comprovat, no suposat. **Abans d'aprovar-ne cap altre, mira què fa.**
 
 ## Verificació
 

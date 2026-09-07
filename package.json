@@ -2,12 +2,13 @@
   "name": "moda-pwa",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.26.0",
   "engines": {
     "node": ">=22.12.0 <25"
   },
   "scripts": {
-    "preinstall": "node scripts/require-npm.mjs",
-    "dev": "node scripts/require-npm.mjs && next dev",
+    "preinstall": "node scripts/require-pnpm.mjs",
+    "dev": "node scripts/require-pnpm.mjs && next dev",
     "db:auth": "node scripts/db-auth-local.mjs",
     "test:e2e": "playwright test",
     "db:env": "node scripts/db-local.mjs env",
@@ -19,7 +20,7 @@
     "db:advisors": "supabase db advisors --local --type all --level warn --fail-on error",
     "env:preproduction": "node scripts/validate-deployment-env.mjs preproduction",
     "env:production": "node scripts/validate-deployment-env.mjs production",
-    "release:check": "npm run check && npm run build && npm run db:test && npm run db:advisors",
+    "release:check": "pnpm check && pnpm build && pnpm db:test && pnpm db:advisors",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
@@ -27,7 +28,7 @@
     "test": "vitest run",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run lint && npm run typecheck && npm run test && npm run format:check"
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm format:check"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.5",

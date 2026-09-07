@@ -23,11 +23,11 @@ El catàleg local és fictici, sense fotografies comercials, comptes, contraseny
 Requisits: Docker Desktop en marxa i Node 24. Des de l'arrel del repositori:
 
 ```sh
-npm ci
-npm run db:start
-npm run db:test
-npm run db:advisors
-npm run db:stop
+pnpm install --frozen-lockfile
+pnpm db:start
+pnpm db:test
+pnpm db:advisors
+pnpm db:stop
 ```
 
 `db:stop` conserva les dades i només afecta aquesta botiga. No utilitzar `supabase stop --all` ni `--no-backup` com a operació habitual. Els registres de la CLI poden incloure credencials locals; es desen a `supabase/.temp`, exclòs de Git, i no s'han de compartir.
@@ -55,8 +55,8 @@ La primera migració s'ha generat des de la BD amb `db pull --local` i s'ha revi
 Per reconstruir **només la BD local de proves**, perdent-ne les dades afegides manualment:
 
 ```sh
-npm run db:reset -- --confirm-local-reset
-npm run db:test
+pnpm db:reset -- --confirm-local-reset
+pnpm db:test
 ```
 
 Per als següents canvis: consultar l'ajuda de la CLI, iterar en local, passar advisors, generar/revisar migracions i reconstruir la cadena. No editar una migració ja desplegada en un entorn compartit.

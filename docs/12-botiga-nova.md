@@ -121,7 +121,7 @@ repositori, ni enviar-se per xat. Es copia del tauler al gestor de variables. Si
 sospites que s'ha exposat, es rota.
 
 ```sh
-npm run env:production
+pnpm env:production
 ```
 
 Només mostra noms i motius d'error, mai valors. Si passa, connecta el domini,

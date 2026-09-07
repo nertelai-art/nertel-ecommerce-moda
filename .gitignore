@@ -13,10 +13,9 @@ test-results/
 .DS_Store
 Thumbs.db
 
-# Un altre gestor de paquets deixa aquests fitxers en passar per aquí. No
-# poden entrar al repositori: un segon lockfile desfà l'aïllament, i l'orfe
-# feia caure format:check, que és el que sosté el pre-push. Vegeu CLAUDE.md.
-pnpm-lock.yaml
-pnpm-workspace.yaml
+# Un altre gestor de paquets deixa aquests fitxers en passar per aquí. El
+# lockfile d'aquest projecte és pnpm-lock.yaml i va versionat; un segon lockfile
+# desfà l'aïllament i les garanties de pnpm. Vegeu CLAUDE.md.
+package-lock.json
 yarn.lock
 bun.lockb
