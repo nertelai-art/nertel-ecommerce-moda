@@ -332,10 +332,10 @@ Durant la implementació:
 
 Abans de donar una fase per acabada:
 
-- [ ] `npm run check`
-- [ ] `npm run build`
-- [ ] `npm run db:test`
-- [ ] `npm run db:advisors`
+- [ ] `pnpm check`
+- [ ] `pnpm build`
+- [ ] `pnpm db:test`
+- [ ] `pnpm db:advisors`
 - [ ] E2E de Checkout i concurrència en Sandbox
 - [ ] cap credencial ni payload sensible al diff, logs o artefactes
 - [ ] documentació i variables d'exemple actualitzades

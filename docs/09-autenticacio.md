@@ -37,7 +37,7 @@ db pull requeria aquest adaptador per crear la BD ombra. Alternativa utilitzada:
 
 La pila existent continua activa, però l'arrencada completa amb db:start a Windows queda pendent d'un flux admès pel Control d'aplicacions. No donar-la per reproduïble ni aturar-la per provar-ho.
 
-npm run db:auth utilitza Docker oficial i recrea només Auth, sense volums ni ports publicats, conservant la imatge i entorn existents. Restaura la configuració si falla la creació. No toca la BD ni altres projectes. Els fitxers temporals d'entorn contenen secrets locals i estan exclosos de Git.
+pnpm db:auth utilitza Docker oficial i recrea només Auth, sense volums ni ports publicats, conservant la imatge i entorn existents. Restaura la configuració si falla la creació. No toca la BD ni altres projectes. Els fitxers temporals d'entorn contenen secrets locals i estan exclosos de Git.
 
 moda-auth-templates és un nginx fixat per digest que serveix només dos HTML a la xarxa interna, sense ports del host i amb sistema de fitxers de només lectura. Es gestiona separadament de la CLI. config.toml també defineix content_path per a entorns on l'arrencada oficial funcioni.
 

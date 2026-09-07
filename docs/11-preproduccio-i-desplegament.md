@@ -5,7 +5,7 @@ Aquest document és el runbook operatiu abans de connectar Stripe. Preproducció
 ## Estat preparat al repositori
 
 - `develop` executa una porta completa de qualitat, build, migracions, proves SQL i assessors.
-- `npm run env:preproduction` rebutja HTTP, hosts locals, claus intercanviades, variables absents i pagaments activats.
+- `pnpm env:preproduction` rebutja HTTP, hosts locals, claus intercanviades, variables absents i pagaments activats.
 - Les migracions són l'única font de canvis d'esquema. No es modifica l'esquema remot des del Dashboard.
 - Stripe queda desactivat amb `PAYMENTS_MODE=disabled`.
 
@@ -24,7 +24,7 @@ Per validar una còpia local de la configuració de Preview:
 ```powershell
 Copy-Item .env.preproduction.example .env.local
 # Ompliu .env.local fora de Git
-npm run env:preproduction
+pnpm env:preproduction
 ```
 
 La comprovació només mostra noms i motius d'error. No imprimeix cap valor. `SUPABASE_SECRET_KEY` és exclusiva del servidor i no pot tenir prefix `NEXT_PUBLIC_`.
@@ -45,10 +45,10 @@ No utilitzar `--include-seed`: els seeds contenen dades de demostració i config
 ## 4. Porta de promoció
 
 ```powershell
-npm ci
-npm run db:start
-npm run release:check
-npm run db:stop
+pnpm install --frozen-lockfile
+pnpm db:start
+pnpm release:check
+pnpm db:stop
 ```
 
 Després del desplegament Preview, comprovar manualment: inici de sessió, MFA del personal, catàleg, pujada d'imatges, inventari, reserva/cancel·lació, comandes, enviaments i publicació de contingut. Confirmar també HTTPS, cookies `Secure`, CSP i absència d'errors de servidor. No provar amb dades personals reals.

@@ -104,9 +104,7 @@ function containers() {
 function verifyBindings() {
   const names = containers();
   if (names.length === 0)
-    throw new Error(
-      "No local database containers. Run npm run db:start first.",
-    );
+    throw new Error("No local database containers. Run pnpm db:start first.");
   for (const name of names) {
     const [container] = JSON.parse(docker(["inspect", name]));
     for (const bindings of Object.values(

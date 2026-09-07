@@ -1,0 +1,22 @@
+# Scripts d'instal·lació de dependències.
+#
+# pnpm 10 no n'executa cap sense permís explícit, i és per aquí per on han entrat
+# els atacs de cadena de subministrament dels últims anys. Aquesta llista és la
+# decisió presa per a cada paquet que n'ha demanat un, amb el motiu escrit.
+#
+# unrs-resolver: NO s'aprova, a propòsit. El seu postinstall crida
+# napi-postinstall, que en el camí de reserva executa `npm install`, `pnpm i` o
+# `yarn add` i es baixa tarballs del registre durant la instal·lació. És
+# instal·lació arbitraria de paquets dins d'un postinstall, exactament el que la
+# porta de pnpm existeix per aturar. No cal: el binari natiu de la plataforma ja
+# arriba com a dependència opcional normal, resolta pel lockfile i verificada
+# per l'store, i eslint funciona sense que aquest script s'executi mai.
+# Comprovat, no suposat.
+#
+# Si algun dia eslint es queixa de no trobar el binari, la resposta no és moure
+# aquest paquet a onlyBuiltDependencies: és mirar per què falta la dependència
+# opcional de la plataforma.
+ignoredBuiltDependencies:
+  - unrs-resolver
+
+onlyBuiltDependencies: []

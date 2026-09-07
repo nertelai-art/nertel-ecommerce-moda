@@ -9,9 +9,9 @@ Un projecte de Supabase i un desplegament per botiga; per muntar-ne una de nova,
 Node 24 LTS i Docker Desktop. Amb la pila local activa:
 
 ```sh
-npm ci
-npm run db:env
-npm run dev
+pnpm install --frozen-lockfile
+pnpm db:env
+pnpm dev
 ```
 
 db:env crea l'entorn local o hi afegeix la credencial secreta si falta, sense substituir els valors existents. Genera la clau publicable i la credencial exclusiva del servidor. `.env.local` està exclòs de Git; la credencial secreta mai no ha de tenir prefix `NEXT_PUBLIC_`. La web és a http://localhost:3000. En producció, APP_ORIGIN ha de coincidir exactament amb l'origen de la petició; en desenvolupament, els hosts de loopback localhost, 127.0.0.1 i [::1] són equivalents quan protocol i port coincideixen.
@@ -21,18 +21,18 @@ Windows ha bloquejat l'executable de compatibilitat de db:start a la nova carpet
 ## Verificació
 
 ```sh
-npm run check
-npm run build
-npm run db:test
-npm run db:advisors
-npm run release:check
+pnpm check
+pnpm build
+pnpm db:test
+pnpm db:advisors
+pnpm release:check
 ```
 
 Prova completa d'autenticació amb web i Docker actius (PowerShell):
 
 ```powershell
 $env:LOCAL_AUTH_E2E = '1'
-npm run test:e2e
+pnpm test:e2e
 ```
 
 Crea un compte fictici local, prova confirmació, recuperació, MFA i permisos, i elimina només aquest compte. L’MFA del personal és opcional només a la base local; les migracions el deixen obligatori per defecte en qualsevol entorn nou. No envia correus externs ni grava captures/traces amb secrets.
