@@ -8,7 +8,7 @@
   },
   "scripts": {
     "preinstall": "node scripts/require-pnpm.mjs",
-    "dev": "node scripts/require-pnpm.mjs && next dev --port 3300",
+    "dev": "node scripts/dev.mjs",
     "db:auth": "node scripts/db-auth-local.mjs",
     "test:e2e": "playwright test",
     "db:env": "node scripts/db-local.mjs env",
