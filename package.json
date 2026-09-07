@@ -6,7 +6,8 @@
     "node": ">=22.12.0 <25"
   },
   "scripts": {
-    "dev": "next dev",
+    "preinstall": "node scripts/require-npm.mjs",
+    "dev": "node scripts/require-npm.mjs && next dev",
     "db:auth": "node scripts/db-auth-local.mjs",
     "test:e2e": "playwright test",
     "db:env": "node scripts/db-local.mjs env",

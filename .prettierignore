@@ -6,3 +6,6 @@ package-lock.json
 next-env.d.ts
 docs/01-guia-producte-pwa.md
 docs/02-stack-arquitectura-seguretat.md
+pnpm-lock.yaml
+pnpm-workspace.yaml
+yarn.lock
