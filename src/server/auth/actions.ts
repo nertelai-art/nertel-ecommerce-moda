@@ -16,6 +16,15 @@ import {
   type MfaState,
 } from "@/features/auth/validation";
 
+/**
+ * Un rebuig d'origen no és una fallada de connexió, i presentar-lo com si ho
+ * fos costa hores: en local, la causa gairebé sempre és que el servidor de
+ * desenvolupament ha agafat un altre port perquè el seu estava ocupat, i
+ * APP_ORIGIN ha de coincidir exactament. Es marca perquè qui el reculli el
+ * pugui distingir de la resta.
+ */
+const originRejected = "Request origin rejected";
+
 async function assertOrigin() {
   if (
     !isAllowedRequestOrigin(
@@ -23,7 +32,19 @@ async function assertOrigin() {
       process.env.APP_ORIGIN,
     )
   )
-    throw new Error("Request origin rejected");
+    throw new Error(originRejected);
+}
+
+function isOriginRejection(error: unknown) {
+  return error instanceof Error && error.message === originRejected;
+}
+
+function originRejectionMessage() {
+  // El valor d'APP_ORIGIN no és cap secret: és l'adreça pública del lloc. Només
+  // es diu en desenvolupament perquè és on serveix de res dir-lo.
+  return process.env.NODE_ENV === "development"
+    ? `Aquesta petició no ve de l’origen configurat. APP_ORIGIN és ${process.env.APP_ORIGIN}; ha de coincidir amb el port on escolta el servidor de desenvolupament.`
+    : "Aquesta petició no ve de l’origen esperat. Torna a carregar la pàgina i prova-ho de nou.";
 }
 
 export async function submitAuth(
@@ -160,7 +181,8 @@ export async function submitAuth(
         );
       destination = "/auth/entrar";
     }
-  } catch {
+  } catch (error) {
+    if (isOriginRejection(error)) return failure(originRejectionMessage());
     return failure(
       "No hem pogut connectar amb el servei d’accés. El correu es conserva perquè ho puguis tornar a provar.",
     );
