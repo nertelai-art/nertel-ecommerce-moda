@@ -87,11 +87,15 @@ Si el canvi es veu al navegador, mira-t'ho al navegador amb el mecanisme de
 previsualització (`.claude/launch.json`), no des del terminal. Llegeix la
 consola i la xarxa abans de dir que funciona.
 
-**El servidor de desenvolupament va fix al port 3300**, i `APP_ORIGIN` hi
-coincideix. No és una manía: `APP_ORIGIN` ha de ser exacte per als POST, i amb
-un port que canvia segons què hi hagi ocupat, les pàgines es veuen bé mentre
-tota escriptura dona 403. Si el 3300 t'apareix ocupat, canvia'l als dos llocs
-alhora — `package.json` i `APP_ORIGIN` — mai només a un.
+**El port surt d'`APP_ORIGIN`**, no d'una bandera: `pnpm dev` el llegeix i hi
+arrenca Next. Així no poden divergir, i n'hi ha prou de canviar `APP_ORIGIN` per
+canviar de port. Importa perquè `APP_ORIGIN` ha de ser exacte per als POST: amb
+un port que no coincideix, les pàgines es veuen bé mentre tota escriptura dona 403.
+
+`pnpm dev` comprova abans d'arrencar el gestor de paquets, que hi hagi
+`.env.local` amb un `APP_ORIGIN` vàlid, i que la pila local respongui. Són els
+tres errors que han fet perdre temps de debò, i cadascun surt ara com una frase
+en comptes d'un símptoma en un altre lloc.
 
 ## Documentació
 
