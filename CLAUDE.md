@@ -87,10 +87,11 @@ Si el canvi es veu al navegador, mira-t'ho al navegador amb el mecanisme de
 previsualització (`.claude/launch.json`), no des del terminal. Llegeix la
 consola i la xarxa abans de dir que funciona.
 
-El port 3000 el sol ocupar un altre projecte; la previsualització té
-`autoPort`. Compte: `APP_ORIGIN` ha de coincidir exactament amb l'origen per
-als POST, així que amb un port diferent les accions d'escriptura donaran 403
-mentre les pàgines es veuen bé.
+**El servidor de desenvolupament va fix al port 3300**, i `APP_ORIGIN` hi
+coincideix. No és una manía: `APP_ORIGIN` ha de ser exacte per als POST, i amb
+un port que canvia segons què hi hagi ocupat, les pàgines es veuen bé mentre
+tota escriptura dona 403. Si el 3300 t'apareix ocupat, canvia'l als dos llocs
+alhora — `package.json` i `APP_ORIGIN` — mai només a un.
 
 ## Documentació
 

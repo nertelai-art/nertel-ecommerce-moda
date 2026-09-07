@@ -18,7 +18,7 @@ Des de la carpeta del projecte, amb Node 24 i Docker:
 pnpm install --frozen-lockfile
 pnpm db:start
 pnpm db:env
-pnpm dev -- --hostname 127.0.0.1 --port 3100
+pnpm dev
 ```
 
 db:env crea .env.local amb URL i clau anon de la pila local, sense imprimir credencials. No sobreescriu fitxers existents. .env.local i els registres de la CLI estan exclosos de Git. Per a un altre entorn configurar SUPABASE_URL i SUPABASE_PUBLISHABLE_KEY al gestor de variables corresponent.
