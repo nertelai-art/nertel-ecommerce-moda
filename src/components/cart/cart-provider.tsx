@@ -17,6 +17,7 @@ type CartContextValue = {
   remove: (variantId: string) => void;
   clear: () => void;
   hydrated: boolean;
+  persistent: boolean;
 };
 const CartContext = createContext<CartContextValue | null>(null);
 const storageKey = "moda.cart.v1";
@@ -24,21 +25,26 @@ const storageKey = "moda.cart.v1";
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartInput["items"]>([]);
   const [hydrated, setHydrated] = useState(false);
+  const [persistent, setPersistent] = useState(true);
   useEffect(() => {
     let active = true;
     let storedItems: CartInput["items"] = [];
+    let storageAvailable = true;
     try {
       const stored = localStorage.getItem(storageKey);
       if (stored) {
         const parsed = cartInputSchema.safeParse(JSON.parse(stored));
         if (parsed.success) storedItems = parsed.data.items;
       }
-    } catch {
-      localStorage.removeItem(storageKey);
+    } catch (error) {
+      // Storage access itself can be denied; never call it again in the catch.
+      // Malformed saved JSON is discarded without claiming storage is blocked.
+      storageAvailable = error instanceof SyntaxError;
     }
     queueMicrotask(() => {
       if (!active) return;
       setItems(storedItems);
+      setPersistent(storageAvailable);
       setHydrated(true);
     });
     return () => {
@@ -47,9 +53,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
   useEffect(() => {
     if (!hydrated) return;
-    if (items.length)
-      localStorage.setItem(storageKey, JSON.stringify({ items }));
-    else localStorage.removeItem(storageKey);
+    try {
+      if (items.length)
+        localStorage.setItem(storageKey, JSON.stringify({ items }));
+      else localStorage.removeItem(storageKey);
+    } catch {
+      queueMicrotask(() => setPersistent(false));
+    }
   }, [hydrated, items]);
   const add = useCallback(
     (variantId: string) =>
@@ -95,8 +105,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       remove,
       clear,
       hydrated,
+      persistent,
     }),
-    [items, add, setQuantity, remove, clear, hydrated],
+    [items, add, setQuantity, remove, clear, hydrated, persistent],
   );
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

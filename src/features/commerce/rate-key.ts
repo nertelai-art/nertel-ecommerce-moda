@@ -15,15 +15,15 @@ export const maximumClientAddressLength = 128;
 export function forwardedClientAddress(
   headers: Headers,
   trustForwardedFor: boolean,
+  vercelPlatform = false,
 ): string | null {
   const forwarded =
-    headers.get("x-vercel-forwarded-for") ??
+    (vercelPlatform ? headers.get("x-vercel-forwarded-for") : null) ??
     (trustForwardedFor ? headers.get("x-forwarded-for") : null);
-  const address = forwarded
-    ?.split(",", 1)[0]
-    ?.trim()
-    .slice(0, maximumClientAddressLength);
-  return address ? address : null;
+  const address = forwarded?.split(",", 1)[0]?.trim();
+  return address && address.length <= maximumClientAddressLength
+    ? address
+    : null;
 }
 
 /**
@@ -32,17 +32,20 @@ export function forwardedClientAddress(
  * compartida deixaria que un sol client esgotés el límit de la botiga sencera,
  * que és una denegació de servei contra la clientela legítima.
  *
- * Null quan no hi ha cap de les dues coses. Sense identitat del client només hi
- * ha dues sortides i totes dues són pitjors que no limitar: una clau per
- * petició no limita res, i una de compartida torna a ser aquella denegació de
- * servei. La base de dades ho entén com «no limitis».
+ * Null quan no hi ha cap de les dues coses. El backend rebutja aquesta
+ * situació en producció; el recanvi de sessió només serveix en local.
  */
 export function commerceRateSubject(
   headers: Headers,
   sessionToken: string | null,
   trustForwardedFor: boolean,
+  vercelPlatform = false,
 ): string | null {
-  const address = forwardedClientAddress(headers, trustForwardedFor);
+  const address = forwardedClientAddress(
+    headers,
+    trustForwardedFor,
+    vercelPlatform,
+  );
   if (address) return `address:${address}`;
   return sessionToken ? `session:${sessionToken}` : null;
 }

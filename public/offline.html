@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ca">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#354d40" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Sense connexió</title>
+    <link rel="stylesheet" href="/pwa/offline.css" />
+    <script src="/pwa/offline.js" defer></script>
+  </head>
+  <body>
+    <main id="main">
+      <img src="/pwa/icon-192.png" width="72" height="72" alt="" />
+      <p class="eyebrow">La botiga, al teu ritme</p>
+      <h1>Ara no tens connexió.</h1>
+      <p>Torna a connectar-te per veure la col·lecció i continuar la compra.</p>
+      <p>
+        Les referències i quantitats del carret es conserven en aquest
+        dispositiu si l’emmagatzematge està disponible. Els preus i l’estoc es
+        validaran de nou.
+      </p>
+      <p>
+        El compte i les comandes necessiten connexió. No s’enviarà cap compra
+        automàticament quan torni la xarxa.
+      </p>
+      <div class="actions">
+        <button id="retry" type="button">Tornar-ho a provar</button>
+        <a href="/">Tornar a l’inici</a>
+      </div>
+      <p id="connection" role="status" aria-live="polite"></p>
+    </main>
+  </body>
+</html>

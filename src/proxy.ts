@@ -10,6 +10,8 @@ export async function proxy(request: NextRequest) {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self'",
+    "worker-src 'self'",
+    "manifest-src 'self'",
     `connect-src 'self'${development ? " ws: wss:" : ""}`,
     "object-src 'none'",
     "base-uri 'self'",
@@ -37,6 +39,6 @@ export async function proxy(request: NextRequest) {
 // s'aplica igualment.
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|media/|favicon.ico|icon.svg|manifest.webmanifest|robots.txt).*)",
+    "/((?!_next/static|_next/image|media/|pwa/|sw.js$|offline.html$|favicon.ico|icon.svg|manifest.webmanifest|robots.txt).*)",
   ],
 };

@@ -14,6 +14,14 @@ export async function publishedStorefrontContent() {
     const { url, key } = publicCatalogConfig(process.env);
     const client = createClient<Database>(url, key, {
       auth: { persistSession: false, autoRefreshToken: false },
+      global: {
+        fetch: (input, init) =>
+          fetch(input, {
+            ...init,
+            cache: "no-store",
+            signal: AbortSignal.timeout(8000),
+          }),
+      },
     });
     const { data, error } = await client
       .from("storefront_content")
@@ -23,6 +31,7 @@ export async function publishedStorefrontContent() {
     if (error) throw error;
     return storefrontContentSchema.parse(data.content);
   } catch {
+    console.error("published_storefront_content_unavailable");
     return defaultStorefrontContent;
   }
 }

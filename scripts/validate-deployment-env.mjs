@@ -54,6 +54,11 @@ if (required("DEPLOYMENT_ENV") !== expected) {
 }
 secureOrigin("APP_ORIGIN");
 secureOrigin("SUPABASE_URL");
+if (process.env.VERCEL !== "1" && process.env.TRUST_FORWARDED_FOR !== "1") {
+  failures.push(
+    "TRUST_FORWARDED_FOR: a trusted reverse proxy is required outside Vercel",
+  );
+}
 
 const publishable = required("SUPABASE_PUBLISHABLE_KEY");
 const secret = required("SUPABASE_SECRET_KEY");

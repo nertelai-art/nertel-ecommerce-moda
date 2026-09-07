@@ -2,6 +2,7 @@ node_modules
 supabase/.temp
 supabase/.branches
 .next
+.e2e
 pnpm-lock.yaml
 next-env.d.ts
 docs/01-guia-producte-pwa.md

@@ -1,6 +1,8 @@
 import "server-only";
 import { createHash } from "node:crypto";
+import { isIP } from "node:net";
 import { commerceRateSubject } from "@/features/commerce/rate-key";
+import { readBoundedBody } from "@/lib/request-body";
 
 export async function readJsonBody(
   request: Request,
@@ -13,9 +15,7 @@ export async function readJsonBody(
       .startsWith("application/json")
   )
     throw new Error("Invalid content type");
-  const bytes = new Uint8Array(await request.arrayBuffer());
-  if (bytes.byteLength < 1 || bytes.byteLength > maximum)
-    throw new Error("Invalid payload size");
+  const bytes = await readBoundedBody(request, maximum);
   return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
 }
 
@@ -23,26 +23,28 @@ export async function readMultipartBody(request: Request, maximum: number) {
   const contentType = request.headers.get("content-type") ?? "";
   if (!contentType.toLowerCase().startsWith("multipart/form-data;"))
     throw new Error("Invalid content type");
-  const bytes = await request.arrayBuffer();
-  if (bytes.byteLength < 1 || bytes.byteLength > maximum)
-    throw new Error("Invalid payload size");
+  const bytes = await readBoundedBody(request, maximum);
   return new Response(bytes, {
     headers: { "Content-Type": contentType },
   }).formData();
 }
 
-/**
- * La sessió de compra és el recanvi quan no hi ha cap adreça de confiança; per
- * això la demana qui crida, que ja la té a la mà. Null quan no hi ha cap de les
- * dues: la base de dades ho entén com «no limitis», que és millor que les dues
- * alternatives possibles sense identitat del client.
- */
+/** Production requires a trusted address; session fallback is local only. */
 export function commerceRateKey(request: Request, sessionToken: string | null) {
   const subject = commerceRateSubject(
     request.headers,
     sessionToken,
     process.env.TRUST_FORWARDED_FOR === "1",
+    process.env.VERCEL === "1",
   );
+  if (
+    (process.env.NODE_ENV === "production" &&
+      !subject?.startsWith("address:")) ||
+    (subject?.startsWith("address:") && !isIP(subject.slice(8)))
+  ) {
+    console.error("commerce_trusted_address_unavailable");
+    return new Response("Commerce temporarily unavailable", { status: 503 });
+  }
   return subject === null
     ? null
     : createHash("sha256").update(subject).digest("hex");

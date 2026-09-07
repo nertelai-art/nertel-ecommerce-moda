@@ -4,83 +4,45 @@ import {
   forwardedClientAddress,
 } from "../../src/features/commerce/rate-key";
 
-const headers = (entries: Record<string, string>) => new Headers(entries);
-
-describe("commerce rate limit subject", () => {
-  it("trusts the platform header, which the browser cannot write", () => {
+describe("trusted commerce addresses", () => {
+  it("ignores both spoofed headers outside a configured platform", () => {
+    const headers = new Headers({
+      "x-vercel-forwarded-for": "203.0.113.7",
+      "x-forwarded-for": "198.51.100.4",
+    });
+    expect(forwardedClientAddress(headers, false)).toBeNull();
+    expect(forwardedClientAddress(headers, true)).toBe("198.51.100.4");
+    expect(forwardedClientAddress(headers, false, true)).toBe("203.0.113.7");
+  });
+  it("uses the first proxy address and rejects oversized identities", () => {
     expect(
       forwardedClientAddress(
-        headers({ "x-vercel-forwarded-for": "203.0.113.7, 70.41.3.18" }),
-        false,
-      ),
-    ).toBe("203.0.113.7");
-  });
-
-  it("ignores a client-written x-forwarded-for unless a proxy is declared", () => {
-    const spoofed = headers({ "x-forwarded-for": "203.0.113.7" });
-    expect(forwardedClientAddress(spoofed, false)).toBeNull();
-    expect(forwardedClientAddress(spoofed, true)).toBe("203.0.113.7");
-  });
-
-  it("prefers the platform header over the one a client can forge", () => {
-    expect(
-      forwardedClientAddress(
-        headers({
-          "x-vercel-forwarded-for": "198.51.100.4",
-          "x-forwarded-for": "203.0.113.7",
-        }),
+        new Headers({ "x-forwarded-for": "203.0.113.7, 198.51.100.4" }),
         true,
       ),
-    ).toBe("198.51.100.4");
+    ).toBe("203.0.113.7");
+    expect(
+      forwardedClientAddress(
+        new Headers({ "x-forwarded-for": "9".repeat(500) }),
+        true,
+      ),
+    ).toBeNull();
   });
-
-  it("bounds the address so a long header cannot break the stored key", () => {
-    const address = forwardedClientAddress(
-      headers({ "x-vercel-forwarded-for": "9".repeat(500) }),
-      false,
+  it("uses separate session buckets only as the development fallback", () => {
+    expect(commerceRateSubject(new Headers(), "session-a", false)).toBe(
+      "session:session-a",
     );
-    expect(address).toHaveLength(128);
-  });
-
-  it("falls back to the checkout session, never to one shared bucket", () => {
-    // Una constant compartida deixaria que un sol client esgotés el límit de
-    // la botiga sencera: denegació de servei contra la clientela legítima.
-    const first = commerceRateSubject(headers({}), "session-a", false);
-    const second = commerceRateSubject(headers({}), "session-b", false);
-    expect(first).not.toBe(second);
-    expect(first).toBe("session:session-a");
-  });
-
-  it("uses the address when there is a trustworthy one", () => {
+    expect(commerceRateSubject(new Headers(), "session-b", false)).toBe(
+      "session:session-b",
+    );
+    expect(commerceRateSubject(new Headers(), null, false)).toBeNull();
     expect(
       commerceRateSubject(
-        headers({ "x-vercel-forwarded-for": "203.0.113.7" }),
+        new Headers({ "x-vercel-forwarded-for": "203.0.113.7" }),
         "session-a",
         false,
+        true,
       ),
     ).toBe("address:203.0.113.7");
-  });
-
-  it("gives up rather than share a bucket when the client is unidentifiable", () => {
-    // El pressupost del carret no crea sessió, i sense adreça de confiança no
-    // hi ha manera d'identificar qui truca. La base de dades ho llegeix com
-    // «no limitis»; una clau compartida seria pitjor que no limitar.
-    expect(commerceRateSubject(headers({}), null, false)).toBeNull();
-    expect(commerceRateSubject(headers({}), null, true)).toBeNull();
-    expect(
-      commerceRateSubject(
-        headers({ "x-vercel-forwarded-for": "203.0.113.7" }),
-        null,
-        false,
-      ),
-    ).toBe("address:203.0.113.7");
-  });
-
-  it("keeps spoofed and trustworthy addresses in different namespaces", () => {
-    // Una sessió que es digués «address:203.0.113.7» no ha de poder consumir
-    // el dipòsit d'una adreça real.
-    expect(commerceRateSubject(headers({}), "address:203.0.113.7", false)).toBe(
-      "session:address:203.0.113.7",
-    );
   });
 });

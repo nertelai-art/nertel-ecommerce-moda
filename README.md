@@ -28,20 +28,24 @@ pnpm db:advisors
 pnpm release:check
 ```
 
-Prova completa d'autenticació amb web i Docker actius (PowerShell):
+Recorregut crític en contenidors efímers i HTTPS local, sense tocar la base
+local. Requereix Docker i OpenSSL (inclòs a Git for Windows):
 
-```powershell
-$env:LOCAL_AUTH_E2E = '1'
+```sh
+pnpm exec playwright install chromium webkit
 pnpm test:e2e
 ```
 
-Crea un compte fictici local, prova confirmació, recuperació, MFA i permisos, i elimina només aquest compte. L’MFA del personal és opcional només a la base local; les migracions el deixen obligatori per defecte en qualsevol entorn nou. No envia correus externs ni grava captures/traces amb secrets.
+Prova entrada, carret, comanda pendent, recàrrega, cancel·lació i concurrència
+sobre l'última unitat. Vegeu [aïllament i diagnòstic](docs/14-proves-recorregut-critic.md).
 
 ## Implementat
 
 Catàleg i fitxes amb RLS; registre, confirmació, entrada, recuperació, canvi de contrasenya i logout; cookies HttpOnly i MFA TOTP; alta, edició i arxivat de productes; gestió de múltiples variants, categories, assignacions i fotografies; carret local amb cotització autoritativa i reserves d'estoc atòmiques; administració d'inventari protegida per permisos i MFA; ajustos d'estoc idempotents amb auditoria. Cap administrador permanent creat. Migracions i proves versionades.
 
-Pendent: connexió de Stripe, webhook de confirmació, correus, devolucions, PWA i desplegament de producció. La comanda pendent i l'intent intern de pagament ja es creen de manera transaccional, però encara no es cobra res.
+PWA: manifest per instància, icones, instal·lació opcional, pantalla offline i actualitzacions sense recàrrega forçada. No desa pàgines privades ni permet comprar sense connexió. Vegeu [PWA i verificació en dispositius](docs/15-pwa-installacio-offline.md).
+
+Pendent: connexió de Stripe, webhook de confirmació, correus, devolucions i desplegament de producció. La comanda pendent i l'intent intern de pagament ja es creen de manera transaccional, però encara no es cobra res.
 
 ## Documentació
 

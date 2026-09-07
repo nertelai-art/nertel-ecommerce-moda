@@ -32,12 +32,14 @@ export async function POST(request: Request) {
   const { data: identity } = await identityClient.auth.getUser();
   const client = commerceClient();
   const sessionToken = checkoutSessionOrCreate(request);
+  const rateKey = commerceRateKey(request, sessionToken);
+  if (rateKey instanceof Response) return rateKey;
   const { data, error } = await client.rpc("server_reserve_cart", {
     cart: input.data.items,
     request_key: input.data.requestKey,
     session_token: sessionToken,
     actor_id: identity.user?.id ?? null,
-    rate_key: commerceRateKey(request, sessionToken),
+    rate_key: rateKey,
   });
   const result = reservationResultSchema.safeParse(data);
   if (error || !result.success)

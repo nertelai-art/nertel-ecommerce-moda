@@ -1,147 +1,179 @@
-import { test, expect, request as playwrightRequest } from "@playwright/test";
-import { execFileSync } from "node:child_process";
+import { test, expect } from "@playwright/test";
 import { randomUUID } from "node:crypto";
+import { run, sql } from "./isolated-run";
 
-test.skip(
-  process.env.LOCAL_AUTH_E2E !== "1",
-  "Explicit local-only checkout test.",
-);
-
-const sql = (statement: string) =>
-  execFileSync(
-    "docker",
-    [
-      "exec",
-      "supabase_db_nertel-ecommerce-moda",
-      "psql",
-      "-U",
-      "postgres",
-      "-d",
-      "postgres",
-      "-v",
-      "ON_ERROR_STOP=1",
-      "-tAc",
-      statement,
-    ],
-    { encoding: "utf8" },
-  ).trim();
-
-test("cart, reservation, pending order, reload and cancellation", async ({
-  page,
-}) => {
-  const email = `checkout-${randomUUID().replaceAll("-", "")}@example.invalid`;
-  const variant = "30000000-0000-4000-8000-000000000001";
-  const location = "40000000-0000-4000-8000-000000000001";
-  const original = Number(
+const variant = "30000000-0000-4000-8000-000000000001";
+const location = "40000000-0000-4000-8000-000000000001";
+const inventory = () =>
+  JSON.parse(
     sql(
-      `select on_hand from private.inventory_levels where variant_id='${variant}' and location_id='${location}'`,
+      `select row_to_json(i) from (select on_hand, reserved from private.inventory_levels where variant_id='${variant}' and location_id='${location}') i`,
     ),
+  ) as { on_hand: number; reserved: number };
+
+test.beforeEach(() => {
+  // The run guard verifies the exact disposable container before every query.
+  expect(inventory().reserved).toBe(0);
+  sql(
+    `update private.inventory_levels set on_hand=1 where variant_id='${variant}' and location_id='${location}'`,
   );
-  try {
-    sql(
-      `update private.inventory_levels set on_hand=1,reserved=0 where variant_id='${variant}' and location_id='${location}'`,
-    );
-    await page.goto("/productes/vestit-alba");
-    await page
-      .getByRole("button", { name: "Afegir Vestit Alba, M, sorra al carret" })
-      .click();
-    await page.getByRole("link", { name: /Carret/ }).click();
-    await page.getByRole("button", { name: "Reservar estoc" }).click();
-    await page.getByLabel("Correu electrònic").fill(email);
-    await page.getByLabel("Destinatari").fill("Client E2E");
-    await page.getByLabel("Adreça", { exact: true }).fill("Carrer de prova 1");
-    await page.getByLabel("Ciutat").fill("Barcelona");
-    await page.getByLabel("Codi postal").fill("08001");
-    await page.getByRole("button", { name: "Crear comanda pendent" }).click();
-    await expect(page.getByText("Preparada per al pagament")).toBeVisible();
-    await page.reload();
-    await expect(page.getByText("Preparada per al pagament")).toBeVisible();
-    await page.getByRole("button", { name: "Cancel·lar comanda" }).click();
-    await expect(page.getByText("El carret és buit.")).toBeVisible();
-    expect(
-      Number(
-        sql(
-          `select reserved from private.inventory_levels where variant_id='${variant}' and location_id='${location}'`,
-        ),
-      ),
-    ).toBe(0);
-  } finally {
-    sql(
-      `delete from private.checkout_requests where order_id in (select id from private.orders where email='${email}')`,
-    );
-    sql(
-      `delete from private.payment_attempts where order_id in (select id from private.orders where email='${email}')`,
-    );
-    sql(
-      `delete from private.order_items where order_id in (select id from private.orders where email='${email}')`,
-    );
-    const session = sql(
-      `select checkout_session_id from private.orders where email='${email}' limit 1`,
-    );
-    sql(`delete from private.orders where email='${email}'`);
-    if (session) {
-      sql(
-        `delete from private.stock_reservations where checkout_session_id='${session}'`,
-      );
-      sql(
-        `delete from private.reservation_requests where checkout_session_id='${session}'`,
-      );
-      sql(`delete from private.checkout_sessions where id='${session}'`);
-    }
-    sql(
-      `update private.inventory_levels set on_hand=${original},reserved=0 where variant_id='${variant}' and location_id='${location}'`,
-    );
-  }
 });
 
-test("two simultaneous buyers cannot reserve the same unit", async () => {
-  const baseURL = process.env.E2E_BASE_URL ?? "http://localhost:3000";
-  const variant = "30000000-0000-4000-8000-000000000001";
-  const location = "40000000-0000-4000-8000-000000000001";
-  const original = Number(
-    sql(
-      `select on_hand from private.inventory_levels where variant_id='${variant}' and location_id='${location}'`,
-    ),
+test("login, cart, authoritative quote, order, reload, cancel and logout", async ({
+  page,
+  context,
+}) => {
+  const pageErrors: string[] = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  await page.goto("/compte");
+  await expect(page).toHaveURL(new RegExp("/auth/entrar$"));
+  await page.getByLabel("Correu electrònic").fill(run.email);
+  await page.getByLabel("Contrasenya", { exact: true }).fill(run.password);
+  await page.getByRole("button", { name: "Entrar", exact: true }).click();
+  await expect(page).toHaveURL(new RegExp("/compte$"));
+  await expect(page.getByText(run.email, { exact: true })).toBeVisible();
+  const cookies = (await context.cookies()).filter((cookie) =>
+    cookie.name.includes("auth-token"),
   );
-  const first = await playwrightRequest.newContext({
-    baseURL,
-    extraHTTPHeaders: { Origin: baseURL },
-  });
-  const second = await playwrightRequest.newContext({
-    baseURL,
-    extraHTTPHeaders: { Origin: baseURL },
+  expect(cookies.length).toBeGreaterThan(0);
+  expect(
+    cookies.every(
+      (cookie) => cookie.httpOnly && cookie.secure && cookie.sameSite === "Lax",
+    ),
+  ).toBe(true);
+  await page.goto("/productes/vestit-alba");
+  await page
+    .getByRole("button", { name: "Afegir Vestit Alba, M, sorra al carret" })
+    .click();
+  await page.getByRole("link", { name: /Carret/ }).click();
+  await expect(page.getByText(/Total:.*89,90/)).toBeVisible();
+  await page.getByRole("button", { name: "Reservar estoc" }).click();
+  await expect(page.getByLabel("Destinatari")).toBeVisible();
+  expect(inventory()).toEqual({ on_hand: 1, reserved: 1 });
+  await page.getByLabel("Correu electrònic").fill(run.email);
+  await page.getByLabel("Destinatari").fill("Client de prova");
+  await page.getByLabel("Adreça", { exact: true }).fill("Carrer de prova 1");
+  await page.getByLabel("Ciutat").fill("Barcelona");
+  await page.getByLabel("Codi postal").fill("08001");
+  await page.getByRole("button", { name: "Crear comanda pendent" }).click();
+  await expect(page.getByText("Preparada per al pagament")).toBeVisible();
+  const order = JSON.parse(
+    sql(
+      `select row_to_json(o) from (select id,status,amount_minor,customer_id from private.orders where email='${run.email}') o`,
+    ),
+  ) as {
+    id: string;
+    status: string;
+    amount_minor: number;
+    customer_id: string;
+  };
+  expect(order.status).toBe("pending_payment");
+  expect(order.amount_minor).toBe(8990);
+  expect(order.customer_id).toBe(run.buyerId);
+  expect(
+    sql(
+      `select count(*) from private.payment_attempts where order_id='${order.id}' and status='requires_provider'`,
+    ),
+  ).toBe("1");
+  await page.reload();
+  await expect(page.getByText("Preparada per al pagament")).toBeVisible();
+  expect(
+    sql(`select count(*) from private.orders where email='${run.email}'`),
+  ).toBe("1");
+  await page.getByRole("button", { name: "Cancel·lar comanda" }).click();
+  await expect(page.getByText("El carret és buit.")).toBeVisible();
+  expect(inventory()).toEqual({ on_hand: 1, reserved: 0 });
+  expect(sql(`select status from private.orders where id='${order.id}'`)).toBe(
+    "cancelled",
+  );
+  expect(
+    sql(
+      `select status from private.payment_attempts where order_id='${order.id}'`,
+    ),
+  ).toBe("cancelled");
+  await page.goto("/compte");
+  await page.getByRole("button", { name: "Tancar totes les sessions" }).click();
+  await expect(page).toHaveURL(new RegExp("/auth/entrar$"));
+  await page.goto("/compte");
+  await expect(page).toHaveURL(new RegExp("/auth/entrar$"));
+  expect(pageErrors).toEqual([]);
+});
+
+test("two independent buyers compete for the last unit and retries are idempotent", async ({
+  browser,
+}) => {
+  const contexts = await Promise.all(
+    [0, 1].map(() => browser.newContext({ ignoreHTTPSErrors: true })),
+  );
+  const keys = [randomUUID(), randomUUID()];
+  const body = (index: number) => ({
+    items: [{ variantId: variant, quantity: 1 }],
+    requestKey: keys[index],
   });
   try {
-    sql(
-      `update private.inventory_levels set on_hand=1,reserved=0 where variant_id='${variant}' and location_id='${location}'`,
+    const buyers = await Promise.all(
+      contexts.map(async (context) => {
+        const page = await context.newPage();
+        await page.goto(run.appOrigin);
+        return {
+          async post(url: string, options?: { data: unknown }) {
+            const response = await page.evaluate(
+              async ({ url, data }) => {
+                const result = await fetch(url, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: data === undefined ? null : JSON.stringify(data),
+                });
+                return { status: result.status, body: await result.text() };
+              },
+              { url, data: options?.data },
+            );
+            return {
+              status: () => response.status,
+              ok: () => response.status >= 200 && response.status < 300,
+              json: async () => JSON.parse(response.body),
+            };
+          },
+        };
+      }),
     );
-    const body = (requestKey: string) => ({
-      items: [{ variantId: variant, quantity: 1 }],
-      requestKey,
-    });
-    const responses = await Promise.all([
-      first.post("/api/cart/reserve", { data: body(randomUUID()) }),
-      second.post("/api/cart/reserve", { data: body(randomUUID()) }),
-    ]);
+    const responses = await Promise.all(
+      buyers.map((buyer, index) =>
+        buyer.post("/api/cart/reserve", { data: body(index) }),
+      ),
+    );
     expect(responses.map((response) => response.status()).sort()).toEqual([
       200, 409,
     ]);
-    const winner = responses[0]!.ok() ? first : second;
-    await winner.post("/api/cart/cancel");
+    expect(inventory()).toEqual({ on_hand: 1, reserved: 1 });
+    const winnerIndex = responses.findIndex((response) => response.ok());
+    const winner = buyers[winnerIndex]!;
+    const loser = buyers[1 - winnerIndex]!;
+    const original = await responses[winnerIndex]!.json();
+    const retry = await winner.post("/api/cart/reserve", {
+      data: body(winnerIndex),
+    });
+    expect(retry.status()).toBe(200);
+    expect(await retry.json()).toEqual(original);
+    expect(inventory().reserved).toBe(1);
+    const tamper = await winner.post("/api/cart/reserve", {
+      data: {
+        ...body(winnerIndex),
+        items: [{ variantId: variant, quantity: 2 }],
+      },
+    });
+    expect(tamper.status()).toBe(409);
+    expect((await winner.post("/api/cart/cancel")).status()).toBe(204);
+    expect(inventory().reserved).toBe(0);
+    expect(
+      (
+        await loser.post("/api/cart/reserve", { data: body(1 - winnerIndex) })
+      ).status(),
+    ).toBe(200);
+    expect(inventory().reserved).toBe(1);
+    expect((await loser.post("/api/cart/cancel")).status()).toBe(204);
+    expect(inventory()).toEqual({ on_hand: 1, reserved: 0 });
   } finally {
-    await first.dispose();
-    await second.dispose();
-    sql(
-      `delete from private.stock_reservations where checkout_session_id in (select id from private.checkout_sessions where user_id is null)`,
-    );
-    sql(
-      `delete from private.reservation_requests where checkout_session_id in (select id from private.checkout_sessions where user_id is null)`,
-    );
-    sql(
-      "delete from private.checkout_sessions where user_id is null and not exists(select 1 from private.orders where checkout_session_id=checkout_sessions.id)",
-    );
-    sql(
-      `update private.inventory_levels set on_hand=${original},reserved=0 where variant_id='${variant}' and location_id='${location}'`,
-    );
+    await Promise.all(contexts.map((buyer) => buyer.close()));
   }
 });

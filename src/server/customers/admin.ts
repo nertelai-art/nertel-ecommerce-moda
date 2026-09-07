@@ -4,11 +4,9 @@ import {
   staffCustomerSchema,
   type StaffCustomer,
 } from "@/features/customers/admin";
-import { authClient } from "@/server/auth/client";
+import { staffSnapshot } from "@/server/repositories/staff-snapshot";
 
 export async function staffCustomers(): Promise<StaffCustomer[]> {
-  const client = await authClient();
-  const { data, error } = await client.rpc("staff_customers");
-  if (error) throw new Error("Unable to load customers");
+  const data = await staffSnapshot("customers");
   return z.array(staffCustomerSchema).parse(data);
 }

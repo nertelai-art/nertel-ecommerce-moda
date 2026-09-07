@@ -8,6 +8,35 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        source: "/sw.js",
+        headers: [
+          {
+            key: "Content-Type",
+            value: "application/javascript; charset=utf-8",
+          },
+          {
+            key: "Cache-Control",
+            value: "no-cache, no-store, must-revalidate",
+          },
+          { key: "Service-Worker-Allowed", value: "/" },
+          {
+            key: "Content-Security-Policy",
+            value: "default-src 'none'; script-src 'self'; connect-src 'self'",
+          },
+        ],
+      },
+      {
+        source: "/offline.html",
+        headers: [
+          { key: "Cache-Control", value: "no-cache" },
+          {
+            key: "Content-Security-Policy",
+            value:
+              "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+          },
+        ],
+      },
+      {
         source: "/:path*",
         headers: [
           // Només en producció: enviar HSTS des d'un servidor local fixaria
